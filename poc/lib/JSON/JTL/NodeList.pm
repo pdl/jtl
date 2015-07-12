@@ -2,6 +2,12 @@ package JSON::JTL::NodeList;
 use Moo;
 use JSON::JTL::Syntax::Internal;
 
+=head1 NAME
+
+JSON::JTL::NodeList - Represent a collection of nodes
+
+=cut
+
 has contents => (
   is => 'rw'
   default => sub { [] }

@@ -2,7 +2,7 @@ package JSON::JTL::Syntax::Internal;
 use JSON::JTL::Node;
 use JSON::JTL::Document;
 use Exporter qw(import);
-our @EXPORT = qw(document);
+our @EXPORT = qw(document nodelist);
 
 sub document {
   my $data = shift;
