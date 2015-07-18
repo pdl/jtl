@@ -65,9 +65,22 @@ An instruction is represented as a JSON hash with a key JTL whose value is the n
 
 Instructions have attributes.
 
+An instruction, when executed, MUST produce one of the following results:
+
+- A nodelist, which may have zero or more nodes. This may be used in another calculation.
+- A void sesult, indicating that no result was expected. This is distinct from an empty nodelist.
+
+### Evaluation
+
+An evaluation returns a list of results. It is represented as a JSON array, and consists of a series of instructions, which are executed in order.
+
+An instruction may trigger multiple evaluatins, foe example: a `select` to determine the nodes to perform the instruction on, followed by a `produce` on each of the nodes.
+
+In some cases, it is significant if there are empty nodelists, for example in the case of `eq`.
+
 ### Production
 
-A production is an instruction which will return a single value, or a list of values. A production is represented as a JSON array, and consists of a series of instructions, which are executed in order.
+A production is an evaluation which will return a nodelist containing a single value, or a list of values.
 
 The results of a production may not always be acceptable to the context in which they are placed:
 
@@ -86,7 +99,7 @@ If, instead of a production, you wish to create a literal value. Literal values 
 
 ## Productive Instructions
 
-The following instructions return a value
+The following instructions create a nodelist of one item
 
 ### object
 ### pair
@@ -97,20 +110,31 @@ The following instructions return a value
 ### true
 ### false
 ### undefined
-### copy-of
 
 ## Instructions for flow control and calculation
 ### template
+ - match
+ - produce
 ### apply-templates
+ - select
+ - name
 ### apply-template / call-template
-### variable
+ - select
+ - name
 ### for-each
+ - select
+ - produce
 ### if
+ - test
 ### choose
 ### when
+ - test
 ### otherwise
+### copy-of
 
-## Other instructions
+## Void instructions
+### variable
+ - select/produce
 ### message
 
 ## XSLT Elements not represented as instructions
@@ -120,18 +144,20 @@ The following instructions return a value
 
 ### JPath functions
 
-select()
-context()
-current()
-source()
-union()
-unique()
-empty(), nonempty()
-zero(), nonzero()
-or(), and(), not()
-equal()
-greater-than(), less-than()
-type()
+### context
+### current
+### source
+### union
+ - select
+### unique
+ - select
+### empty(), nonempty
+### zero(), nonzero
+### or, and, not
+ - test
+### equal
+### greater-than(), less-than
+### type
 
 ## XSLT vs JSON
 
@@ -154,3 +180,9 @@ number() | string()
 ### Security
 
 At no point is an implementation required to retrieve external resources.
+
+### See Also
+
+- XSLT. Although it is theoretically possible to convert almost any JSON to an XML representation, use XSLT to transform it to an XML representation of the target document, then convert back to JSON, this is likely to be unintuitive to write and requires an XSLT implementation.
+- JSONT This requires a javascript implementation, and so is not truly language-agnostic.
+-
