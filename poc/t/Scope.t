@@ -2,9 +2,10 @@ use strict;
 use warnings;
 use Test::More;
 use JSON::JTL::Scope;
+use JSON::JTL::NodeList;
 
 {
-  my $root = JSON::JTL::Scope->new();
+  my $root = JSON::JTL::Scope->new( current => JSON::JTL::NodeList->new);
 
   is (ref $root, 'JSON::JTL::Scope', 'can create a scope');
   is (ref $root->symbols, 'HASH', 'can get symbols');

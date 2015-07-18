@@ -1,7 +1,10 @@
 package JSON::JTL::Node;
 use Moo;
 use Scalar::Util qw(looks_like_number);
-
+use overload bool => sub {
+  my $val  = $_[0]->value;
+  $val && ref $val;
+};
 =head3 path
 
 =cut

@@ -14,13 +14,25 @@ has templates => (
   default => sub { [ ] },
 );
 
-has parent => (
+has current => ( # the current node
+  is      => 'rw',
+  isweak  => 1,
+  isa     => sub { die qq(Got "$_[0]") unless ((ref $_[0]) =~ /JTL::Node|JTL::Document/) }
+);
+
+has parent => ( # the parent of the scope, not of the node
   is      => 'rw',
   isweak  => 1,
 );
 
 sub subscope {
-  return __PACKAGE__->new( { parent => shift } );
+  my $self = shift;
+  my $args = {
+    parent => $self,
+    current => $self->current,
+    ( $_[0] ? %{$_[0]} : () )
+  };
+  return __PACKAGE__->new( $args );
 }
 
 sub is_valid_symbol {
