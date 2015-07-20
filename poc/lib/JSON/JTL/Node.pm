@@ -1,10 +1,12 @@
 package JSON::JTL::Node;
 use Moo;
-use Scalar::Util qw(looks_like_number);
 use overload bool => sub {
   my $val  = $_[0]->value;
   $val && ref $val;
 };
+
+use JSON::JTL::Syntax::Internal qw(valueType);
+
 =head3 path
 
 =cut
@@ -27,16 +29,7 @@ has document => (
 sub type {
   my $self = shift;
   my $val  = $self->value;
-  return 'null' unless ( defined $val );
-  unless ( ref $val ) {
-    return 'integer' if $val =~ /^-?\d+\z/;
-    return 'number' if looks_like_number($val);
-    return 'string';
-  }
-  return 'array' if ref $val eq 'ARRAY';
-  return 'object' if ref $val eq 'HASH';
-  return 'boolean' if ref $val eq 'JSON::Boolean';
-  return 'blessed';
+  JSON::JTL::Syntax::Internal::valueType($val);
 }
 
 sub value {

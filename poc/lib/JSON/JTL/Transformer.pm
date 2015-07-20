@@ -168,35 +168,7 @@ my $instructions = {
     my ( $self, $scope, $instruction ) = @_;
     my $comparanda = $self->evaluate_by_attribute($scope, $instruction, 'select') // die;
     return falsehood unless 2 == @$comparanda;
-    return truth if (
-      (
-        $comparanda->[0]->type eq $comparanda->[1]->type
-        and (
-          (
-            $comparanda->[0]->type eq 'boolean'
-            and
-            $comparanda->[0]->value
-            ==
-            $comparanda->[1]->value
-          ) or (
-            $comparanda->[0]->type eq 'string'
-            and
-            $comparanda->[0]->value
-            eq
-            $comparanda->[1]->value
-          )
-        )
-      ) or (
-        $comparanda->[0]->type =~ /^(?:numeric|integer)$/
-        and
-        $comparanda->[1]->type =~ /^(?:numeric|integer)$/
-        and
-        $comparanda->[0]->value
-        ==
-        $comparanda->[1]->value
-      )
-    );
-    return falsehood; # todo: hashes and arrays
+    return valuesEqual(map {$_->value} @$comparanda);
   },
   'same-node' => sub {
     my ( $self, $scope, $instruction ) = @_;

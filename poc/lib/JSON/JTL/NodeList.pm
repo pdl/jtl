@@ -2,6 +2,7 @@ package JSON::JTL::NodeList;
 use Moo;
 use JSON::JTL::Syntax::Internal qw(document);
 use Scalar::Util qw(blessed);
+
 use overload 'bool' => sub {
   my $self = shift;
   return 1 == @{$self->contents} && !! $self->contents->[0]

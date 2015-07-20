@@ -53,6 +53,66 @@ my $test_suite = [
     instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => [] } ] },
     output      => [ JSON::false ],
   },
+  {
+    why         => '[] eq [] is true',
+    input       => [],
+    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => [] } ] },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => '["foo"] eq [] is false',
+    input       => ['foo'],
+    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => [] } ] },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => '["foo"] eq ["foo"] is true',
+    input       => ['foo'],
+    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => ['foo'] } ] },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => '["foo"] eq ["bar"] is false',
+    input       => ['foo'],
+    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => ['bar'] } ] },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => '["foo", "bar"] eq ["bar", "foo"] is false',
+    input       => ['foo', 'bar'],
+    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => ['bar', 'foo'] } ] },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => '[] eq {} is false',
+    input       => [],
+    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => {} } ] },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => '{} eq {} is true',
+    input       => {},
+    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => {} } ] },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => '{foo:123} eq {foo:123} is true',
+    input       => {foo=>123},
+    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => {foo=>123} } ] },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => '{foo:123} eq {foo:456} is false',
+    input       => {foo=>123},
+    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => {foo=>456} } ] },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => '{foo:123} eq {bar:123} is false',
+    input       => {foo=>123},
+    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => {bar=>123} } ] },
+    output      => [ JSON::false ],
+  },
 ];
 
 foreach my $case (@$test_suite) {
@@ -76,7 +136,7 @@ foreach my $case (@$test_suite) {
 
   for my $i ( 0..$#{ $case->{output} } ) {
     # todo: this is a bit awkward
-    cmp_deeply ( $result->contents->[$i]->contents, $case->{output}->[$i], "$why ($i)" ) or diag Dump $result->contents->[0];
+    cmp_deeply ( $result->contents->[$i]->contents, $case->{output}->[$i], "$why ($i)" ) or diag YAML::Dump $result;
   }
 }
 
