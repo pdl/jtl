@@ -7,24 +7,84 @@ use Exporter qw(import);
 our @EXPORT = qw(void document nodelist truth falsehood valuesEqual valueType);
 use Scalar::Util qw(blessed looks_like_number);
 
+=head1 NAME
+
+JSON::JTL::Syntax::Internal - syntactic sugar to be used within JSON::JTL modules.
+
+=cut
+
+=head1 functions
+
+=head3 document
+
+  document {}
+  document 'foo'
+  document [ 123 ]
+
+Returns a L<JSON::JTL::Document>. Takes one argument, and this argument becomes the contents of the document object.
+
+=cut
+
 sub document {
   my $data = shift;
   JSON::JTL::Document->new( { contents => $data } )
 }
 
+=head3 document
+
+  nodelist []
+
+Returns a L<JSON::JTL::NodeList>. Takes one argument, which must be an arrayref, and this argument becomes the contents of the node list.
+
+=cut
+
 sub nodelist {
   JSON::JTL::NodeList->new( { contents => $_[0] } )
 }
 
+=head3 void
+
+  void
+
+Returns the empty list. This should be used as the return value for C<variable> and other instructions which do not return a nodelist.
+
+=cut
+
 sub void { () };
+
+
+=head3 truth
+
+  truth
+
+Returns a document containing a single JSON Boolean true node.
+
+=cut
 
 sub truth {
   document JSON::true;
 }
 
+=head3 falsehood
+
+  falsehood
+
+Returns a document containing a single JSON Boolean false node.
+
+=cut
+
 sub falsehood {
   document JSON::false;
 }
+
+
+=head3 valuesEqual
+
+  valuesEqual($left, $right)
+
+Given two values, tests if they are of the same type and equal. 'numeric' and 'integer' are considered to have the same type ofr this purpose.
+
+=cut
 
 sub valuesEqual {
   my ( $left, $right ) = @_;
@@ -78,6 +138,15 @@ sub valuesEqual {
   }
   return falsehood; # todo: hashes and arrays
 }
+
+=head3 valueType
+
+  valueType($)
+
+Returns any of 'object', 'array', 'string', 'numeric', 'integer', or 'boolean', depending on the value passed in as the first argument.
+
+=cut
+
 
 sub valueType {
   my $val = shift;

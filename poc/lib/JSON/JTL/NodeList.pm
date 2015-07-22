@@ -14,6 +14,20 @@ JSON::JTL::NodeList - Represent a collection of nodes
 
 =cut
 
+=head1 ATTRIBUTES
+
+=head3 contents
+
+An arrayref containing the nodes in the list.
+
+If any members of the arrayref are nodelists, they will be replaced by their contents.
+
+If any members of the arrayrefs are not nodes, then an error will be thrown immediately.
+
+Warning: Adding items to the arrayref will not trigger the coercion.
+
+=cut
+
 has contents => (
   is => 'rw',
   default => sub { [] },
