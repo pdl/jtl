@@ -4,7 +4,7 @@ use warnings;
 use Moo;
 use JSON::JTL::Syntax::Internal;
 use JSON::JTL::Scope;
-use Scalar::Util qw(blessed);
+use Scalar::Util qw(blessed refaddr);
 use Sub::Name qw(subname);
 
 sub transform {
@@ -159,6 +159,15 @@ my $instructions = {
     my ( $self, $scope, $instruction ) = @_;
     return document ( $scope->current->type );
   },
+  'if' => sub {
+    my ( $self, $scope, $instruction ) = @_;
+    my $test = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'test') // die;
+    die unless 1 == @{ $test->contents };
+    if ( $test->contents->[0] ) {
+      return nodelist $self->evaluate_by_attribute($scope, $instruction, 'produce');
+    }
+    return nodelist;
+  },
   'or' => sub {
     my ( $self, $scope, $instruction ) = @_;
     my $comparanda = $self->evaluate_by_attribute($scope, $instruction, 'select') // die;
@@ -166,18 +175,23 @@ my $instructions = {
   },
   'eq' => sub {
     my ( $self, $scope, $instruction ) = @_;
-    my $comparanda = $self->evaluate_by_attribute($scope, $instruction, 'select') // die;
-    return falsehood unless 2 == @$comparanda;
-    return valuesEqual(map {$_->value} @$comparanda);
+    my $selected = $self->evaluate_by_attribute($scope, $instruction, 'select') // [ $scope->current ];
+    my $compare  = $self->evaluate_by_attribute($scope, $instruction, 'compare') // die;
+    return falsehood unless 1 == @$selected;
+    return falsehood unless 1 == @$compare;
+    return valuesEqual(map {$_->value} @$selected, @$compare);
   },
   'same-node' => sub {
     my ( $self, $scope, $instruction ) = @_;
-    my $comparanda = $self->evaluate_by_attribute($scope, $instruction, 'select');
-    return falsehood unless 2 == @{ $comparanda };
+    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // [ $scope->current ];
+    my $compare  = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'compare') // die;
+    return falsehood unless 1 == @{ $selected->contents };
+    return falsehood unless 1 == @{ $compare->contents };
+    my $comparanda = [ $selected->contents->[0], $compare->contents->[0] ];
     return truth if
-      $comparanda->[0]->document
+      refaddr ( $comparanda->[0]->document )
       ==
-      $comparanda->[1]->document
+      refaddr ( $comparanda->[1]->document )
       and
       @{ $comparanda->[0]->path }
       ==

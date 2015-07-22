@@ -38,79 +38,149 @@ my $test_suite = [
   {
     why         => '"foo" eq "foo" is true',
     input       => 'foo',
-    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => 'foo' } ] },
+    instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => 'foo' } ] },
     output      => [ JSON::true ],
   },
   {
     why         => '"foo" eq "bar" is false',
     input       => 'foo',
-    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => 'bar' } ] },
+    instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => 'bar' } ] },
     output      => [ JSON::false ],
   },
   {
     why         => '"foo" eq [] is false',
     input       => 'foo',
-    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => [] } ] },
+    instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => [] } ] },
     output      => [ JSON::false ],
   },
   {
     why         => '[] eq [] is true',
     input       => [],
-    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => [] } ] },
+    instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => [] } ] },
     output      => [ JSON::true ],
   },
   {
     why         => '["foo"] eq [] is false',
     input       => ['foo'],
-    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => [] } ] },
+    instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => [] } ] },
     output      => [ JSON::false ],
   },
   {
     why         => '["foo"] eq ["foo"] is true',
     input       => ['foo'],
-    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => ['foo'] } ] },
+    instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => ['foo'] } ] },
     output      => [ JSON::true ],
   },
   {
     why         => '["foo"] eq ["bar"] is false',
     input       => ['foo'],
-    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => ['bar'] } ] },
+    instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => ['bar'] } ] },
     output      => [ JSON::false ],
   },
   {
     why         => '["foo", "bar"] eq ["bar", "foo"] is false',
     input       => ['foo', 'bar'],
-    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => ['bar', 'foo'] } ] },
+    instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => ['bar', 'foo'] } ] },
     output      => [ JSON::false ],
   },
   {
     why         => '[] eq {} is false',
     input       => [],
-    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => {} } ] },
+    instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => {} } ] },
     output      => [ JSON::false ],
   },
   {
     why         => '{} eq {} is true',
     input       => {},
-    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => {} } ] },
+    instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => {} } ] },
     output      => [ JSON::true ],
   },
   {
     why         => '{foo:123} eq {foo:123} is true',
     input       => {foo=>123},
-    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => {foo=>123} } ] },
+    instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => {foo=>123} } ] },
     output      => [ JSON::true ],
   },
   {
     why         => '{foo:123} eq {foo:456} is false',
     input       => {foo=>123},
-    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => {foo=>456} } ] },
+    instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => {foo=>456} } ] },
     output      => [ JSON::false ],
   },
   {
     why         => '{foo:123} eq {bar:123} is false',
     input       => {foo=>123},
-    instruction => { JTL => 'eq', select => [ { JTL => 'current' }, { JTL => 'literal', value => {bar=>123} } ] },
+    instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => {bar=>123} } ] },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => 'same-node: current vs current',
+    input       => { foo => 123, bar => 123 },
+    instruction => {
+      JTL => 'same-node',
+      select => [
+        { JTL => 'current' },
+      ],
+      compare => [
+        { JTL => 'current' },
+      ],
+    },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => 'same-node: literal vs another literal (false)',
+    input       => { foo => 123, bar => 123 },
+    instruction => {
+      JTL => 'same-node',
+      select => [
+        { JTL => 'literal', value => 123 },
+      ],
+      compare => [
+        { JTL => 'literal', value => 123 },
+      ],
+    },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => 'In {foo:123, bar:123}, same-node works on foo and foo',
+    input       => { foo => 123, bar => 123 },
+    instruction => {
+      JTL => 'same-node',
+      select => [
+        { JTL => 'for-each', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'foo' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
+      ],
+      compare => [
+        { JTL => 'for-each', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'foo' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
+      ],
+    },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => 'In {foo:123, bar:123}, same-node on foo and bar is false (even though they are equal)',
+    input       => { foo => 123, bar => 123 },
+    instruction => {
+      JTL => 'same-node',
+      select => [
+        { JTL => 'for-each', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'foo' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
+      ],
+      compare => [
+        { JTL => 'for-each', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'bar' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
+      ],
+    },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => 'In {foo:123, bar:123}, same-node on foo and current is false',
+    input       => { foo => 123, bar => 123 },
+    instruction => {
+      JTL => 'same-node',
+      select => [
+        { JTL => 'for-each', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'foo' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
+      ],
+      compare => [
+        { JTL => 'current' }
+      ],
+    },
     output      => [ JSON::false ],
   },
 ];
@@ -164,6 +234,7 @@ templates:
       - JTL: eq
         select:
           - JTL: type
+        compare:
           - JTL: literal
             value: array
     produce:
@@ -177,6 +248,7 @@ templates:
       - JTL: eq
         select:
           - JTL: type
+        compare:
           - JTL: literal
             value: object
     produce:
@@ -195,21 +267,25 @@ templates:
           - JTL: eq
             select:
               - JTL: type
+            compare:
               - JTL: literal
                 value: string
           - JTL: eq
             select:
               - JTL: type
+            compare:
               - JTL: literal
                 value: number
           - JTL: eq
             select:
               - JTL: type
+            compare:
               - JTL: literal
                 value: integer
           - JTL: eq
             select:
               - JTL: type
+            compare:
               - JTL: literal
                 value: boolean
     produce:
