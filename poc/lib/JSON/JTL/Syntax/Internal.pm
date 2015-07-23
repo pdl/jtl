@@ -141,7 +141,7 @@ sub valuesEqual {
 
 =head3 valueType
 
-  valueType($)
+  valueType($value)
 
 Returns any of 'object', 'array', 'string', 'numeric', 'integer', or 'boolean', depending on the value passed in as the first argument.
 
@@ -151,14 +151,15 @@ Returns any of 'object', 'array', 'string', 'numeric', 'integer', or 'boolean', 
 sub valueType {
   my $val = shift;
   return 'null' unless ( defined $val );
-  unless ( ref $val ) {
+  my $ref = ref $val;
+  unless ( $ref ) {
     return 'integer' if $val =~ /^-?\d+\z/;
     return 'number' if looks_like_number($val);
     return 'string';
   }
-  return 'array' if ref $val eq 'ARRAY';
-  return 'object' if ref $val eq 'HASH';
-  return 'boolean' if ref $val eq 'JSON::Boolean';
+  return 'array' if $ref eq 'ARRAY';
+  return 'object' if $ref eq 'HASH';
+  return 'boolean' if $ref eq 'JSON::Boolean';
   return 'blessed';
 }
 
