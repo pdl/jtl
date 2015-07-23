@@ -71,7 +71,7 @@ Instructions have attributes.
 
 An instruction, when executed, MUST produce one of the following results:
 
-- A nodelist, which may have zero or more nodes. This may be used in another calculation.
+- A nodelist, which may contain zero or more nodes. This may be used in another calculation.
 - A void sesult, indicating that no result was expected. This is distinct from an empty nodelist.
 
 ### Evaluation
@@ -86,124 +86,277 @@ In some cases, it is significant if there are empty nodelists, for example in th
 
 A production is an evaluation which will return a nodelist containing a single value, or a list of values.
 
-The results of a production may not always be acceptable to the context in which they are placed:
+The results of a production may not always be acceptable to the context in which they are placed, for example:
 
 - In an array any results are permitted, including an empty list
 - In a hash only a list of pairs is acceptable. The list may be empty.
 - In a pair, a list of two items is required. The first, the key, must be a scalar, and the second item, the value, may be undefined.
 - The templates attribute takes a production in which no values may be returned.
 
-## Truth
+instructions may specify further restrictions on allowable values in productions.
 
-???
+## Truthiness
 
-JTL makes a distinction between the JSON true value and truthiness.
+*Don't think this needs to be core*
 
-A NodeList is always truthy if it has members, even if none of those members are truthy. If it has no members, it is falsy.
+> JTL makes a distinction between the JSON true value and truthiness.
+>
+> A NodeList is always truthy if it has members, even if none of those members are > truthy. If it has no members, it is falsy.
+>
+> A Node is truthy if its value is truthy.
+>
+> A Hash is truthy if it has properties, even if none of the values are truthy.
+>
+> An Array is truthy if it has members, even if none of them are truthy.
+>
+> A Number is truthy if it is not zero.
+>
+> A string is truthy if it is not empty.
+>
+> Undefined is never truthy.
 
-A Node is truthy if its value is truthy.
+## Literal values
 
-A Hash is truthy if it has properties, even if none of the values are truthy.
+*To be moved out into a syntax module?*
 
-An Array is truthy if it has members, even if none of them are truthy.
-
-A Number is truthy if it is not zero.
-
-A string is truthy if it is not empty.
-
-Undefined is never truthy.
-
-### Literal values
-
-If, instead of a production, you wish to create a literal value. Literal values are possible within strings, e.g. "\"foo\"", "[]", "{}".
+> If, instead of a production, you wish to create a literal value. Literal values are possible within strings, e.g. "\"foo\"", "[]", "{}".
 
 ## Productive Instructions
 
 The following instructions create a nodelist of one item
 
 ### object
+
+ - select
+
+Returns an object node populated with the contents of `select`, which must evaluate to an even-sized list of property names and corresponding values.
+
 ### pair
+
 ### array
+
+ - select
+
+Returns an array node populated with the contents of `select`.
+
 ### scalar
+
+ - select
+
 ### string
+
  - value
+
+Returns a node whose value is a string given in the `value` attribute.
+
 ### number
+
  - value
+
+Returns a node whose value is a number given in the `value` attribute.
+
 ### boolean
+
  - value
+
+Returns either true or false depending on the `value`.
+
 ### true
+
+Returns a node whose value is boolean true.
+
 ### false
-### undefined
+
+Returns a node whose value is boolean false.
+
+### null
+
+Returns a node whose value is `null`.
 
 ## Instructions for flow control and calculation
 
-### template
- - match
- - produce
 ### apply-templates
+
  - select
  - name
+
+Iterates through each node in the nodelist produced by `select`; on each iteration that node becomes the current node.
+
+Searches through the templates in reverse order of declaration and from the current scope back up through its parents to the topmost scope. The first matching template is applied.
+
+Note that unlike in XSLT, there is no priority ordering.
+
 ### apply-template / call-template
+
  - select
  - name
+
+Iterates through each node in the nodelist produced by `select`; on each iteration that node becomes the current node.
+
+Searches through the templates in reverse order of declaration and from the current scope back up through its parents to the topmost scope, searching for templates whose name is equal to the value of the name attribute. The first matching template is applied.
+
+### call-variable
+
+ - name
+
+Returns the contents of the variable with the name given in `name`, which must produce a single string.
+
+### call-param
+
+ - name
+
+Returns the contents a parameter with the name given in `name`, which must produce a single string.
+
+### call-function
+
+ - name
+ - params
+
+Evaluates the function with the name given in `name` (which must produce a single string). Within the function, only templates, functions and variables accessible when the function is created will be available, except that the current node will be available.
+
 ### for-each
+
  - select
  - produce
+
+Iterates through each node in the nodelist produced by `select`; on each iteration that node becomes the current node, and `produce` is evaluated and returned.
+
 ### if
+
  - test
+ - produce
+
+The `test` attribute is evaluated. It must return boolean true or false. If true, produce is evaluated. If false, an empty nodelist is returned.
+
 ### choose
+
 ### when
+
  - test
  - produce
+
 ### otherwise
+
  - produce
+
 ### copy-of
+
 ### type
+
  - select
+
+Evaluates `select`, which should return a single node. If absent, the current node is assumed.
+
+Returns a string node whose value is the JSON type of the selected node.
+
+### count
+
+ - select
+
+Evaluates `select` and returns the number of nodes in the list.
+
 ### context
+
 ### current
+
 ### source
+
 (I have forgotten what I intended this to mean. PErhaps it will return.)
+
 ### union
+
  - select
  - test ??? (union of values vs union of nodes)
+
+Evaluates `select`, and filters them so that no node is returned more than once. Nodes are returned in the order in which they were first seen.
+
 ### intersection
+
  - select
  - compare
  - test ??? (union of values vs union of nodes)
+
+Evaluates `select` and `compare`, and filters them so that only nodes which appear in both nodelists are returned.
+
 #### filter
+
  - select
  - test
+
 (isn't this just foreach?)
 
 ### unique
+
  - select
+
 ### sort
+
  - select
+
 (note that this is different from sort in XSLT)
 
 ## Instructions which always return booleans
 
 ### empty, nonempty
+
   - select
+
 ### empty-list, nonempty-list
+
   - select
+
+
 ### zero, nonzero
+
   - select
+
 ### not
+
  - test
+
 ### or, and
+
  - select
  - compare
+
 ### equal
+
  - select
+
 ### greater-than, less-than
+
  - select
 
 ## Void instructions
+
 ### variable
+
  - select/produce
+
+Defines a variable in the current scope.
+
+### function
+
+ - name
+ - params
+ - produce
+
+Defines a variable in the current scope.
+
+When the function is executed, `params` is called with the current node of the caller scope (but the scope should have the scope in which it was declared as its parent).
+
+A hash is then built with the parameters
+
+### template
+
+ - match
+ - produce
+ - name
+
+Adds this template to the current scope's templates. Returns void.
+
 ### message
+
 ### param, with-param
 
 ## XML vs JSON
@@ -221,9 +374,10 @@ The following instructions create a nodelist of one item
 
 
 ### Prioritisation
-node() | value()
-scalar() | hash() | array()
-number() | string()
+
+- node() | value()
+- scalar() | hash() | array()
+- number() | string()
 
 
 ### Security
