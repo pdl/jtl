@@ -1,4 +1,6 @@
 package JSON::JTL::Syntax::Internal;
+use strict;
+use warnings;
 use JSON::JTL::Node;
 use JSON::JTL::Document;
 use JSON::JTL::NodeList;
@@ -30,7 +32,7 @@ sub document {
   JSON::JTL::Document->new( { contents => $data } )
 }
 
-=head3 document
+=head3 nodelist
 
   nodelist []
 
@@ -162,20 +164,5 @@ sub valueType {
   return 'boolean' if $ref eq 'JSON::Boolean';
   return 'blessed';
 }
-
-sub make_instruction {
-  my ( $self, $type, $data ) = @_;
-  if (ref $type) {
-    $data = $type;
-    $type = $data->{JTL};
-  }
-  return $data if blessed $data;
-  my $package_type = join '', map ucfirst split /-/, $type;
-  my $package = 'JSON::JTL::'.$package_type;
-  Module::Load::load($package);
-  my $thing = $package->new($data);
-  return $thing;
-}
-
 
 1;
