@@ -379,12 +379,29 @@ Adds this template to the current scope's templates. Returns void.
 - scalar() | hash() | array()
 - number() | string()
 
+## Errors
 
-### Security
+The following error types are defined:
+
+- **InputNotWellFormed** - thrown when input document is not a JSON document
+- **TransformationNotWellFormed** - thrown when the transformation is not a JSON document
+- **TransformationInvalid** - thrown when the transformation is not a valid JTL transformation
+  - **TransformationUnexpectedType** - thrown when a value was found which does not have a JSON type which is allowable at this point
+  - **TransformationUnknownInstruction** - thrown when an instruction is not understood
+  - **TransformationMissingRequiredAtrribute** - thrown when an attribute is required but is not present
+- **ResultNodesUnexpected** - thrown when results were produced which were not consistent with the instruction or context
+  - **ResultNodesUnexpectedNumber** - thrown when the more or fewer result nodes were produced than expected
+    - **ResultNodesNotEvenNumber** - thrown when an even number of result nodes is expected, but an odd number of items was produced
+    - **ResultNodesMultipleNodes** - thrown when a single result node was expected, but multiple nodes were produced
+  - **ResultNodeUnexpectedType** - thrown when a node of an impermissible type was produced
+    - **ResultNodeNotBoolean** - thrown when a boolean node was expected, but some other type of node was found
+    - **ResultNodeNotString** - thrown when a string was expected, but some other type of node was found
+
+## Security
 
 At no point is an implementation required by this specification to retrieve external resources.
 
-### See Also
+## See Also
 
 - XSLT: Although it is theoretically possible to convert almost any JSON to an XML representation, use XSLT to transform it to an XML representation of the target document, then convert back to JSON, this is likely to be unintuitive to write and requires an XSLT implementation.
 - JSONT: This requires a javascript implementation, and so is not truly language-agnostic. Specification is minimal. (cf JSON::T)
