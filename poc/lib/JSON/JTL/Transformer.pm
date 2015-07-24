@@ -7,6 +7,25 @@ use JSON::JTL::Scope;
 use Scalar::Util qw(blessed refaddr);
 use Sub::Name qw(subname);
 
+=head1 NAME
+
+JSON::JTL::Transformer - perform transformations
+
+=cut
+
+=head1 METHODS
+
+=head3 transform
+
+  my @results = $self->transform($input, $transformation);
+
+Takes an input document (which should be a parsed JSON value and not a JSON string) and a transformation, which should be a parsed object with a key JTL whose value is 'transformation'.
+
+Returns a ???
+
+=cut
+
+
 sub transform {
   my ($self, $input, $transformation) = @_;
   #my $coreScope = JSON::JTL::Scope::Core->new();
@@ -22,6 +41,20 @@ sub transform {
   return $self->apply_templates($rootScope);
 }
 
+=head3 apply_templates
+
+  $self->apply_templates( $scope );
+
+The current scope will be used to find templates in scope and
+
+  $self->apply_template( $scope, $template );
+
+will be called with each.
+
+If an undefined value is returned, the next template will be tried; if a defined value is returned, that value will be returned and no more templates will be considered.
+
+=cut
+
 sub apply_templates {
   my ( $self, $scope ) = @_;
   my $applicator = sub {
@@ -30,22 +63,53 @@ sub apply_templates {
   return $scope->apply_templates($applicator);
 }
 
+=head3 apply_template
+
+  $self->apply_template( $scope, $template );
+
+Attempts to appy a single template to the scope, first using C<match_template>, returning undef if that fails; if it succeeds, returns C<process_template>.
+
+=cut
+
 sub apply_template {
   my ( $self, $scope, $template ) = @_;
   return $self->process_template ( $scope, $template ) if ( $self->match_template ( $scope, $template ) );
   return undef;
 }
 
+=head3 match_template
+
+  $self->match_template( $scope, $template  );
+
+Finds the production result of the match. If it is a single boolean true, returns true. Returns false if it is a single boolean false. Throws an error otherwise.
+
+=cut
+
 sub match_template {
   my ( $self, $scope, $template ) = @_;
   my $result = $self->production_result( $scope, $template->{match} );
+  # todo: be sricter
   !!$result->[0];
 }
+
+=head3 process_template
+
+  $self->process_template( $scope, $template );
+
+=cut
 
 sub process_template {
   my ( $self, $scope, $template, $data ) = @_;
   nodelist $self->production_result( $scope, $template->{produce} )
 }
+
+=head3 production_result
+
+  $self->production_result( $scope, $production );
+
+Given a production (which must be an arrayref), attempts to evaluate it. Returns the results as an arayref.
+
+=cut
 
 sub production_result {
   my ( $self, $parentScope, $production ) = @_;
@@ -210,6 +274,15 @@ for my $name (keys %$instructions) {
   subname "i-$name", $instructions->{$name};
 }
 
+=head3 evaluate_instruction
+
+  $self->evaluate_instruction( $scope, $instruction );
+
+Given an instruction (a hashref with key JTL), evaluates the result. Throws an error if the value of JTL does not correspond to a known instruction.
+
+=cut
+
+
 sub evaluate_instruction {
   my ( $self, $scope, $instruction ) = @_;
   my $instructionName = $instruction->{JTL};
@@ -219,11 +292,27 @@ sub evaluate_instruction {
   die("Cannot understand '$instructionName'");
 }
 
+=head3 evaluate_nodelist_by_attribute
+
+  $self->evaluate_nodelist_by_attribute( $scope, $instruction, $attribute );
+
+Given an instruction (a hashref with key JTL) and an attribute name, returns a nodelist with the results of the production of the cotents of that attribute.
+
+=cut
+
 sub evaluate_nodelist_by_attribute {
   my $self = shift;
   my $result = $self->evaluate_by_attribute(@_);
   return ( (defined $result) ? nodelist $result : $result );
 }
+
+=head3 evaluate_by_attribute
+
+  $self->evaluate_by_attribute( $scope, $instruction, $attribute );
+
+Given an instruction (a hashref with key JTL) and an attribute name, returns an arrayref with the results of the production of the cotents of that attribute.
+
+=cut
 
 sub evaluate_by_attribute {
   my ( $self, $scope, $instruction, $attribute ) = @_;
