@@ -1,12 +1,10 @@
 package JSON::JTL::Syntax::Internal;
 use strict;
 use warnings;
-use JSON::JTL::Node;
-use JSON::JTL::Document;
-use JSON::JTL::NodeList;
 use JSON;
+use Module::Load;
 use Exporter qw(import);
-our @EXPORT = qw(void document nodelist truth falsehood valuesEqual valueType);
+our @EXPORT = qw(void document nodelist truth falsehood throw_error valuesEqual valueType);
 use Scalar::Util qw(blessed looks_like_number);
 
 =head1 NAME
@@ -79,6 +77,17 @@ sub falsehood {
   document JSON::false;
 }
 
+=head3 throw_error
+
+  throw_error 'ResultNodesUnexpectedNumber'
+
+Creates a new L<JTL::Error> object of the type given and throws it.
+
+=cut
+
+sub throw_error {
+  JSON::JTL::Error->new( { error_type => $_[0] } )->throw;
+}
 
 =head3 valuesEqual
 
@@ -164,5 +173,11 @@ sub valueType {
   return 'boolean' if $ref eq 'JSON::Boolean';
   return 'blessed';
 }
+
+# These come last otherwise there will be load order problems
+Module::Load::load 'JSON::JTL::Document';
+Module::Load::load 'JSON::JTL::Error';
+Module::Load::load 'JSON::JTL::Node';
+Module::Load::load 'JSON::JTL::NodeList';
 
 1;

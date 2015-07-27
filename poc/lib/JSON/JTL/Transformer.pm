@@ -131,7 +131,7 @@ my $instructions = {
           my $this = shift;
           $self->apply_templates(
             $scope->subscope( { current => $this } ),
-          ) // die ('No template for ' . $this->type . ' ' . $this );
+          ) // throw_error TransformationNoMatchingTemplate => ('No template for ' . $this->type . ' ' . $this );
         } );
     }
     return $self->apply_templates( $scope );
@@ -140,11 +140,11 @@ my $instructions = {
     my ( $self, $scope, $instruction ) = @_;
     if ( $instruction->{name} ) {
       my $name = $self->production_result( $scope, $instruction->{name} )->[-1];
-      if ( $instruction->{select} ) {
-        my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // die;
-        $scope->declare_symbol( $name, $selected );
-      } else { die }
-    } else { die }
+      my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // throw_error 'TransformationMissingRequiredAtrribute';
+      $scope->declare_symbol( $name, $selected );
+    } else {
+      throw_error 'TransformationMissingRequiredAtrribute';
+    }
     return void;
   },
   'call-variable' => sub {
@@ -152,7 +152,9 @@ my $instructions = {
     if ( $instruction->{name} ) {
       my $name = $self->production_result( $scope, $instruction->{name} )->[-1];
       return $@{ scope->get_symbol( $name ) };
-    } else { die }
+    } else {
+      throw_error 'TransformationMissingRequiredAtrribute'
+    }
   },
   'current' => sub {
     my ( $self, $scope, $instruction ) = @_;
@@ -188,13 +190,13 @@ my $instructions = {
   },
   'for-each' => sub {
     my ( $self, $scope, $instruction ) = @_;
-    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // die();
+    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // throw_error 'TransformationMissingRequiredAtrribute';
     return $selected->map( sub {
         $self->evaluate_nodelist_by_attribute(
         $scope->subscope( { current => shift } ),
         $instruction,
         'produce',
-      ) // die;
+      ) // throw_error 'ImplementationError';
     } );
   },
   'literal' => sub {
@@ -202,7 +204,7 @@ my $instructions = {
     if ( exists $instruction->{value} ) {
       return document($instruction->{value})
     } else {
-      die;
+      throw_error 'TransformationMissingRequiredAtrribute';
     }
   },
   'array' => sub {
@@ -225,8 +227,8 @@ my $instructions = {
   },
   'if' => sub {
     my ( $self, $scope, $instruction ) = @_;
-    my $test = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'test') // die;
-    die unless 1 == @{ $test->contents };
+    my $test = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'test') // throw_error 'TransformationMissingRequiredAtrribute';
+    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $test->contents };
     if ( $test->contents->[0] ) {
       return nodelist $self->evaluate_by_attribute($scope, $instruction, 'produce');
     }
@@ -234,23 +236,23 @@ my $instructions = {
   },
   'or' => sub {
     my ( $self, $scope, $instruction ) = @_;
-    my $comparanda = $self->evaluate_by_attribute($scope, $instruction, 'select') // die;
+    my $comparanda = $self->evaluate_by_attribute($scope, $instruction, 'select') // throw_error 'TransformationMissingRequiredAtrribute';
     return ( ( scalar grep {!!$_} @$comparanda ) ? truth : falsehood );
   },
   'eq' => sub {
     my ( $self, $scope, $instruction ) = @_;
     my $selected = $self->evaluate_by_attribute($scope, $instruction, 'select') // [ $scope->current ];
-    my $compare  = $self->evaluate_by_attribute($scope, $instruction, 'compare') // die;
-    return falsehood unless 1 == @$selected;
-    return falsehood unless 1 == @$compare;
+    my $compare  = $self->evaluate_by_attribute($scope, $instruction, 'compare') // throw_error 'TransformationMissingRequiredAtrribute';
+    throw_error 'ResultNodesMultipleNodes' unless 1 == @$selected;
+    throw_error 'ResultNodesMultipleNodes' unless 1 == @$compare;
     return valuesEqual(map {$_->value} @$selected, @$compare);
   },
   'same-node' => sub {
     my ( $self, $scope, $instruction ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // [ $scope->current ];
-    my $compare  = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'compare') // die;
-    return falsehood unless 1 == @{ $selected->contents };
-    return falsehood unless 1 == @{ $compare->contents };
+    my $compare  = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'compare') // throw_error 'TransformationMissingRequiredAtrribute';
+    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $selected->contents };
+    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $compare->contents };
     my $comparanda = [ $selected->contents->[0], $compare->contents->[0] ];
     return truth if
       refaddr ( $comparanda->[0]->document )
@@ -289,7 +291,7 @@ sub evaluate_instruction {
   if ( defined ( $instructions->{$instructionName} ) ) {
     return $instructions->{$instructionName}->(@_);
   }
-  die("Cannot understand '$instructionName'");
+  throw_error 'TransformationUnknownInstruction' => ("Cannot understand '$instructionName'");
 }
 
 =head3 evaluate_nodelist_by_attribute

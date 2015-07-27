@@ -2,7 +2,7 @@ package JSON::JTL::Scope;
 use strict;
 use warnings;
 use Moo;
-use JSON::JTL::Syntax::Internal qw(nodelist);
+use JSON::JTL::Syntax::Internal qw(nodelist throw_error);
 
 =head1 NAME
 
@@ -46,7 +46,7 @@ A weak reference to the node considered to be the 'current' node in the scope.
 has current => ( # the current node
   is      => 'rw',
   isweak  => 1,
-  isa     => sub { die qq(Got "$_[0]") unless ((ref $_[0]) =~ /JTL::Node|JTL::Document/) }
+  isa     => sub { throw_error 'ImplementationError' => qq(Got "$_[0]") unless ((ref $_[0]) =~ /JTL::Node|JTL::Document/) }
 );
 
 =head3 parent
@@ -110,7 +110,7 @@ To find the symbol, the contents of the C<symbols> attribute will be checked fir
 sub get_symbol {
   my $self   = shift;
   my $symbol = shift;
-  die unless $self->is_valid_symbol($symbol);
+  throw_error 'ResultNodesUnexpected' unless $self->is_valid_symbol($symbol);
   return $self->symbols->{$symbol} if ( exists $self->symbols->{$symbol} );
   return $self->parent->get_symbol($symbol) if ( defined $self->parent );
   return undef;
@@ -128,8 +128,8 @@ sub declare_symbol {
   my $self   = shift;
   my $symbol = shift;
   my $value  = nodelist(@_);
-  die unless $self->is_valid_symbol($symbol);
-  die ('Symbol alredy declared') if ( exists $self->symbols->{$symbol} );
+  throw_error 'ResultNodesUnexpected' unless $self->is_valid_symbol($symbol);
+  throw_error 'TransformationVariableDeclarationFailed' => ('Symbol alredy declared') if ( exists $self->symbols->{$symbol} );
   $self->symbols->{$symbol} = $value;
 }
 
@@ -137,10 +137,10 @@ sub update_symbol {
   my $self   = shift;
   my $symbol = shift;
   my $value  = nodelist(@_);
-  die unless $self->is_valid_symbol($symbol);
+  throw_error 'ResultNodesUnexpected' unless $self->is_valid_symbol($symbol);
   return $self->symbols->{$symbol} = $value if ( exists $self->symbols->{$symbol} );
   return $self->parent->get_symbol($symbol) if ( defined $self->parent );
-  die ('Symbol not yet declared');
+  throw_error 'TransformationVariableDeclarationFailed' => ('Symbol not yet declared');
 }
 
 =head3 declare_template

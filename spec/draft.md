@@ -389,6 +389,8 @@ The following error types are defined:
   - **TransformationUnexpectedType** - thrown when a value was found which does not have a JSON type which is allowable at this point
   - **TransformationUnknownInstruction** - thrown when an instruction is not understood
   - **TransformationMissingRequiredAtrribute** - thrown when an attribute is required but is not present
+  - **TransformationNoMatchingTemplate** - thrown when apply-templates is called on a node but no matching templates are found
+  - **TransformationVariableDeclarationFailed** - thrown when a variable is set in the same scope as an existing variable of the same name
 - **ResultNodesUnexpected** - thrown when results were produced which were not consistent with the instruction or context
   - **ResultNodesUnexpectedNumber** - thrown when the more or fewer result nodes were produced than expected
     - **ResultNodesNotEvenNumber** - thrown when an even number of result nodes is expected, but an odd number of items was produced

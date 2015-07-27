@@ -1,6 +1,7 @@
 package JSON::JTL::Document;
 use Moo;
 extends 'JSON::JTL::Node';
+use JSON::JTL::Syntax::Internal qw(throw_error);
 
 has contents => (
   is => 'rw',
@@ -39,7 +40,7 @@ sub find_value {
     } elsif ( $type eq 'HASH' ) {
       @current = $current[0]->{$path->[$i]};
     } else {
-      die(); # todo: throw a real error
+      throw_error('ImplementationError');
     }
   }
   return $current[0];

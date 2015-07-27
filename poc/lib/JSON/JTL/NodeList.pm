@@ -1,6 +1,6 @@
 package JSON::JTL::NodeList;
 use Moo;
-use JSON::JTL::Syntax::Internal qw(document);
+use JSON::JTL::Syntax::Internal qw(document throw_error);
 use Scalar::Util qw(blessed);
 
 use overload 'bool' => sub {
@@ -32,10 +32,10 @@ has contents => (
   is => 'rw',
   default => sub { [] },
   isa => sub {
-    die "Got '$_[0]', not ARRAY reference" unless ref $_[0] eq ref [];
+    throw_error 'ImplementationError' => "Got '$_[0]', not ARRAY reference" unless ref $_[0] eq ref [];
     foreach my $element ( @{ $_[0] } ) {
-      die "Got undef, not Node or NodeList" unless defined $element;
-      die "Got '$element', not Node or NodeList" unless ( (ref $element) =~ /JTL::Node|JTL::Document/ );
+      throw_error 'ImplementationError' => "Got undef, not Node or NodeList" unless defined $element;
+      throw_error 'ImplementationError' => "Got '$element', not Node or NodeList" unless ( (ref $element) =~ /JTL::Node|JTL::Document/ );
     }
   },
   coerce  => sub {
