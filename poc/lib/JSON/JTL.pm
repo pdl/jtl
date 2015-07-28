@@ -13,10 +13,42 @@ JSON::JTL - Transform JSON into other JSON with more JSON
 
 =cut
 
+=head1 SYNOPSIS
+
+  my $jtl = JSON->JTL->new;
+
+  # If you have raw JSON
+  my @results = $jtl->transform_json('{"foo":123}', '{"JTL":"transformation", ... });
+
+  # If you have parsed JSON
+  my @results = $jtl->transform_data( {"foo" => 123 }, $transformation );
+
+=cut
+
 use Moo;
 
+=head1 METHODS
+
+=head3 transform_json
+
+Takes a JSON string to be transformed, a JSON string of; returns a list of JSON strings which are the results of the transformation.
+
+=head3 transform_data
+
+Takes a data structure to be transformed and a data structure representing the transformation; returns a list of data structures which are the results of the transformation.
+
+Note that transform_data does not perform any validation to check that the data structure corresponds to a valid JSON structure.
+
+=head1 ATTRIBUTES
+
+=head3 transformer
+
+The object which will provide the transformation method. There is currently no need for end-users to access or change this.
+
+=cut
+
 has transformer => (
-  is      => 'rw',
+  is      => 'ro',
   lazy    => 1,
   default => sub { JSON::JTL::Transformer->new() },
 );

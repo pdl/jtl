@@ -21,7 +21,7 @@ JSON::JTL::Transformer - perform transformations
 
 Takes an input document (which should be a parsed JSON value and not a JSON string) and a transformation, which should be a parsed object with a key JTL whose value is 'transformation'.
 
-Returns a ???
+Returns a nodelist.
 
 =cut
 
