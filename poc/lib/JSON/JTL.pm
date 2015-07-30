@@ -57,7 +57,7 @@ sub transform_data {
   my $self           = shift;
   my $source         = shift;
   my $transformation = shift;
-  $self->transformer->transform( $source, $transformation );
+  my $result = $self->transformer->transform( $source, $transformation );
   return map { $_->contents } @{ $result->contents };
 }
 
