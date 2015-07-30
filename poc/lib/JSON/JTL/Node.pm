@@ -50,7 +50,7 @@ sub type {
   JSON::JTL::Syntax::Internal::valueType($val);
 }
 
-=head3 type
+=head3 value
 
 Returns the raw value associated with the node.
 

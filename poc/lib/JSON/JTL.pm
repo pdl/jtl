@@ -76,4 +76,29 @@ sub transform_json {
   return map { to_json $_->contents } @{ $result->contents };
 }
 
+=head1 SEE ALSO
+
+=over
+
+= item * L<JSON>
+
+= item * L<JSON::T>
+
+= item * L<JSON::Schema>
+
+= item * L<XML::LibbXSLT>
+
+=back
+
+=head1 LICENSE
+
+This software is Copyright (C) 2015 Daniel Perrett.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+See the LICENSE file for more details.
+
+=cut
+
 1;

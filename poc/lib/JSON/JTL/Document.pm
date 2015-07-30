@@ -3,6 +3,28 @@ use Moo;
 extends 'JSON::JTL::Node';
 use JSON::JTL::Syntax::Internal qw(throw_error);
 
+=head1 NAME
+
+JSON::JTL::Document - represent a JSON document (root node)
+
+=cut
+
+=head1 ATTRIBUTES
+
+This class inherits attributes from L<JSON::JTL::Node>.
+
+=head3 contents
+
+The raw JSON value.
+
+=cut
+
+=head3 path
+
+Unlike for L<JSON::JTL::Node>, this is not required in a constructor. The value defaults to (and should always be) the empty array.
+
+=cut
+
 has contents => (
   is => 'rw',
 );
@@ -11,6 +33,12 @@ has '+path' => (
   default  => sub { [] },
   required => 0,
 );
+
+=head3 document
+
+Unlike for L<JSON::JTL::Node>, this is not required in a constructor. The value defaults to (and should always be) the document itself.
+
+=cut
 
 has '+document' => (
   default  => sub { $_[0] },
