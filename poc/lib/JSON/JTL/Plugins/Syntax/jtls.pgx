@@ -1,0 +1,151 @@
+%grammar jtls
+%version 0.1.0
+%include pegex-atoms
+
+jtls:
+  instruction
+
+nameToken: /- ([a-zA-Z]+) -/
+
+# instruction
+# template {...} | template (...)
+
+instruction:
+  ( nameToken )
+  ( explicitArguments | implicitArguments )
+
+# explicitArguments
+# { select: current() }
+# { select: current(), name: 'self' }
+
+explicitArguments:
+  '{'
+  ( explicitArgument )* % /- ',' -/
+  '}'
+
+# explicitArgument:
+# select: current()
+
+explicitArgument:
+  ( nameToken )
+  ':'
+  ( argument | argumentList )
+
+implicitArguments:
+  ( argumentList )
+
+# argumentList
+# ( current(), parent(), 123, "foo", )
+
+argumentList:
+  '('
+    ( argument )* % /- ',' -/
+    #  ',' ?
+  ')'
+
+argument:
+  ( instruction | value | pathExpression )
+
+pathExpression:
+  ( anchor )
+  ( step )+
+
+# Todo: handle both the slashes in the step, as it's still legal to do foo//bar
+
+anchor: # NB: this rule is sensitive to order of items
+  anchorChild | anchorParent | anchorRoot
+
+anchorRoot:
+  ''
+
+anchorChild:
+  '.'
+
+anchorParent:
+  '..'
+
+step:
+  '/'
+  ( stepAny | stepNameToken | stepNumber | stepString )
+  ( filter? )
+
+stepAny:
+  '*'
+
+stepNameToken:
+  ( nameToken )
+
+stepNumber:
+  ( number )
+
+stepString:
+  ( string )
+
+filter:
+  '['
+    ( argument )
+  ']'
+
+# Hereafter taken straight from the JSON grammar
+
+json: - value -
+
+object:
+  /- '{' -/
+  pair* % /- ',' -/
+  /- '}' -/
+
+pair: string /- ':' -/ value
+
+array:
+  /- '[' -/
+  value* % /- ',' -/
+  /- ']' -/
+
+value:
+  | string
+  | number
+  | object
+  | array
+  | true
+  | false
+  | null
+
+# string and number are interpretations of http://www.json.org/
+string: /
+  DOUBLE
+    (
+      (:
+        BACK (:     # Backslash escapes
+          [
+            DOUBLE    # Double Quote
+            BACK    # Back Slash
+            SLASH     # Foreward Slash
+            'b'     # Back Space
+            'f'     # Form Feed
+            'n'     # New Line
+            'r'     # Carriage Return
+            't'     # Horizontal Tab
+          ]
+        |
+          'u' HEX{4}    # Unicode octet pair
+        )
+      |
+        [^ DOUBLE CONTROLS ]  # Anything else
+      )*
+    )
+  DOUBLE
+/
+
+number: /(
+  DASH?
+  (: '0' | [1-9] DIGIT* )
+  (: DOT DIGIT* )?
+  (: [eE] [ DASH PLUS ]? DIGIT+ )?
+)/
+
+true: 'true'
+
+false: 'false'
+
+null: 'null'
