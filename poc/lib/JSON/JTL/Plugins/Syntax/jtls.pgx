@@ -76,7 +76,7 @@ stepNameToken:
   ( nameToken )
 
 stepNumber:
-  ( number )
+  ( integer )
 
 stepString:
   ( string )
@@ -85,6 +85,11 @@ filter:
   '['
     ( argument )
   ']'
+
+integer: /(
+  DASH?
+  (: '0' | [1-9] DIGIT* )
+)/
 
 # Hereafter taken straight from the JSON grammar
 

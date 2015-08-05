@@ -11,7 +11,8 @@ sub got_explicitArguments {
 }
 
 sub got_implicitArguments {
-  +{ _implicit_argument => @{(pop)} }
+  my $args = pop->[0];
+  @$args ? +{ _implicit_argument => $args } : +{};
 }
 
 sub got_instruction {
@@ -24,12 +25,7 @@ sub got_nameToken {
 }
 
 sub got_filter {
-  return { JTL => 'filter', test => (pop)->[0] };
-}
-
-sub got_step {
-  shift;
-  return { JTL => '_parser_step', filter => pop };
+  return { JTL => 'filter', test => [ (pop)->[0] ] };
 }
 
 sub got_anchorChild {
@@ -46,10 +42,24 @@ sub got_anchorRoot {
 
 sub got_pathExpression {
   shift;
-  #if ( $_[0][1]->{step} ne 'any' ) {
-
-  #}
-  return { JTL => $_[0][0]->{anchor},  };
+  my $steps = [];
+  my $expression;
+  if ( $_[0][0]->{anchor} eq 'parent' ) {
+    $expression = { JTL => 'parent' }
+  } elsif ( $_[0][0]->{anchor} eq 'root' ) {
+    $expression = { JTL => 'root' }
+  }
+  foreach my $step_and_filter ( @{ $_[0][1] } ) {
+    my ( $step, $filter ) = @$step_and_filter;
+    $expression = ( ( $step->{step} eq 'any' )
+      ? { JTL => 'children', ( $expression ? ( select => [ $expression ] ) : () ) }
+      : { JTL => 'child', $step->{step} => [ $step->{value} ], ( $expression ? ( select => [ $expression ] ) : () ) }
+    );
+    if ( $filter ) {
+      $expression = { %$filter, select => [ $expression ] };
+    }
+  }
+  return $expression;
 }
 
 sub got_stepAny {

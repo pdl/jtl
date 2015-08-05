@@ -13,7 +13,7 @@ my $tests = [
   },
   {
     syntax => 'template{foo:bar()}',
-    means  => { 'JTL' => 'template', 'foo' => { JTL => 'bar', _implicit_argument => [] } },
+    means  => { 'JTL' => 'template', 'foo' => { JTL => 'bar' } },
   },
   {
     syntax => 'template{foo:bar{}}',
@@ -38,8 +38,13 @@ my $tests = [
     what   => 'pathExpression',
   },
   {
+    syntax => './foo/bar',
+    means  => { JTL => 'child', select => [ { JTL => 'child', name => ['foo'] } ], name => ['bar'] },
+    what   => 'pathExpression',
+  },
+  {
     syntax => './*[eq{select:name(), compare:"foo"}]',
-    means  => { JTL => 'filter', 'select' => [ { JTL => 'children' } ], test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], 'compare' => ['foo'] } ] },
+    means  => { JTL => 'filter', 'select' => [ { JTL => 'children' } ], test => [ { JTL => 'eq', select => { JTL => 'name' }, 'compare' => 'foo' } ] },
     what   => 'pathExpression',
   },
   {
