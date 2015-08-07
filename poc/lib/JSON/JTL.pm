@@ -92,7 +92,7 @@ sub transform_json {
 
 =head1 LICENSE
 
-This software is Copyright (C) 2015 Daniel Perrett.
+This software is Copyright (C) 2015 Daniel Perrett
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
