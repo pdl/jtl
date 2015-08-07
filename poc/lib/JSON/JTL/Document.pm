@@ -1,4 +1,6 @@
 package JSON::JTL::Document;
+use strict;
+use warnings;
 use Moo;
 extends 'JSON::JTL::Node';
 use JSON::JTL::Syntax::Internal qw(throw_error);

@@ -1,4 +1,6 @@
 package JSON::JTL::Error;
+use strict;
+use warnings;
 use Moo;
 with 'Throwable';
 

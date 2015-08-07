@@ -1,4 +1,6 @@
 package JSON::JTL::Plugins::Syntax;
+use strict;
+use warnings;
 use Moo;
 use JSON::JTL::Plugins::Syntax::Receiver;
 use Pegex::Grammar;

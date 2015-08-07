@@ -80,13 +80,13 @@ sub transform_json {
 
 =over
 
-= item * L<JSON>
+=item * L<JSON>
 
-= item * L<JSON::T>
+=item * L<JSON::T>
 
-= item * L<JSON::Schema>
+=item * L<JSON::Schema>
 
-= item * L<XML::LibbXSLT>
+=item * L<XML::LibbXSLT>
 
 =back
 

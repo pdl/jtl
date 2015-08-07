@@ -1,4 +1,6 @@
 package JSON::JTL::Node;
+use strict;
+use warnings;
 use Moo;
 use overload bool => sub {
   my $val  = $_[0]->value;

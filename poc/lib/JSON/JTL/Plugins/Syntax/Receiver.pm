@@ -1,4 +1,6 @@
 package JSON::JTL::Plugins::Syntax::Receiver;
+use strict;
+use warnings;
 use Pegex::Base;
 extends 'Pegex::JSON::Data';
 
