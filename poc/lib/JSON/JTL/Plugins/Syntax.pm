@@ -3,6 +3,7 @@ use Moo;
 use JSON::JTL::Plugins::Syntax::Receiver;
 use Pegex::Grammar;
 use Pegex::Parser;
+use File::ShareDir;
 
 has receiver => (
   is      => 'ro',
@@ -16,8 +17,7 @@ has grammar_text => (
   is      => 'ro',
   lazy    => 1,
   default => sub {
-    my $fn = __FILE__;
-    $fn =~ s~\.pm$~/jtls.pgx~;
+    my $fn = File::ShareDir::dist_file('JSON-JTL', 'jtls.pgx');
     open my $fh, '<:encoding(UTF-8)', $fn or die qq(Could not open $fn);
     my $s = '';
     while (<$fh>) { $s .= $_ };
