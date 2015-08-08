@@ -4,9 +4,9 @@ This document will describe the JSON Transformation Language, hereafter JTL.
 
 ## Introduction
 
-JSON is a widely used data interchange format. It has a low overhead and is easily translated into data structures native to a variety of programming languages. Although JSON does not carry inherent semantic value, any given JSON document in its context may have semantic value as defined by its author and intended recipient (often by agreement through a documented API).
+JSON is a widely used data interchange format. It is easily parsed and maps naturally into data structures native to a variety of programming languages. Although JSON does not carry inherent semantic value, any given JSON document in its context may have semantic value as defined by its author and as interpreted by its recipient (often by agreement through a documented API).
 
-However, the processing of JSON data is typically opaque. There is a growing need to be able to perform operations on JSON in a language-independent manner, particularly with the growth of web and native apps, to wirte equivalent functions in servers, client web page code and in native client apps. One extreme is to write the code three times. Another extreme is to enforce the use of ECMAScript in all three contexts to avoid duplication. There are many circumstances in which neither is sensible.
+However, the processing of JSON data is typically opaque. There is a growing need to be able to perform operations on JSON in a language-independent manner, particularly with the growth of web and native apps, to write equivalent functions in servers, client web page code and in native client apps. One extreme is to write the code three times. Another extreme is to enforce the use of ECMAScript in all three contexts to avoid duplication. There are many circumstances in which neither is sensible.
 
 The purpose of JTL is to create machine-readable instructions for transforming one JSON document into another. Those instructions will be in JSON.
 
@@ -21,18 +21,18 @@ Extensions to JTL may provide further mechanisms by which JSON processing can tr
 
 JTL takes its inspiration from XSLT, and will attempt to follow its conventions and principles except insofar as:
 
-- The differences between JSON and XML would render the precedent meaningless, cumbersome, or substantially more difficult to implement.
+- The differences between JSON and XML and the contexts in which they are used would render the precedent meaningless, cumbersome, or substantially more difficult to implement.
 - A precedent in XSLT may be achievable in another, simpler or more powerful way and there is no compelling case for replicating the feature twice.
 - The feature is one which XSLT processors are not required to implement.
-- There is substantial evidence that the feature was poorly designed.
+- The feature appears to have been poorly understood by implementors or by users.
 
-Notwithstanding the above, a minimal usable version of JTL may be arrived at before feature-parity with XSLT is achieved, especially where it is not strictly necessary for XSLT features to be in the JTL core.
+Notwithstanding the above, a minimal usable version of JTL does not depend on complete feature-parity (or feature-equivalence) with XSLT, especially where it is not strictly necessary for XSLT features to be in the JTL core.
 
 Using XSLT as an inspiration provides several benefits:
 
 - Familiar concepts and naming conventions should make for a smooth learning curve for users, core developers and implementers
 - Maintaining a similar approach gives confidence in the generality of application
-- XSLT itself provides a reference for what features a transformation language is likely to need, and community extensions point to directions for new innovation
+- XSLT itself provides a reference for what features a transformation language is likely to need, and subsequent versions and community extensions point to directions for new innovation
 - By adapting an existing paradigm, innovation rests on a solid base
 
 ## Processor and Documents
@@ -92,34 +92,9 @@ The results of a production may not always be acceptable to the context in which
 - In a hash only a list of pairs is acceptable. The list may be empty.
 - In a pair, a list of two items is required. The first, the key, must be a scalar, and the second item, the value, may be undefined.
 - The templates attribute takes a production in which no values may be returned.
+- In the `test` attribute of an instruction, only a single true or false value is permitted.
 
-instructions may specify further restrictions on allowable values in productions.
-
-## Truthiness
-
-*Don't think this needs to be core*
-
-> JTL makes a distinction between the JSON true value and truthiness.
->
-> A NodeList is always truthy if it has members, even if none of those members are > truthy. If it has no members, it is falsy.
->
-> A Node is truthy if its value is truthy.
->
-> A Hash is truthy if it has properties, even if none of the values are truthy.
->
-> An Array is truthy if it has members, even if none of them are truthy.
->
-> A Number is truthy if it is not zero.
->
-> A string is truthy if it is not empty.
->
-> Undefined is never truthy.
-
-## Literal values
-
-*To be moved out into a syntax module?*
-
-> If, instead of a production, you wish to create a literal value. Literal values are possible within strings, e.g. "\"foo\"", "[]", "{}".
+Instructions may specify further restrictions on allowable values in productions.
 
 ## Productive Instructions
 
@@ -226,7 +201,7 @@ Iterates through each node in the nodelist produced by `select`; on each iterati
  - test
  - produce
 
-The `test` attribute is evaluated. It must return boolean true or false. If true, produce is evaluated. If false, an empty nodelist is returned.
+The `test` attribute is evaluated. It must return boolean true or false. If true, `produce` is evaluated. If false, an empty nodelist is returned.
 
 ### choose
 
@@ -255,9 +230,9 @@ Returns a string node whose value is the JSON type of the selected node.
 
 Evaluates `select` and returns the number of nodes in the list.
 
-### context
-
 ### current
+
+Returns the current node.
 
 ### source
 
@@ -371,13 +346,6 @@ Adds this template to the current scope's templates. Returns void.
 - Concatenation of text nodes
 - Handling of certain control characters
 - DTDs and Stylesheets
-
-
-### Prioritisation
-
-- node() | value()
-- scalar() | hash() | array()
-- number() | string()
 
 ## Errors
 
