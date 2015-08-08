@@ -8,11 +8,11 @@ my $parser = JSON::JTL::Plugins::Syntax->new->parser;
 
 my $tests = [
   {
-    syntax => 'template{foo:bar("")}',
+    syntax => 'template { foo:bar ( "" ) }',
     means  => { 'JTL' => 'template', 'foo' => { JTL => 'bar', _implicit_argument => [''] } },
   },
   {
-    syntax => 'template{foo:bar()}',
+    syntax => 'template{foo : bar( ) }',
     means  => { 'JTL' => 'template', 'foo' => { JTL => 'bar' } },
   },
   {
@@ -33,7 +33,7 @@ my $tests = [
     what   => 'pathExpression',
   },
   {
-    syntax => './0',
+    syntax => '. / 0',
     means  => { JTL => 'child', index => [0] },
     what   => 'pathExpression',
   },
@@ -43,7 +43,7 @@ my $tests = [
     what   => 'pathExpression',
   },
   {
-    syntax => './*[eq{select:name(), compare:"foo"}]',
+    syntax => '. / * [ eq{ select:name(), compare:"foo" } ]',
     means  => { JTL => 'filter', 'select' => [ { JTL => 'children' } ], test => [ { JTL => 'eq', select => { JTL => 'name' }, 'compare' => 'foo' } ] },
     what   => 'pathExpression',
   },

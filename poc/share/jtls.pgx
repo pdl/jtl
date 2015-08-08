@@ -19,16 +19,16 @@ instruction:
 # { select: current(), name: 'self' }
 
 explicitArguments:
-  '{'
+  /- '{' -/
   ( explicitArgument )* % /- ',' -/
-  '}'
+  /- '}' -/
 
 # explicitArgument:
 # select: current()
 
 explicitArgument:
   ( nameToken )
-  ':'
+  /- ':' -/
   ( argument | argumentList )
 
 implicitArguments:
@@ -38,10 +38,10 @@ implicitArguments:
 # ( current(), parent(), 123, "foo", )
 
 argumentList:
-  '('
+  /- '(' -/
     ( argument )* % /- ',' -/
     #  ',' ?
-  ')'
+  /- ')' -/
 
 argument:
   ( instruction | value | pathExpression )
@@ -65,7 +65,7 @@ anchorParent:
   '..'
 
 step:
-  '/'
+  /- '/' -/
   ( stepAny | stepNameToken | stepNumber | stepString )
   ( filter? )
 
@@ -82,9 +82,9 @@ stepString:
   ( string )
 
 filter:
-  '['
+  /- '[' -/
     ( argument )
-  ']'
+  /- ']' -/
 
 integer: /(
   DASH?
