@@ -150,7 +150,7 @@ Returns a node whose value is `null`.
 
 ## Instructions for flow control and calculation
 
-### apply-templates
+### applyTemplates
 
  - select
  - name
@@ -161,7 +161,7 @@ Searches through the templates in reverse order of declaration and from the curr
 
 Note that unlike in XSLT, there is no priority ordering.
 
-### apply-template / call-template
+### applyTemplate / callTemplate
 
  - select
  - name
@@ -170,26 +170,26 @@ Iterates through each node in the nodelist produced by `select`; on each iterati
 
 Searches through the templates in reverse order of declaration and from the current scope back up through its parents to the topmost scope, searching for templates whose name is equal to the value of the name attribute. The first matching template is applied.
 
-### call-variable
+### callVariable
 
  - name
 
 Returns the contents of the variable with the name given in `name`, which must produce a single string.
 
-### call-param
+### callParam
 
  - name
 
 Returns the contents a parameter with the name given in `name`, which must produce a single string.
 
-### call-function
+### callFunction
 
  - name
  - params
 
 Evaluates the function with the name given in `name` (which must produce a single string). Within the function, only templates, functions and variables accessible when the function is created will be available, except that the current node will be available.
 
-### for-each
+### forEach
 
  - select
  - produce
@@ -214,7 +214,7 @@ The `test` attribute is evaluated. It must return boolean true or false. If true
 
  - produce
 
-### copy-of
+### copyOf
 
 ### type
 
@@ -276,7 +276,7 @@ Evaluates `select` and `compare`, and filters them so that only nodes which appe
 
   - select
 
-### empty-list, nonempty-list
+### emptyList, nonemptyList
 
   - select
 
@@ -298,7 +298,7 @@ Evaluates `select` and `compare`, and filters them so that only nodes which appe
 
  - select
 
-### greater-than, less-than
+### greaterThan, lessThan
 
  - select
 
@@ -332,7 +332,7 @@ Adds this template to the current scope's templates. Returns void.
 
 ### message
 
-### param, with-param
+### param, withParam
 
 ## XML vs JSON
 
@@ -357,7 +357,7 @@ The following error types are defined:
   - **TransformationUnexpectedType** - thrown when a value was found which does not have a JSON type which is allowable at this point
   - **TransformationUnknownInstruction** - thrown when an instruction is not understood
   - **TransformationMissingRequiredAtrribute** - thrown when an attribute is required but is not present
-  - **TransformationNoMatchingTemplate** - thrown when apply-templates is called on a node but no matching templates are found
+  - **TransformationNoMatchingTemplate** - thrown when applyTemplates is called on a node but no matching templates are found
   - **TransformationVariableDeclarationFailed** - thrown when a variable is set in the same scope as an existing variable of the same name
 - **ResultNodesUnexpected** - thrown when results were produced which were not consistent with the instruction or context
   - **ResultNodesUnexpectedNumber** - thrown when the more or fewer result nodes were produced than expected

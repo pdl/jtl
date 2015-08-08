@@ -122,7 +122,7 @@ sub production_result {
 }
 
 my $instructions = {
-  'apply-templates' => sub {
+  'applyTemplates' => sub {
     my ( $self, $scope, $instruction ) = @_;
     if ( $instruction->{select} ) {
       my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select');
@@ -147,7 +147,7 @@ my $instructions = {
     }
     return void;
   },
-  'call-variable' => sub {
+  'callVariable' => sub {
     my ( $self, $scope, $instruction ) = @_;
     if ( $instruction->{name} ) {
       my $name = $self->production_result( $scope, $instruction->{name} )->[-1];
@@ -188,7 +188,7 @@ my $instructions = {
     }
     return nodelist $scope->current->children() // nodelist;
   },
-  'for-each' => sub {
+  'forEach' => sub {
     my ( $self, $scope, $instruction ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // throw_error 'TransformationMissingRequiredAtrribute';
     return $selected->map( sub {
@@ -247,7 +247,7 @@ my $instructions = {
     throw_error 'ResultNodesMultipleNodes' unless 1 == @$compare;
     return valuesEqual(map {$_->value} @$selected, @$compare);
   },
-  'same-node' => sub {
+  'sameNode' => sub {
     my ( $self, $scope, $instruction ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // [ $scope->current ];
     my $compare  = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'compare') // throw_error 'TransformationMissingRequiredAtrribute';

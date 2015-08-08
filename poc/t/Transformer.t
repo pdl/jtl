@@ -114,10 +114,10 @@ my $test_suite = [
     output      => [ JSON::false ],
   },
   {
-    why         => 'same-node: current vs current',
+    why         => 'sameNode: current vs current',
     input       => { foo => 123, bar => 123 },
     instruction => {
-      JTL => 'same-node',
+      JTL => 'sameNode',
       select => [
         { JTL => 'current' },
       ],
@@ -128,10 +128,10 @@ my $test_suite = [
     output      => [ JSON::true ],
   },
   {
-    why         => 'same-node: literal vs another literal (false)',
+    why         => 'sameNode: literal vs another literal (false)',
     input       => { foo => 123, bar => 123 },
     instruction => {
-      JTL => 'same-node',
+      JTL => 'sameNode',
       select => [
         { JTL => 'literal', value => 123 },
       ],
@@ -142,40 +142,40 @@ my $test_suite = [
     output      => [ JSON::false ],
   },
   {
-    why         => 'In {foo:123, bar:123}, same-node works on foo and foo',
+    why         => 'In {foo:123, bar:123}, sameNode works on foo and foo',
     input       => { foo => 123, bar => 123 },
     instruction => {
-      JTL => 'same-node',
+      JTL => 'sameNode',
       select => [
-        { JTL => 'for-each', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'foo' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
+        { JTL => 'forEach', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'foo' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
       ],
       compare => [
-        { JTL => 'for-each', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'foo' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
+        { JTL => 'forEach', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'foo' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
       ],
     },
     output      => [ JSON::true ],
   },
   {
-    why         => 'In {foo:123, bar:123}, same-node on foo and bar is false (even though they are equal)',
+    why         => 'In {foo:123, bar:123}, sameNode on foo and bar is false (even though they are equal)',
     input       => { foo => 123, bar => 123 },
     instruction => {
-      JTL => 'same-node',
+      JTL => 'sameNode',
       select => [
-        { JTL => 'for-each', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'foo' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
+        { JTL => 'forEach', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'foo' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
       ],
       compare => [
-        { JTL => 'for-each', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'bar' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
+        { JTL => 'forEach', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'bar' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
       ],
     },
     output      => [ JSON::false ],
   },
   {
-    why         => 'In {foo:123, bar:123}, same-node on foo and current is false',
+    why         => 'In {foo:123, bar:123}, sameNode on foo and current is false',
     input       => { foo => 123, bar => 123 },
     instruction => {
-      JTL => 'same-node',
+      JTL => 'sameNode',
       select => [
-        { JTL => 'for-each', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'foo' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
+        { JTL => 'forEach', select => [ { JTL => 'children' } ], produce => [ { JTL => 'if', test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], compare => [ { JTL => 'literal', value => 'foo' } ]  } ], produce => [ { JTL => 'current' } ] } ] }
       ],
       compare => [
         { JTL => 'current' }
@@ -240,7 +240,7 @@ templates:
     produce:
       - JTL: array
         select:
-          - JTL: apply-templates
+          - JTL: applyTemplates
             select:
               - JTL: children
   - JTL: template
@@ -254,12 +254,12 @@ templates:
     produce:
       - JTL: object
         select:
-          - JTL: for-each
+          - JTL: forEach
             select:
               - JTL: children
             produce:
               - JTL: name
-              - JTL: apply-templates
+              - JTL: applyTemplates
   - JTL: template
     match:
       - JTL: or
