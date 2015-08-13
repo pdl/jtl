@@ -21,3 +21,6 @@ MYMETA.*
 .fseventsd
 *.tar.gz
 JSON-JTL-0.*/
+META.json
+Build.PL
+poc/README.md
