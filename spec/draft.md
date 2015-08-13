@@ -6,7 +6,7 @@ This document will describe the JSON Transformation Language, hereafter JTL.
 
 JSON is a widely used data interchange format. It is easily parsed and maps naturally into data structures native to a variety of programming languages. Although JSON does not carry inherent semantic value, any given JSON document in its context may have semantic value as defined by its author and as interpreted by its recipient (often by agreement through a documented API).
 
-However, the processing of JSON data is typically opaque. There is a growing need to be able to perform operations on JSON in a language-independent manner, particularly with the growth of web and native apps, to write equivalent functions in servers, client web page code and in native client apps. One extreme is to write the code three times. Another extreme is to enforce the use of ECMAScript in all three contexts to avoid duplication. There are many circumstances in which neither is sensible.
+However, the processing of JSON data is typically bespoke and/or opaque. There is a growing need to be able to perform operations on JSON in a language-independent manner, particularly with the growth of web and native apps, to write equivalent functions in servers, client web page code and in native client apps. One extreme is to write the code three times. Another extreme is to enforce the use of ECMAScript in all three contexts to avoid duplication. There are many circumstances in which neither is sensible.
 
 The purpose of JTL is to create machine-readable instructions for transforming one JSON document into another. Those instructions will be in JSON.
 
@@ -37,7 +37,7 @@ Using XSLT as an inspiration provides several benefits:
 
 ## Processor and Documents
 
-A JTL document is a JSON document whose root node is a hash and whose structure is defined in this specification. It is read by a JTL Processor, and when applied to a JSON document called a Source Document, the Processor produces one or more JSON documents called the Result Documents. Source and Result Documents may have any sort of JSON node as their root and may contain any legal JSON content.
+A JTL document is a JSON document whose root node is a JSON Object and whose structure is defined in this specification. It is read by a JTL Processor, and when applied to a JSON document called a Source Document, the Processor produces one or more JSON documents called the Result Documents. Source and Result Documents may have any sort of JSON node as their root and may contain any legal JSON content.
 
 ## Components of JTL
 
@@ -61,52 +61,63 @@ Further documents will describe extensions to JTL which processors should implem
 
 The JSON value types Object, Array, String, Number, True, False and Null are considered to be nodes in the context of the document to which they belong. A node has a path, a value, and a document.
 
-The path is an expression of the absolute position at which the node can be found from the context of the document.
+The path is an expression of the absolute position at which the node can be found from the context of the document, expressed as a list of strings (where the parent is an object property) or non-negative integers (where the parent is an array).
+
+## Node lists
+
+A node list is an ordered collection of zero or more nodes. The key features of a node list are:
+
+- **Node lists cannot be 'nested'**. Placing one node list within another will result in one node list with the contents of both. Nodes may be repeated within a node list. They are unlike unlike node arrays and JSON Arrays in this regard.
+- **Nodes are not changed by their membership in a node list**: the node list is aware its elements, but they are not aware of the node list. They are like node arrays but unlike JSON Arrays in this regard.
+
+Most instructions return node lists.
+
+## Node arrays
+
+A node array is a structure containing an ordered collection of zero or more nodes. The key features of a node array are:
+
+- **Node arrays can be 'nested'**. Placing one node array within another (or within a node list) will result in a node array one of whose children is a node array. They are like JSON Arrays but unlike node lists in this regard.
+- **Nodes are not changed by their membership in a node array**: the node array is aware of its elements, but they are not aware of the node array. They are like node lists but unlike JSON Arrays in this regard.
+
+Node arrays are useful for creating complex temporary structures.
 
 ### Instructions
 
-An instruction is represented as a JSON hash with a key JTL whose value is the name of the instruction. Other keys and values may be present, depending on the instruction.
-
-Instructions have attributes.
+An instruction is represented as a JSON Hash with a key JTL whose value is the name of the instruction. Other keys and values may be present, depending on the instruction.
 
 An instruction, when executed, MUST produce one of the following results:
 
-- A nodelist, which may contain zero or more nodes. This may be used in another calculation.
-- A void sesult, indicating that no result was expected. This is distinct from an empty nodelist.
+- A node list, which may contain zero or more nodes. This may be used in another calculation.
+- A void result, indicating that no result was expected. This is distinct from an empty node list.
 
 ### Evaluation
 
-An evaluation returns a list of results. It is represented as a JSON array, and consists of a series of instructions, which are executed in order.
+An evaluation is represented as a JSON Array, and consists of a series of instructions, which are executed in order and together return a node list.
 
-An instruction may trigger multiple evaluatins, foe example: a `select` to determine the nodes to perform the instruction on, followed by a `produce` on each of the nodes.
-
-In some cases, it is significant if there are empty nodelists, for example in the case of `eq`.
+An instruction may trigger multiple evaluations, for example: a `select` to determine the nodes to perform the instruction on, followed by a `produce` on each of the nodes.
 
 ### Production
 
-A production is an evaluation which will return a nodelist containing a single value, or a list of values.
+A production is an evaluation which will return a node list containing a single value, or a list of values.
 
 The results of a production may not always be acceptable to the context in which they are placed, for example:
 
-- In an array any results are permitted, including an empty list
-- In a hash only a list of pairs is acceptable. The list may be empty.
-- In a pair, a list of two items is required. The first, the key, must be a scalar, and the second item, the value, may be undefined.
-- The templates attribute takes a production in which no values may be returned.
+- When the results are used to populate a JSON Array, any results are permitted, including an empty list
+- When the results are used to populate a JSON Object, only an even-sized list is acceptable (the list may be empty). These will be taken as keys and values, alternately, and keys must be strings.
+- The `templates` attribute takes a production in which no values may be returned.
 - In the `test` attribute of an instruction, only a single true or false value is permitted.
 
 Instructions may specify further restrictions on allowable values in productions.
 
 ## Productive Instructions
 
-The following instructions create a nodelist of one item
+The following instructions create a node list of one item:
 
 ### object
 
  - select
 
 Returns an object node populated with the contents of `select`, which must evaluate to an even-sized list of property names and corresponding values.
-
-### pair
 
 ### array
 
@@ -155,7 +166,7 @@ Returns a node whose value is `null`.
  - select
  - name
 
-Iterates through each node in the nodelist produced by `select`; on each iteration that node becomes the current node.
+Iterates through each node in the node list produced by `select`; on each iteration that node becomes the current node.
 
 Searches through the templates in reverse order of declaration and from the current scope back up through its parents to the topmost scope. The first matching template is applied.
 
@@ -166,7 +177,7 @@ Note that unlike in XSLT, there is no priority ordering.
  - select
  - name
 
-Iterates through each node in the nodelist produced by `select`; on each iteration that node becomes the current node.
+Iterates through each node in the node list produced by `select`; on each iteration that node becomes the current node.
 
 Searches through the templates in reverse order of declaration and from the current scope back up through its parents to the topmost scope, searching for templates whose name is equal to the value of the name attribute. The first matching template is applied.
 
@@ -194,14 +205,14 @@ Evaluates the function with the name given in `name` (which must produce a singl
  - select
  - produce
 
-Iterates through each node in the nodelist produced by `select`; on each iteration that node becomes the current node, and `produce` is evaluated and returned.
+Iterates through each node in the node list produced by `select`; on each iteration that node becomes the current node, and `produce` is evaluated and returned.
 
 ### if
 
  - test
  - produce
 
-The `test` attribute is evaluated. It must return boolean true or false. If true, `produce` is evaluated. If false, an empty nodelist is returned.
+The `test` attribute is evaluated. It must return boolean true or false. If true, `produce` is evaluated. If false, an empty node list is returned.
 
 ### choose
 
@@ -251,7 +262,7 @@ Evaluates `select`, and filters them so that no node is returned more than once.
  - compare
  - test ??? (union of values vs union of nodes)
 
-Evaluates `select` and `compare`, and filters them so that only nodes which appear in both nodelists are returned.
+Evaluates `select` and `compare`, and filters them so that only nodes which appear in both node lists are returned.
 
 #### filter
 
