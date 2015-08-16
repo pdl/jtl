@@ -43,7 +43,7 @@ A compact syntax optimised for ease of reading and writing which maps to this na
 
 JTL applies **templates** to elements within input documents. These templates can be thought of as 'rules'. The template in the example above means: "When you find an array, return an array containing all the children of the original array that are hashes". Because applyTemplates is called, arrays within those hashes will also be processed.
 
-If you've ever used XSLT, this and many other patterns will will be familiar. However, because of the differences between JSON and XML (and some specification differences), JTL offers more flexibility and a shallower learning curve.
+If you've ever used XSLT, this and many other patterns will will be familiar. However, because of the differences between JSON and XML (and some specification differences), JTL offers more flexibility, more simplicity, and a shallower learning curve.
 
 ## Development status
 

@@ -86,7 +86,7 @@ sub transform_json {
 
 =item * L<JSON::Schema>
 
-=item * L<XML::LibbXSLT>
+=item * L<XML::LibXSLT>
 
 =back
 

@@ -272,8 +272,9 @@ my $instructions = {
   },
 };
 
+# As a developer, I would like more meaningful stack traces than anonymous subroutines
 for my $name (keys %$instructions) {
-  subname "i-$name", $instructions->{$name};
+  subname "i_$name", $instructions->{$name};
 }
 
 =head3 evaluate_instruction
