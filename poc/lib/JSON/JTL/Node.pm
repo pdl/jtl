@@ -112,7 +112,8 @@ Otherwise returns undef.
 
 sub name {
   my $self = shift;
-  return undef unless $self->parent->type eq 'object';
+  my $parent = $self->parent // return undef;
+  return undef unless $parent->type eq 'object';
   return $self->path->[-1];
 }
 
@@ -127,7 +128,8 @@ Otherwise returns undef.
 
 sub index {
   my $self = shift;
-  return undef unless $self->parent->type eq 'array';
+  my $parent = $self->parent // return undef;
+  return undef unless $parent->type eq 'array';
   return $self->path->[-1];
 }
 

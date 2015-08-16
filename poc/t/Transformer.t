@@ -183,6 +183,24 @@ my $test_suite = [
     },
     output      => [ JSON::false ],
   },
+  {
+    why         => 'name works',
+    input       => { foo => 'bar' },
+    instruction => { JTL => 'forEach', select => [ { JTL => 'children', }, ], produce => [ { JTL => 'name' } ] },
+    output      => [ 'foo' ],
+  },
+  {
+    why         => 'Can get children of NodeArray',
+    input       => 123,
+    instruction => { JTL => 'children', select => [ { JTL => 'nodeArray', select => [ { JTL => 'current' }, ], }, ] },
+    output      => [ 123 ],
+  },
+  {
+    why         => 'NodeArray does not molest names',
+    input       => { foo => 'bar' },
+    instruction => { JTL => 'forEach', select => [ { JTL => 'children', select => [ { JTL => 'nodeArray', select => [ { JTL => 'children' }, ], }, ], }, ], produce => [ { JTL => 'name' } ] },
+    output      => [ 'foo' ],
+  },
 ];
 
 foreach my $case (@$test_suite) {
@@ -192,7 +210,7 @@ foreach my $case (@$test_suite) {
       {
         JTL     => 'template',
         match   => [ { JTL => 'literal', value => JSON::true } ],
-        produce => [ $case->{instruction} ],
+        produce => ( ref $case->{instruction} eq [] ? $case->{instruction} : [ $case->{instruction} ] ),
       }
     ]
   };

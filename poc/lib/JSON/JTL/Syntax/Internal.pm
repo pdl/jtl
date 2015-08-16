@@ -4,7 +4,7 @@ use warnings;
 use JSON;
 use Module::Load;
 use Exporter qw(import);
-our @EXPORT = qw(void document nodelist truth falsehood throw_error valuesEqual valueType);
+our @EXPORT = qw(void document nodelist nodeArray truth falsehood throw_error valuesEqual valueType);
 use Scalar::Util qw(blessed looks_like_number);
 
 =head1 NAME
@@ -40,6 +40,18 @@ Returns a L<JSON::JTL::NodeList>. Takes one argument, which must be an arrayref,
 
 sub nodelist {
   JSON::JTL::NodeList->new( { contents => $_[0] } )
+}
+
+=head3 nodeArray
+
+  nodeArray []
+
+Returns a L<JSON::JTL::NodeArray>. Takes one argument, which must be an arrayref, and this argument becomes the contents of the node array.
+
+=cut
+
+sub nodeArray {
+  JSON::JTL::NodeArray->new( { contents => $_[0] } )
 }
 
 =head3 void
@@ -179,5 +191,6 @@ Module::Load::load 'JSON::JTL::Document';
 Module::Load::load 'JSON::JTL::Error';
 Module::Load::load 'JSON::JTL::Node';
 Module::Load::load 'JSON::JTL::NodeList';
+Module::Load::load 'JSON::JTL::NodeArray';
 
 1;

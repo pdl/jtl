@@ -151,52 +151,44 @@ my $instructions = {
     my ( $self, $scope, $instruction ) = @_;
     if ( $instruction->{name} ) {
       my $name = $self->production_result( $scope, $instruction->{name} )->[-1];
-      return $@{ scope->get_symbol( $name ) };
+      return nodelist [ scope->get_symbol( $name ) ];
     } else {
       throw_error 'TransformationMissingRequiredAtrribute'
     }
   },
   'current' => sub {
     my ( $self, $scope, $instruction ) = @_;
-    $scope->current();
+    nodelist [ $scope->current() ];
   },
   'name' => sub {
     my ( $self, $scope, $instruction ) = @_;
-    my $name = blessed $scope->current ? $scope->current->name : undef;
-    document $name;
+    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist [ $scope->current ];
+    nodelist [ document $selected->contents->[0]->name ];
   },
   'parent' => sub {
     my ( $self, $scope, $instruction ) = @_;
-    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select');
-    if ( defined $selected ) {
-      return
-        $selected->map( sub {
-          shift->current->parent() // ();
-        } );
-    }
-    return $scope->current->parent() // nodelist;
+    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist [ $scope->current ];
+    return $selected->map( sub {
+      shift->parent() // ();
+    } );
   },
   'children' => sub {
     my ( $self, $scope, $instruction ) = @_;
-    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select');
-    if ( defined $selected ) {
-      return
-        $selected->map( sub {
-          my $children = shift->current->children();
-          return defined $children ? @$children : ();
-        } );
-    }
-    return nodelist $scope->current->children() // nodelist;
+    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist [ $scope->current ];
+    return $selected->map( sub {
+      my $children = shift->children();
+      return defined $children ? @$children : ();
+    } );
   },
   'forEach' => sub {
     my ( $self, $scope, $instruction ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // throw_error 'TransformationMissingRequiredAtrribute';
     return $selected->map( sub {
-        $self->evaluate_nodelist_by_attribute(
+      $self->evaluate_nodelist_by_attribute (
         $scope->subscope( { current => shift } ),
         $instruction,
         'produce',
-      ) // throw_error 'ImplementationError';
+      ) // throw_error 'TransformationMissingRequiredAtrribute';
     } );
   },
   'literal' => sub {
@@ -210,16 +202,21 @@ my $instructions = {
   'array' => sub {
     my ( $self, $scope, $instruction ) = @_;
     my $nodelist = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist();
-    return document [ map { $_->value } @{ $nodelist->contents } ];
+    return nodelist [ document [ map { $_->value } @{ $nodelist->contents } ] ];
   },
   'object' => sub {
     my ( $self, $scope, $instruction ) = @_;
     my $nodelist = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist();
-    return document { map { $_->value } @{ $nodelist->contents } };
+    return nodelist [ document { map { $_->value } @{ $nodelist->contents } } ];
+  },
+  'nodeArray' => sub {
+    my ( $self, $scope, $instruction ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist();
+    return nodelist [ nodeArray [ @{ $selected->contents } ] ];
   },
   'any' => sub {
     my ( $self, $scope, $instruction ) = @_;
-    return $scope->current;
+    return nodelist [ $scope->current ];
   },
   'type' => sub {
     my ( $self, $scope, $instruction ) = @_;
@@ -237,15 +234,15 @@ my $instructions = {
   'or' => sub {
     my ( $self, $scope, $instruction ) = @_;
     my $comparanda = $self->evaluate_by_attribute($scope, $instruction, 'select') // throw_error 'TransformationMissingRequiredAtrribute';
-    return ( ( scalar grep {!!$_} @$comparanda ) ? truth : falsehood );
+    return nodelist [ ( scalar grep {!!$_} @$comparanda ) ? truth : falsehood ];
   },
   'eq' => sub {
     my ( $self, $scope, $instruction ) = @_;
-    my $selected = $self->evaluate_by_attribute($scope, $instruction, 'select') // [ $scope->current ];
-    my $compare  = $self->evaluate_by_attribute($scope, $instruction, 'compare') // throw_error 'TransformationMissingRequiredAtrribute';
-    throw_error 'ResultNodesMultipleNodes' unless 1 == @$selected;
-    throw_error 'ResultNodesMultipleNodes' unless 1 == @$compare;
-    return valuesEqual(map {$_->value} @$selected, @$compare);
+    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist [ $scope->current ];
+    my $compare  = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'compare') // throw_error 'TransformationMissingRequiredAtrribute';
+    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $selected->contents };
+    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $compare->contents };
+    return nodelist [ valuesEqual( map { $_->value } map { @{ $_->contents } } $selected, $compare) ];
   },
   'sameNode' => sub {
     my ( $self, $scope, $instruction ) = @_;
@@ -254,7 +251,7 @@ my $instructions = {
     throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $selected->contents };
     throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $compare->contents };
     my $comparanda = [ $selected->contents->[0], $compare->contents->[0] ];
-    return truth if
+    return nodelist [ truth ] if
       refaddr ( $comparanda->[0]->document )
       ==
       refaddr ( $comparanda->[1]->document )
@@ -268,7 +265,7 @@ my $instructions = {
         ne
         $comparanda->[1]->path->[$_]
       } 0 .. $#{ $comparanda->[0]->path };
-    return falsehood;
+    return nodelist [ falsehood ];
   },
 };
 
