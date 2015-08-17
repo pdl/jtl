@@ -378,13 +378,23 @@ The following error types are defined:
     - **ResultNodeNotBoolean** - thrown when a boolean node was expected, but some other type of node was found
     - **ResultNodeNotString** - thrown when a string was expected, but some other type of node was found
 
-## Security
+## Security Considerations
 
-At no point is an implementation required by this specification to retrieve external resources.
+- Transformations are in effect programs and should be treated with an appropriate degree caution.
+- There is no theoretical limit on the size or depth of source document or the transformation, but implementations may need to provide a practical limit.
+- There is no theoretical limit on the depth of recursion in the transformation, but implementations may need to provide a practical limit.
+- In most cases it will be convenient for JTL implementations to be built by operating not only on raw JSON documents but on language-specific data types which are created by a JSON parser. Differences between these and JSON may give rise to security considerations. For example:
+  - Many languages allow circular references. JSON does not provide for this and so no consideration for this possibility has been made in the specification.
+  - There is no theoretical limit on the size of individual values in the source document or in the transformation, but this may be inconsistent with restrictions on native data types.
+- Although at no point is an implementation required by this specification to retrieve or modify external resources, implementations may support extensions which do so, and security considerations apply to these.
+
+Where an implementation detects a situation in which security considerations indicate processing would be unwise, it should stop, and throw an error.
+
+Where an implementation's applicability is narrowed in one of the ways described above (e.g. a recursion limit), it must document this.
 
 ## See Also
 
 - XSLT: Although it is theoretically possible to convert almost any JSON to an XML representation, use XSLT to transform it to an XML representation of the target document, then convert back to JSON, this is likely to be unintuitive to write and requires an XSLT implementation.
 - JSONT: This requires a javascript implementation, and so is not truly language-agnostic. Specification is minimal. (cf JSON::T)
-- JOLT: Seems to be mostly
+- JOLT: Seems to be mostly Java.
 - json2json: written in coffeescript, not sure of its completeness
