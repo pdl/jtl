@@ -42,6 +42,30 @@ sub got_anchorRoot {
   return { JTL => '_parser_anchor', anchor => 'root' };
 }
 
+sub got_string { pop }
+
+sub got_doublestring { Pegex::JSON::Data::got_string(@_) }
+
+my %singlestring_escapes = (
+  "'" => "'",
+  '/' => "/",
+  "\\" => "\\",
+  b => "\b",
+  f => "\x12",
+  n => "\n",
+  r => "\r",
+  t => "\t",
+);
+
+sub got_singlestring { # as Pegex::JSON::Data::got_string but with the regex in the second part changed
+    my $string = pop;
+    $string =~ s/\\(['\/\\bfnrt])/$singlestring_escapes{$1}/ge;
+    # This handles JSON encoded Unicode surrogate pairs
+    $string =~ s/\\u([0-9a-f]{4})\\u([0-9a-f]{4})/pack "U*", hex("$1$2")/ge;
+    $string =~ s/\\u([0-9a-f]{4})/pack "U*", hex($1)/ge;
+    return $string;
+}
+
 sub got_pathExpression {
   shift;
   my $steps = [];

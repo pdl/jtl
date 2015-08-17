@@ -4,6 +4,8 @@ use Test::More;
 use JSON::JTL::Plugins::Syntax;
 use YAML;# for diags
 
+# In this test script, we will unit-test JSON::JTL::Plugins::Syntax
+
 my $parser = JSON::JTL::Plugins::Syntax->new->parser;
 
 my $tests = [
@@ -50,6 +52,58 @@ my $tests = [
   {
     syntax => 'template{foo:./bar}',
     means  => { 'JTL' => 'template', 'foo' => { JTL => 'child', name => ['bar'] } },
+  },
+  # Some tests for single-quoted and double-quoted strings
+  # For some unnerving reason these need to go at the end as otherwise tests which occur after them fail
+  {
+    syntax => qq{" foo "},
+    means  => ' foo ',
+    what   => 'string',
+  },
+  {
+    syntax => qq{' foo '},
+    means  => ' foo ',
+    what   => 'string',
+  },
+  {
+    syntax => qq{"\\""},
+    means  => '"',
+    what   => 'string',
+  },
+  {
+    syntax => qq{'\\''},
+    means  => "'",
+    what   => 'string',
+  },
+  {
+    syntax => qq{"\\t"},
+    means  => "\t",
+    what   => 'string',
+  },
+  {
+    syntax => qq{'\\t'},
+    means  => "\t",
+    what   => 'string',
+  },
+  {
+    syntax => qq{"'\\"'"},
+    means  => qq{'"'},
+    what   => 'string',
+  },
+  {
+    syntax => qq{'"\\'"'},
+    means  => qq{"'"},
+    what   => 'string',
+  },
+  {
+    syntax => './"foo"',
+    means  => { JTL => 'child', name => ['foo'] },
+    what   => 'pathExpression',
+  },
+  {
+    syntax => "./'foo'",
+    means  => { JTL => 'child', name => ['foo'] },
+    what   => 'pathExpression',
   },
 ];
 

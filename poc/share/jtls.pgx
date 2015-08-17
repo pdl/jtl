@@ -91,7 +91,7 @@ integer: /(
   (: '0' | [1-9] DIGIT* )
 )/
 
-# Hereafter taken straight from the JSON grammar
+# Hereafter taken straight from the JSON grammar, except that string has been split into singlestring and doublestring
 
 json: - value -
 
@@ -117,15 +117,19 @@ value:
   | null
 
 # string and number are interpretations of http://www.json.org/
-string: /
+
+string:
+  doublestring | singlestring
+
+doublestring: /
   DOUBLE
     (
       (:
         BACK (:     # Backslash escapes
           [
-            DOUBLE    # Double Quote
+            DOUBLE  # Double Quote
             BACK    # Back Slash
-            SLASH     # Foreward Slash
+            SLASH   # Forward Slash
             'b'     # Back Space
             'f'     # Form Feed
             'n'     # New Line
@@ -141,6 +145,32 @@ string: /
     )
   DOUBLE
 /
+
+singlestring: /
+  SINGLE
+    (
+      (:
+        BACK (:     # Backslash escapes
+          [
+            SINGLE  # Single Quote
+            BACK    # Back Slash
+            SLASH   # Forward Slash
+            'b'     # Back Space
+            'f'     # Form Feed
+            'n'     # New Line
+            'r'     # Carriage Return
+            't'     # Horizontal Tab
+          ]
+        |
+          'u' HEX{4}    # Unicode octet pair
+        )
+      |
+        [^ SINGLE CONTROLS ]  # Anything else
+      )*
+    )
+  SINGLE
+/
+
 
 number: /(
   DASH?
