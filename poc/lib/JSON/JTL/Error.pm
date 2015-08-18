@@ -4,6 +4,8 @@ use warnings;
 use Moo;
 with 'Throwable';
 
+use overload '""' => sub { sprintf '[%s %s] %s', ref $_[0], $_[0]->error_type, $_[0]->message }, cmp => sub { "$_[0]" cmp "$_[1]" };
+
 =head1 NAME
 
 JSON::JTL::Error - represent and throw errors
@@ -55,6 +57,17 @@ has error_type => (
     my $got = shift;
     __PACKAGE__->new->throw( { error_type => 'ImplementationUnknownErrorType' } ) unless grep { $_ eq $got } @$error_types
   },
+);
+
+=head3 message
+
+This string provides additional information.
+
+=cut
+
+has message => (
+  is      => 'ro',
+  default => '',
 );
 
 1;
