@@ -201,6 +201,15 @@ my $test_suite = [
     instruction => { JTL => 'forEach', select => [ { JTL => 'children', select => [ { JTL => 'nodeArray', select => [ { JTL => 'children' }, ], }, ], }, ], produce => [ { JTL => 'name' } ] },
     output      => [ 'foo' ],
   },
+  {
+    why         => 'Variable works',
+    input       => { foo => 'bar' },
+    instruction => [
+      { JTL => 'variable',     name => [ { JTL => 'literal', value => 'xyz' } ], select => [ { JTL => 'current' } ] },
+      { JTL => 'callVariable', name => [ { JTL => 'literal', value => 'xyz' } ] },
+    ],
+    output      => [ { foo => 'bar' } ],
+  },
 ];
 
 foreach my $case (@$test_suite) {
@@ -210,7 +219,7 @@ foreach my $case (@$test_suite) {
       {
         JTL     => 'template',
         match   => [ { JTL => 'literal', value => JSON::true } ],
-        produce => ( ref $case->{instruction} eq [] ? $case->{instruction} : [ $case->{instruction} ] ),
+        produce => ( ( 'ARRAY' eq ref $case->{instruction} ) ? $case->{instruction} : [ $case->{instruction} ] ),
       }
     ]
   };

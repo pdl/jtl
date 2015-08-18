@@ -32,13 +32,14 @@ has contents => (
   is => 'rw',
   default => sub { [] },
   isa => sub {
-    throw_error 'ImplementationError' => "Got '$_[0]', not ARRAY reference" unless ref $_[0] eq ref [];
+    throw_error 'ImplementationError' => "Not an ARRAY reference" unless ref $_[0] eq ref [];
     foreach my $element ( @{ $_[0] } ) {
       throw_error 'ImplementationError' => "Got undef, not Node or NodeList" unless defined $element;
       throw_error 'ImplementationError' => "Got '$element', not Node or NodeList" unless ( (ref $element) =~ /JTL::Node|JTL::Document/ );
     }
   },
   coerce  => sub {
+    throw_error 'ImplementationError' => "Not an ARRAY reference" unless ref $_[0] eq ref [];
     [
        map {
         blessed $_

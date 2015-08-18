@@ -39,7 +39,7 @@ Returns a L<JSON::JTL::NodeList>. Takes one argument, which must be an arrayref,
 =cut
 
 sub nodelist {
-  JSON::JTL::NodeList->new( { contents => $_[0] } )
+  JSON::JTL::NodeList->new( { contents => $_[0] // [] } )
 }
 
 =head3 nodeArray
@@ -51,7 +51,7 @@ Returns a L<JSON::JTL::NodeArray>. Takes one argument, which must be an arrayref
 =cut
 
 sub nodeArray {
-  JSON::JTL::NodeArray->new( { contents => $_[0] } )
+  JSON::JTL::NodeArray->new( { contents => $_[0] // [] } )
 }
 
 =head3 void

@@ -94,7 +94,7 @@ Returns true if the symbol begins with an ASCII letter or underscore and only co
 sub is_valid_symbol {
   my $self   = shift;
   my $symbol = shift;
-  return ! ref $symbol && $symbol =~ m/^[a-z_][a-z0-9_\-]$/i;
+  return ! ref $symbol && $symbol =~ m/^[a-z_][a-z0-9_\-]*$/i;
 }
 
 =head3 get_symbol
@@ -127,7 +127,7 @@ Declares a symbol, putting it into the symbols attribute. If a symbol of the sam
 sub declare_symbol {
   my $self   = shift;
   my $symbol = shift;
-  my $value  = nodelist(@_);
+  my $value  = shift;
   throw_error 'ResultNodesUnexpected' unless $self->is_valid_symbol($symbol);
   throw_error 'TransformationVariableDeclarationFailed' => ('Symbol alredy declared') if ( exists $self->symbols->{$symbol} );
   $self->symbols->{$symbol} = $value;

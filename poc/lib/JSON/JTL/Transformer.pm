@@ -138,23 +138,17 @@ my $instructions = {
   },
   'variable' => sub {
     my ( $self, $scope, $instruction ) = @_;
-    if ( $instruction->{name} ) {
-      my $name = $self->production_result( $scope, $instruction->{name} )->[-1];
-      my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // throw_error 'TransformationMissingRequiredAtrribute';
-      $scope->declare_symbol( $name, $selected );
-    } else {
-      throw_error 'TransformationMissingRequiredAtrribute';
-    }
+    my $nameNL   = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'name') // throw_error 'TransformationMissingRequiredAtrribute';
+    my $name     = $nameNL->contents->[0]->value;
+    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // throw_error 'TransformationMissingRequiredAtrribute';
+    $scope->declare_symbol( $name, $selected );
     return void;
   },
   'callVariable' => sub {
     my ( $self, $scope, $instruction ) = @_;
-    if ( $instruction->{name} ) {
-      my $name = $self->production_result( $scope, $instruction->{name} )->[-1];
-      return nodelist [ scope->get_symbol( $name ) ];
-    } else {
-      throw_error 'TransformationMissingRequiredAtrribute'
-    }
+    my $nameNL = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'name') // throw_error 'TransformationMissingRequiredAtrribute';
+    my $name   = $nameNL->contents->[0]->value;
+    return nodelist [ $scope->get_symbol( $name ) ];
   },
   'current' => sub {
     my ( $self, $scope, $instruction ) = @_;
@@ -227,7 +221,7 @@ my $instructions = {
     my $test = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'test') // throw_error 'TransformationMissingRequiredAtrribute';
     throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $test->contents };
     if ( $test->contents->[0] ) {
-      return nodelist $self->evaluate_by_attribute($scope, $instruction, 'produce');
+      return $self->evaluate_nodelist_by_attribute($scope, $instruction, 'produce');
     }
     return nodelist;
   },
@@ -285,6 +279,7 @@ Given an instruction (a hashref with key JTL), evaluates the result. Throws an e
 
 sub evaluate_instruction {
   my ( $self, $scope, $instruction ) = @_;
+  throw_error 'TransformationUnexpectedType' => ("Not a JSON Object") unless 'HASH' eq ref $instruction;
   my $instructionName = $instruction->{JTL};
   if ( defined ( $instructions->{$instructionName} ) ) {
     return $instructions->{$instructionName}->(@_);
