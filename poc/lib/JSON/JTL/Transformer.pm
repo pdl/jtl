@@ -225,10 +225,45 @@ my $instructions = {
     }
     return nodelist;
   },
+  'any' => sub {
+    my ( $self, $scope, $instruction ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist [ $scope->current ];
+    foreach my $node (@{ $selected->contents }) {
+      my $val = $node->value;
+      throw_error 'ResultNodeNotBoolean' unless 'boolean' eq valueType $val;
+      return nodelist [ truth ] if $val;
+    }
+    return nodelist [ falsehood ];
+  },
+  'all' => sub {
+    my ( $self, $scope, $instruction ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist [ $scope->current ];
+    foreach my $node (@{ $selected->contents }) {
+      my $val = $node->value;
+      throw_error 'ResultNodeNotBoolean' unless 'boolean' eq valueType $val;
+      return nodelist [ falsehood ] unless $val;
+    }
+    return nodelist [ truth ];
+  },
   'or' => sub {
     my ( $self, $scope, $instruction ) = @_;
-    my $comparanda = $self->evaluate_by_attribute($scope, $instruction, 'select') // throw_error 'TransformationMissingRequiredAtrribute';
-    return nodelist [ ( scalar grep {!!$_} @$comparanda ) ? truth : falsehood ];
+    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist [ $scope->current ];
+    my $compare  = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'compare') // throw_error 'TransformationMissingRequiredAtrribute';
+    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $selected->contents };
+    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $compare->contents };
+    throw_error 'ResultNodeNotBoolean'     unless 'boolean' eq $selected->contents->[0]->type;
+    throw_error 'ResultNodeNotBoolean'     unless 'boolean' eq $compare->contents ->[0]->type;
+    return nodelist [ ( $selected->contents->[0]->value || $compare->contents ->[0]->value ) ? truth : falsehood ];
+  },
+  'and' => sub {
+    my ( $self, $scope, $instruction ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist [ $scope->current ];
+    my $compare  = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'compare') // throw_error 'TransformationMissingRequiredAtrribute';
+    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $selected->contents };
+    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $compare->contents };
+    throw_error 'ResultNodeNotBoolean'     unless 'boolean' eq $selected->contents->[0]->type;
+    throw_error 'ResultNodeNotBoolean'     unless 'boolean' eq $compare->contents ->[0]->type;
+    return nodelist [ ( $selected->contents->[0]->value && $compare->contents ->[0]->value ) ? truth : falsehood ];
   },
   'eq' => sub {
     my ( $self, $scope, $instruction ) = @_;

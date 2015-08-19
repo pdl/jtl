@@ -114,6 +114,90 @@ my $test_suite = [
     output      => [ JSON::false ],
   },
   {
+    why         => 'false or false is false',
+    input       => JSON::false,
+    instruction => { JTL => 'or', compare => [ { JTL => 'literal', value => JSON::false } ] },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => 'true or false is true',
+    input       => JSON::true,
+    instruction => { JTL => 'or', compare => [ { JTL => 'literal', value => JSON::false } ] },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => 'false or true is true',
+    input       => JSON::false,
+    instruction => { JTL => 'or', compare => [ { JTL => 'literal', value => JSON::true } ] },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => 'true or true is true',
+    input       => JSON::true,
+    instruction => { JTL => 'or', compare => [ { JTL => 'literal', value => JSON::true } ] },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => 'false and false is false',
+    input       => JSON::false,
+    instruction => { JTL => 'and', compare => [ { JTL => 'literal', value => JSON::false } ] },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => 'true and false is false',
+    input       => JSON::true,
+    instruction => { JTL => 'and', compare => [ { JTL => 'literal', value => JSON::false } ] },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => 'false and true is false',
+    input       => JSON::false,
+    instruction => { JTL => 'and', compare => [ { JTL => 'literal', value => JSON::true } ] },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => 'true and true is true',
+    input       => JSON::true,
+    instruction => { JTL => 'and', compare => [ { JTL => 'literal', value => JSON::true } ] },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => 'any(false, false) is false',
+    input       => {},
+    instruction => { JTL => 'any', select => [ { JTL => 'literal', value => JSON::false }, { JTL => 'literal', value => JSON::false } ] },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => 'any(true, false) is true',
+    input       => {},
+    instruction => { JTL => 'any', select => [ { JTL => 'literal', value => JSON::true }, { JTL => 'literal', value => JSON::false } ] },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => 'any(true, true) is true',
+    input       => {},
+    instruction => { JTL => 'any', select => [ { JTL => 'literal', value => JSON::true }, { JTL => 'literal', value => JSON::true } ] },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => 'all(false, false) is false',
+    input       => {},
+    instruction => { JTL => 'all', select => [ { JTL => 'literal', value => JSON::false }, { JTL => 'literal', value => JSON::false } ] },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => 'all(true, false) is false',
+    input       => {},
+    instruction => { JTL => 'all', select => [ { JTL => 'literal', value => JSON::true }, { JTL => 'literal', value => JSON::false } ] },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => 'all(true, true) is true',
+    input       => {},
+    instruction => { JTL => 'all', select => [ { JTL => 'literal', value => JSON::true }, { JTL => 'literal', value => JSON::true } ] },
+    output      => [ JSON::true ],
+  },
+  {
     why         => 'sameNode: current vs current',
     input       => { foo => 123, bar => 123 },
     instruction => {
@@ -316,7 +400,7 @@ templates:
               - JTL: applyTemplates
   - JTL: template
     match:
-      - JTL: or
+      - JTL: any
         select:
           - JTL: eq
             select:

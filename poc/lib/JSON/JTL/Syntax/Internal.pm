@@ -182,7 +182,7 @@ sub valueType {
   }
   return 'array' if $ref eq 'ARRAY';
   return 'object' if $ref eq 'HASH';
-  return 'boolean' if $ref eq 'JSON::Boolean';
+  return 'boolean' if $ref =~ 'Boolean';
   return 'blessed';
 }
 

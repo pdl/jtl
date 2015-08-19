@@ -4,7 +4,7 @@ use warnings;
 use Moo;
 with 'Throwable';
 
-use overload '""' => sub { sprintf '[%s %s] %s', ref $_[0], $_[0]->error_type, $_[0]->message }, cmp => sub { "$_[0]" cmp "$_[1]" };
+use overload '""' => sub { sprintf '[%s %s] %s', ref $_[0], $_[0]->error_type // '', $_[0]->message // '' }, cmp => sub { "$_[0]" cmp "$_[1]" };
 
 =head1 NAME
 
