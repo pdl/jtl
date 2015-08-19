@@ -210,6 +210,33 @@ my $test_suite = [
     ],
     output      => [ { foo => 'bar' } ],
   },
+  {
+    why         => 'Variable executes production when declared, not when called',
+    input       => { foo => 'bar' },
+    instruction => [
+      { JTL => 'variable', name => [ { JTL => 'literal', value => 'xyz' } ], select => [ { JTL => 'current' } ] },
+      { JTL => 'forEach', select => [ { JTL => 'children' } ], produce => [ { JTL => 'callVariable', name => [ { JTL => 'literal', value => 'xyz' } ] }, ], }
+    ],
+    output      => [ { foo => 'bar' } ],
+  },
+  {
+    why         => 'Variable contents can be explored',
+    input       => { foo => 'bar' },
+    instruction => [
+      { JTL => 'variable', name => [ { JTL => 'literal', value => 'xyz' } ], select => [ { JTL => 'current' } ] },
+      { JTL => 'children', select => [ { JTL => 'callVariable', name => [ { JTL => 'literal', value => 'xyz' } ] }, ], },
+    ],
+    output      => [ 'bar' ],
+  },
+  {
+    why         => 'Variable contents retain their original membership of a document',
+    input       => { foo => 'bar' },
+    instruction => [
+      { JTL => 'variable', name => [ { JTL => 'literal', value => 'xyz' } ], select => [ { JTL => 'children' } ] },
+      { JTL => 'parent', select => [ { JTL => 'callVariable', name => [ { JTL => 'literal', value => 'xyz' } ] }, ], },
+    ],
+    output      => [ { foo => 'bar' } ],
+  },
 ];
 
 foreach my $case (@$test_suite) {
@@ -233,7 +260,7 @@ foreach my $case (@$test_suite) {
 
   for my $i ( 0..$#{ $case->{output} } ) {
     # todo: this is a bit awkward
-    cmp_deeply ( $result->contents->[$i]->contents, $case->{output}->[$i], "$why ($i)" ) or diag YAML::Dump $result;
+    cmp_deeply ( $result->contents->[$i]->value, $case->{output}->[$i], "$why ($i)" ) or diag YAML::Dump $result;
   }
 }
 
