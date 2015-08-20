@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Deep qw(cmp_deeply);
-use JSON::JTL::Transformer;
+use JSON::JTL::Scope;
 
 my $test_suite = [
   {
@@ -347,7 +347,7 @@ foreach my $case (@$test_suite) {
     ]
   };
 
-  my $result = JSON::JTL::Transformer->new->transform(
+  my $result = JSON::JTL::Scope->new->transform(
     $case->{input},
     $transformation,
   );
@@ -369,7 +369,7 @@ subtest 'Full document (identity transformation)' => sub {
   my $transformation = Load ($t);
 
   my $original = {foo => [123, 'bar', {}]};
-  my $transformed = JSON::JTL::Transformer->new->transform( $original, $transformation )->contents->[0]->contents;
+  my $transformed = JSON::JTL::Scope->new->transform( $original, $transformation )->contents->[0]->contents;
   cmp_deeply( $original, $transformed ) or diag Dump $transformed;
 };
 

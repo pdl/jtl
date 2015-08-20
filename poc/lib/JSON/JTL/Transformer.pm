@@ -1,7 +1,7 @@
 package JSON::JTL::Transformer;
 use strict;
 use warnings;
-use Moo;
+use Moo::Role;
 use JSON::JTL::Syntax::Internal;
 use JSON::JTL::Scope;
 use Scalar::Util qw(blessed refaddr);
@@ -38,29 +38,7 @@ sub transform {
     $rootScope->declare_template( $template );
   }
 
-  return $self->apply_templates($rootScope);
-}
-
-=head3 apply_templates
-
-  $self->apply_templates( $scope );
-
-The current scope will be used to find templates in scope and
-
-  $self->apply_template( $scope, $template );
-
-will be called with each.
-
-If an undefined value is returned, the next template will be tried; if a defined value is returned, that value will be returned and no more templates will be considered.
-
-=cut
-
-sub apply_templates {
-  my ( $self, $scope ) = @_;
-  my $applicator = sub {
-    $self->apply_template( $scope, shift );
-  };
-  return $scope->apply_templates($applicator);
+  return $rootScope->apply_templates( sub { $self->apply_template($rootScope, shift) } );
 }
 
 =head3 apply_template
@@ -129,12 +107,19 @@ my $instructions = {
       return
         $selected->map( sub {
           my $this = shift;
-          $self->apply_templates(
-            $scope->subscope( { current => $this } ),
+          my $subscope   = $scope->subscope( { current => $this } );
+          my $applicator = sub {
+            $self->apply_template( $subscope, shift );
+          };
+          $subscope->apply_templates(
+            $applicator
           ) // throw_error TransformationNoMatchingTemplate => ('No template for ' . $this->type . ' ' . $this );
         } );
     }
-    return $self->apply_templates( $scope );
+    my $applicator = sub {
+      $self->apply_template( $scope, shift );
+    };
+    return $scope->apply_templates( $applicator );
   },
   'variable' => sub {
     my ( $self, $scope, $instruction ) = @_;

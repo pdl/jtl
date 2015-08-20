@@ -50,7 +50,7 @@ The object which will provide the transformation method. There is currently no n
 has transformer => (
   is      => 'ro',
   lazy    => 1,
-  default => sub { JSON::JTL::Transformer->new() },
+  default => sub { JSON::JTL::Scope->new() },
 );
 
 sub transform_data {

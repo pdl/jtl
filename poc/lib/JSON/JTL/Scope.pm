@@ -2,6 +2,7 @@ package JSON::JTL::Scope;
 use strict;
 use warnings;
 use Moo;
+with 'JSON::JTL::Transformer'; # yup.
 use JSON::JTL::Syntax::Internal qw(nodelist throw_error);
 
 =head1 NAME
