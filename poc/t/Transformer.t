@@ -198,6 +198,18 @@ my $test_suite = [
     output      => [ JSON::true ],
   },
   {
+    why         => 'name returns name',
+    input       => { foo => 'bar' },
+    instruction => { JTL => 'forEach', select => [ { JTL => 'children' }, ], produce => [ { JTL => 'name' } ] },
+    output      => [ 'foo' ],
+  },
+  {
+    why         => 'index returns 0-based index',
+    input       => [ { foo => 'bar' }, 'xyz' ],
+    instruction => { JTL => 'forEach', select => [ { JTL => 'children' }, ], produce => [ { JTL => 'index' } ] },
+    output      => [ 0, 1 ],
+  },
+  {
     why         => 'sameNode: current vs current',
     input       => { foo => 123, bar => 123 },
     instruction => {

@@ -159,6 +159,11 @@ my $instructions = {
     my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist [ $scope->current ];
     nodelist [ document $selected->contents->[0]->name ];
   },
+  'index' => sub {
+    my ( $self, $scope, $instruction ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist [ $scope->current ];
+    nodelist [ document $selected->contents->[0]->index ];
+  },
   'parent' => sub {
     my ( $self, $scope, $instruction ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist [ $scope->current ];
@@ -207,10 +212,6 @@ my $instructions = {
     my ( $self, $scope, $instruction ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute($scope, $instruction, 'select') // nodelist();
     return nodelist [ nodeArray [ @{ $selected->contents } ] ];
-  },
-  'any' => sub {
-    my ( $self, $scope, $instruction ) = @_;
-    return nodelist [ $scope->current ];
   },
   'type' => sub {
     my ( $self, $scope, $instruction ) = @_;
