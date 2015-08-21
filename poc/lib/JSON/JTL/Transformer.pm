@@ -113,7 +113,7 @@ my $instructions = {
           };
           $subScope->apply_templates(
             $applicator
-          ) // throw_error TransformationNoMatchingTemplate => ('No template for ' . $this->type . ' ' . $this );
+          ) // $self->throw_error( TransformationNoMatchingTemplate => ('No template for ' . $this->type . ' ' . $this ) );
         } );
     }
     my $applicator = sub {
@@ -123,15 +123,15 @@ my $instructions = {
   },
   'variable' => sub {
     my ( $self ) = @_;
-    my $nameNL   = $self->evaluate_nodelist_by_attribute('name') // throw_error 'TransformationMissingRequiredAtrribute';
+    my $nameNL   = $self->evaluate_nodelist_by_attribute('name') // $self->throw_error('TransformationMissingRequiredAtrribute');
     my $name     = $nameNL->contents->[0]->value;
-    my $selected = $self->evaluate_nodelist_by_attribute('select') // throw_error 'TransformationMissingRequiredAtrribute';
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // $self->throw_error('TransformationMissingRequiredAtrribute');
     $self->parent->declare_symbol( $name, $selected );
     return void;
   },
   'callVariable' => sub {
     my ( $self ) = @_;
-    my $nameNL = $self->evaluate_nodelist_by_attribute('name') // throw_error 'TransformationMissingRequiredAtrribute';
+    my $nameNL = $self->evaluate_nodelist_by_attribute('name') // $self->throw_error('TransformationMissingRequiredAtrribute');
     my $name   = $nameNL->contents->[0]->value;
     return nodelist [ $self->get_symbol( $name ) ];
   },
@@ -166,11 +166,11 @@ my $instructions = {
   },
   'forEach' => sub {
     my ( $self ) = @_;
-    my $selected = $self->evaluate_nodelist_by_attribute('select') // throw_error 'TransformationMissingRequiredAtrribute';
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // $self->throw_error('TransformationMissingRequiredAtrribute');
     return $selected->map( sub {
       $self->subscope( { current => shift } )->evaluate_nodelist_by_attribute (
         'produce',
-      ) // throw_error 'TransformationMissingRequiredAtrribute';
+      ) // $self->throw_error('TransformationMissingRequiredAtrribute');
     } );
   },
   'literal' => sub {
@@ -179,7 +179,7 @@ my $instructions = {
     if ( exists $instruction->{value} ) {
       return document($instruction->{value})
     } else {
-      throw_error 'TransformationMissingRequiredAtrribute';
+      $self->throw_error('TransformationMissingRequiredAtrribute');
     }
   },
   'array' => sub {
@@ -203,8 +203,8 @@ my $instructions = {
   },
   'if' => sub {
     my ( $self ) = @_;
-    my $test = $self->evaluate_nodelist_by_attribute('test') // throw_error 'TransformationMissingRequiredAtrribute';
-    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $test->contents };
+    my $test = $self->evaluate_nodelist_by_attribute('test') // $self->throw_error('TransformationMissingRequiredAtrribute');
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $test->contents };
     if ( $test->contents->[0] ) {
       return $self->evaluate_nodelist_by_attribute('produce');
     }
@@ -215,7 +215,7 @@ my $instructions = {
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
     foreach my $node (@{ $selected->contents }) {
       my $val = $node->value;
-      throw_error 'ResultNodeNotBoolean' unless 'boolean' eq valueType $val;
+      $self->throw_error('ResultNodeNotBoolean') unless 'boolean' eq valueType $val;
       return nodelist [ truth ] if $val;
     }
     return nodelist [ falsehood ];
@@ -225,7 +225,7 @@ my $instructions = {
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
     foreach my $node (@{ $selected->contents }) {
       my $val = $node->value;
-      throw_error 'ResultNodeNotBoolean' unless 'boolean' eq valueType $val;
+      $self->throw_error('ResultNodeNotBoolean') unless 'boolean' eq valueType $val;
       return nodelist [ falsehood ] unless $val;
     }
     return nodelist [ truth ];
@@ -233,37 +233,37 @@ my $instructions = {
   'or' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
-    my $compare  = $self->evaluate_nodelist_by_attribute('compare') // throw_error 'TransformationMissingRequiredAtrribute';
-    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $selected->contents };
-    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $compare->contents };
-    throw_error 'ResultNodeNotBoolean'     unless 'boolean' eq $selected->contents->[0]->type;
-    throw_error 'ResultNodeNotBoolean'     unless 'boolean' eq $compare->contents ->[0]->type;
+    my $compare  = $self->evaluate_nodelist_by_attribute('compare') // $self->throw_error('TransformationMissingRequiredAtrribute');
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $selected->contents };
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $compare->contents };
+    $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $selected->contents->[0]->type;
+    $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $compare->contents ->[0]->type;
     return nodelist [ ( $selected->contents->[0]->value || $compare->contents ->[0]->value ) ? truth : falsehood ];
   },
   'and' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
-    my $compare  = $self->evaluate_nodelist_by_attribute('compare') // throw_error 'TransformationMissingRequiredAtrribute';
-    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $selected->contents };
-    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $compare->contents };
-    throw_error 'ResultNodeNotBoolean'     unless 'boolean' eq $selected->contents->[0]->type;
-    throw_error 'ResultNodeNotBoolean'     unless 'boolean' eq $compare->contents ->[0]->type;
+    my $compare  = $self->evaluate_nodelist_by_attribute('compare') // $self->throw_error('TransformationMissingRequiredAtrribute');
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $selected->contents };
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $compare->contents };
+    $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $selected->contents->[0]->type;
+    $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $compare->contents ->[0]->type;
     return nodelist [ ( $selected->contents->[0]->value && $compare->contents ->[0]->value ) ? truth : falsehood ];
   },
   'eq' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
-    my $compare  = $self->evaluate_nodelist_by_attribute('compare') // throw_error 'TransformationMissingRequiredAtrribute';
-    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $selected->contents };
-    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $compare->contents };
+    my $compare  = $self->evaluate_nodelist_by_attribute('compare') // $self->throw_error('TransformationMissingRequiredAtrribute');
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $selected->contents };
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $compare->contents };
     return nodelist [ valuesEqual( map { $_->value } map { @{ $_->contents } } $selected, $compare) ];
   },
   'sameNode' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // [ $self->current ];
-    my $compare  = $self->evaluate_nodelist_by_attribute('compare') // throw_error 'TransformationMissingRequiredAtrribute';
-    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $selected->contents };
-    throw_error 'ResultNodesMultipleNodes' unless 1 == @{ $compare->contents };
+    my $compare  = $self->evaluate_nodelist_by_attribute('compare') // $self->throw_error('TransformationMissingRequiredAtrribute');
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $selected->contents };
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $compare->contents };
     my $comparanda = [ $selected->contents->[0], $compare->contents->[0] ];
     return nodelist [ truth ] if
       refaddr ( $comparanda->[0]->document )
@@ -300,12 +300,12 @@ Given an instruction (a hashref with key JTL), evaluates the result. Throws an e
 sub evaluate_instruction {
   my ( $self ) = @_;
   my $instruction = $self->instruction;
-  throw_error 'TransformationUnexpectedType' => ("Not a JSON Object") unless 'HASH' eq ref $instruction;
+  $self->throw_error('TransformationUnexpectedType' => ("Not a JSON Object")) unless 'HASH' eq ref $instruction;
   my $instructionName = $instruction->{JTL};
   if ( defined ( $instructions->{$instructionName} ) ) {
     return $instructions->{$instructionName}->($self, $instruction);
   }
-  throw_error 'TransformationUnknownInstruction' => ("Cannot understand '$instructionName'");
+  $self->throw_error('TransformationUnknownInstruction' => "Cannot understand '$instructionName'");
 }
 
 =head3 evaluate_nodelist_by_attribute

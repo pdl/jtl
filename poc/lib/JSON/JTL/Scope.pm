@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Moo;
 with 'JSON::JTL::Transformer'; # yup.
-use JSON::JTL::Syntax::Internal qw(nodelist throw_error);
+use JSON::JTL::Syntax::Internal qw(nodelist);
 
 =head1 NAME
 
@@ -47,7 +47,7 @@ A weak reference to the node considered to be the 'current' node in the scope.
 has current => ( # the current node
   is      => 'rw',
   isweak  => 1,
-  isa     => sub { throw_error 'ImplementationError' => qq(Got "$_[0]") unless ((ref $_[0]) =~ /JTL::Node|JTL::Document/) }
+  isa     => sub { throw_error('ImplementationError' => qq(Got "$_[0]")) unless ((ref $_[0]) =~ /JTL::Node|JTL::Document/) }
 );
 
 =head3 parent
@@ -123,7 +123,7 @@ To find the symbol, the contents of the C<symbols> attribute will be checked fir
 sub get_symbol {
   my $self   = shift;
   my $symbol = shift;
-  throw_error 'ResultNodesUnexpected' unless $self->is_valid_symbol($symbol);
+  $self->throw_error('ResultNodesUnexpected') unless $self->is_valid_symbol($symbol);
   return $self->symbols->{$symbol} if ( exists $self->symbols->{$symbol} );
   return $self->parent->get_symbol($symbol) if ( defined $self->parent );
   return undef;
@@ -141,8 +141,8 @@ sub declare_symbol {
   my $self   = shift;
   my $symbol = shift;
   my $value  = shift;
-  throw_error 'ResultNodesUnexpected' unless $self->is_valid_symbol($symbol);
-  throw_error 'TransformationVariableDeclarationFailed' => ('Symbol alredy declared') if ( exists $self->symbols->{$symbol} );
+  $self->throw_error('ResultNodesUnexpected') unless $self->is_valid_symbol($symbol);
+  $self->throw_error('TransformationVariableDeclarationFailed' => ('Symbol alredy declared')) if ( exists $self->symbols->{$symbol} );
   $self->symbols->{$symbol} = $value;
 }
 
@@ -150,10 +150,10 @@ sub update_symbol {
   my $self   = shift;
   my $symbol = shift;
   my $value  = nodelist(@_);
-  throw_error 'ResultNodesUnexpected' unless $self->is_valid_symbol($symbol);
+  $self->throw_error('ResultNodesUnexpected') unless $self->is_valid_symbol($symbol);
   return $self->symbols->{$symbol} = $value if ( exists $self->symbols->{$symbol} );
   return $self->parent->get_symbol($symbol) if ( defined $self->parent );
-  throw_error 'TransformationVariableDeclarationFailed' => ('Symbol not yet declared');
+  $self->throw_error('TransformationVariableDeclarationFailed' => ('Symbol not yet declared'));
 }
 
 =head3 declare_template
@@ -191,5 +191,25 @@ sub apply_templates {
   return $self->parent->apply_templates($applicator) if ( defined $self->parent );
   return undef;
 }
+
+
+=head3 throw_error
+
+  $self->throw_error($error_type);
+  $self->throw_error($error_type, $message);
+
+Throws a L<JSON::JTL::Error> with the type given, and optionally, a message. The scope is also passed to the error so a stack trace of the input document and the JTL document can be created, if desired.
+
+=cut
+
+
+sub throw_error {
+  if ( ref $_[0] and $_[0]->isa(__PACKAGE__) ) {
+    JSON::JTL::Error->new( { error_type => $_[1], message => $_[2], scope => $_[0] } )->throw;
+  } else {
+    JSON::JTL::Syntax::Internal::throw_error( @_ )
+  }
+}
+
 
 1;

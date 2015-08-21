@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Moo;
 with 'Throwable';
+with 'StackTrace::Auto'; # Unfortunately, this builds a trace on new, not on throw. However, it's easy.
 
 use overload '""' => sub { sprintf '[%s %s] %s', ref $_[0], $_[0]->error_type // '', $_[0]->message // '' }, cmp => sub { "$_[0]" cmp "$_[1]" };
 
@@ -68,6 +69,16 @@ This string provides additional information.
 has message => (
   is      => 'ro',
   default => '',
+);
+
+=head3 scope
+
+This scope from which the error was called.
+
+=cut
+
+has scope => (
+  is      => 'ro',
 );
 
 1;
