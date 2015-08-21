@@ -86,8 +86,9 @@ Creates a new scope whose parent is the current scope and returns it.
 sub subscope {
   my $self = shift;
   my $args = {
-    parent => $self,
-    current => $self->current,
+    parent      => $self,
+    current     => $self->current,
+    instruction => $self->instruction,
     ( $_[0] ? %{$_[0]} : () )
   };
   return __PACKAGE__->new( $args );
