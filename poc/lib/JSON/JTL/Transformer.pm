@@ -29,7 +29,7 @@ Returns a nodelist.
 sub transform {
   my ($self, $input, $transformation) = @_;
   #my $coreScope = JSON::JTL::Scope::Core->new();
-  my $rootScope = $self->subscope( { current => document $input } );
+  my $rootScope = $self->subscope( { current => document $input, instruction => $transformation } );
 
   # Todo: this should just be an execution of the instructions.
   # It should be possible to load variables at root scope;
@@ -90,10 +90,10 @@ Given a production (which must be an arrayref), attempts to evaluate it. Returns
 
 sub production_result {
   my ( $self, $production ) = @_;
-  my $subScope = $self->subscope;
+  my $subScope = $self->subscope ( { instruction => $production } );
   my $results = [];
   foreach my $instruction ( @$production ) {
-    push @$results, $subScope->evaluate_instruction($instruction); # should return a nodelist or undef
+    push @$results, $subScope->subscope ( { instruction => $instruction } )->evaluate_instruction; # should return a nodelist or undef
   }
   return $results;
 }
@@ -125,7 +125,7 @@ my $instructions = {
     my $nameNL   = $self->evaluate_nodelist_by_attribute($instruction, 'name') // throw_error 'TransformationMissingRequiredAtrribute';
     my $name     = $nameNL->contents->[0]->value;
     my $selected = $self->evaluate_nodelist_by_attribute($instruction, 'select') // throw_error 'TransformationMissingRequiredAtrribute';
-    $self->declare_symbol( $name, $selected );
+    $self->parent->declare_symbol( $name, $selected );
     return void;
   },
   'callVariable' => sub {
@@ -289,7 +289,7 @@ for my $name (keys %$instructions) {
 
 =head3 evaluate_instruction
 
-  $self->evaluate_instruction( $instruction );
+  $self->evaluate_instruction;
 
 Given an instruction (a hashref with key JTL), evaluates the result. Throws an error if the value of JTL does not correspond to a known instruction.
 
@@ -297,11 +297,12 @@ Given an instruction (a hashref with key JTL), evaluates the result. Throws an e
 
 
 sub evaluate_instruction {
-  my ( $self, $instruction ) = @_;
+  my ( $self ) = @_;
+  my $instruction = $self->instruction;
   throw_error 'TransformationUnexpectedType' => ("Not a JSON Object") unless 'HASH' eq ref $instruction;
   my $instructionName = $instruction->{JTL};
   if ( defined ( $instructions->{$instructionName} ) ) {
-    return $instructions->{$instructionName}->(@_);
+    return $instructions->{$instructionName}->($self, $instruction);
   }
   throw_error 'TransformationUnknownInstruction' => ("Cannot understand '$instructionName'");
 }

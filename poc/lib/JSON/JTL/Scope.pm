@@ -61,6 +61,17 @@ has parent => ( # the parent of the scope, not of the node
   isweak  => 1,
 );
 
+=head3 instruction
+
+A reference to the current instruction
+
+=cut
+
+has instruction => (
+  is      => 'rw',
+  isweak  => 1,
+);
+
 =head1 METHODS
 
 =head3 subscope
