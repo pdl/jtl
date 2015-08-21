@@ -333,33 +333,68 @@ my $test_suite = [
     ],
     output      => [ { foo => 'bar' } ],
   },
+  {
+    why         => 'or must have only booleans',
+    input       => { foo => 'bar' },
+    instruction => [
+      { JTL => 'or', select => [ { JTL => 'literal', value => 1 } ], compare => [ { JTL => 'literal', value => 1 } ] },
+    ],
+    error => {
+      error_type => 'ResultNodeNotBoolean',
+    }
+  },
+  {
+    why         => 'or must have only single booleans',
+    input       => { foo => 'bar' },
+    instruction => [
+      { JTL => 'or', select => [ { JTL => 'literal', value => JSON::true }, { JTL => 'literal', value => JSON::true } ], compare => [ { JTL => 'literal', value => JSON::false } ] },
+    ],
+    error => {
+      error_type => 'ResultNodesMultipleNodes',
+    }
+  },
 ];
 
 foreach my $case (@$test_suite) {
-  my $transformation = {
-    JTL => 'transformation',
-    templates => [
-      {
-        JTL     => 'template',
-        match   => [ { JTL => 'literal', value => JSON::true } ],
-        produce => ( ( 'ARRAY' eq ref $case->{instruction} ) ? $case->{instruction} : [ $case->{instruction} ] ),
-      }
-    ]
-  };
-
-  my $result = JSON::JTL::Scope->new->transform(
-    $case->{input},
-    $transformation,
-  );
-
   my $why = $case->{why};
+  subtest $why => sub {
+    my $transformation = {
+      JTL => 'transformation',
+      templates => [
+        {
+          JTL     => 'template',
+          match   => [ { JTL => 'literal', value => JSON::true } ],
+          produce => ( ( 'ARRAY' eq ref $case->{instruction} ) ? $case->{instruction} : [ $case->{instruction} ] ),
+        }
+      ]
+    };
 
-  for my $i ( 0..$#{ $case->{output} } ) {
-    # todo: this is a bit awkward
-    cmp_deeply ( $result->contents->[$i]->value, $case->{output}->[$i], "$why ($i)" ) or diag YAML::Dump $result;
+    my $result;
+
+    eval {
+      $result = JSON::JTL::Scope->new->transform(
+        $case->{input},
+        $transformation,
+      );
+    };
+
+    my $error = $@;
+
+    if ( $case->{error} ) {
+        ok($error, 'This should cause an error');
+        is(ref $error, 'JSON::JTL::Error', 'The error was JSON::JTL::Error');
+        foreach my $key ( keys %{ $case->{error} // {} } ) {
+          is_deeply ($error->$key, $case->{error}->{$key});
+        }
+    } else {
+      ok(!$error, 'This should not cause an error') or return diag $error;
+      for my $i ( 0..$#{ $case->{output} } ) {
+        # todo: this is a bit awkward
+        cmp_deeply ( $result->contents->[$i]->value, $case->{output}->[$i], "$why ($i)" ) or diag YAML::Dump $result;
+      }
+    }
   }
 }
-
 
 use YAML;
 
