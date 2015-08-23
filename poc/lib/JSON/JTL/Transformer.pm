@@ -50,7 +50,8 @@ Attempts to appy a single template to the scope, first using C<match_template>, 
 
 sub apply_template {
   my ( $self, $template ) = @_;
-  return $self->process_template ( $template ) if ( $self->match_template ( $template ) );
+  my $mergedScope = $template->subscope( { caller => $self, current => $self->current } );
+  return $mergedScope->process_template ( $mergedScope->instruction ) if ( $mergedScope->match_template ( $mergedScope->instruction ) );
   return undef;
 }
 
@@ -113,13 +114,13 @@ my $instructions = {
           };
           $subScope->apply_templates(
             $applicator
-          ) // $self->throw_error( TransformationNoMatchingTemplate => ('No template for ' . $this->type . ' ' . $this ) );
+          ) // $self->throw_error('TransformationNoMatchingTemplate');
         } );
     }
     my $applicator = sub {
       $self->apply_template( shift );
     };
-    return $self->apply_templates( $applicator );
+    return $self->apply_templates( $applicator ) // $self->throw_error('TransformationNoMatchingTemplate');
   },
   'variable' => sub {
     my ( $self ) = @_;

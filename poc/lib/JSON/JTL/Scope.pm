@@ -52,11 +52,22 @@ has current => ( # the current node
 
 =head3 parent
 
-A weak reference to the parent scope, used to find accessible variables and templates.
+A weak reference to the parent scope, used to find accessible variables.
 
 =cut
 
 has parent => ( # the parent of the scope, not of the node
+  is      => 'rw',
+  isweak  => 1,
+);
+
+=head3 caller
+
+A weak reference to the caller scope, used to find accessible templates for stack traces.
+
+=cut
+
+has caller => (
   is      => 'rw',
   isweak  => 1,
 );
@@ -87,6 +98,7 @@ sub subscope {
   my $self = shift;
   my $args = {
     parent      => $self,
+    caller      => $self,
     current     => $self->current,
     instruction => $self->instruction,
     ( $_[0] ? %{$_[0]} : () )
@@ -114,7 +126,7 @@ sub is_valid_symbol {
 
   my $nodelist = $self->get_symbol('foo_123');
 
-Returns the contents of the symbol with the name given if that symol. Otherwise returns undefined.
+Returns the contents of the symbol with the name given if that symbol. Otherwise returns undefined.
 
 To find the symbol, the contents of the C<symbols> attribute will be checked first; otherwise the node's parent will be queried using C<get_symbol>.
 
@@ -167,8 +179,9 @@ Declares a template, adding it to the end of the templates list.
 sub declare_template {
   my $self     = shift;
   my $template = shift;
-  push @{ $self->templates }, $template;
-  return $template;
+  my $closure  = $self->enclose( { instruction => $template, caller => undef } );
+  push @{ $self->templates }, $closure;
+  return $closure;
 }
 
 =head3 apply_templates
@@ -188,7 +201,7 @@ sub apply_templates {
     my $result = $applicator->($template);
     return $result if defined $result;
   }
-  return $self->parent->apply_templates($applicator) if ( defined $self->parent );
+  return $self->caller->apply_templates($applicator) if ( defined $self->caller );
   return undef;
 }
 
@@ -211,5 +224,26 @@ sub throw_error {
   }
 }
 
+sub enclose {
+  my $self    = shift;
+  my $args    = shift;
+  my $symbols = {};
+  my @parent  = $self;
+
+  while ( defined $parent[0] ) {
+    my $p         = $parent[0];
+    my $p_symbols = $p->symbols;
+
+    $symbols->{$_} = $p_symbols->{$_} for keys %$p_symbols;
+
+    @parent = $p->parent;
+  }
+
+  return __PACKAGE__->new( {
+    symbols     => $symbols,
+    instruction => $self->instruction,
+    $args ? %$args : ()
+  } );
+}
 
 1;
