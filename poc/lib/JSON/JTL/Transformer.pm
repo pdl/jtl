@@ -51,7 +51,7 @@ Attempts to appy a single template to the scope, first using C<match_template>, 
 sub apply_template {
   my ( $self, $template ) = @_;
   my $mergedScope = $template->subscope( { caller => $self, current => $self->current } );
-  return $mergedScope->process_template ( $mergedScope->instruction ) if ( $mergedScope->match_template ( $mergedScope->instruction ) );
+  return $mergedScope->process_template ( $mergedScope->instruction ) if ( $mergedScope->match_template );
   return undef;
 }
 
@@ -64,10 +64,11 @@ Finds the production result of the match. If it is a single boolean true, return
 =cut
 
 sub match_template {
-  my ( $self, $template ) = @_;
-  my $result = $self->production_result( $template->{match} );
-  # todo: be sricter
-  !!$result->[0];
+  my ( $self ) = @_;
+  my $result = $self->evaluate_nodelist_by_attribute( 'match' ) // throw_error 'TemplateMissingRequiredAttribute';
+  $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $result->contents };
+  $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $result->contents->[0]->type;
+  !!$result->contents->[0];
 }
 
 =head3 process_template
@@ -77,8 +78,8 @@ sub match_template {
 =cut
 
 sub process_template {
-  my ( $self, $template, $data ) = @_;
-  nodelist $self->production_result( $template->{produce} )
+  my ( $self ) = @_;
+  my $result = $self->evaluate_nodelist_by_attribute( 'produce' ) // throw_error 'TemplateMissingRequiredAttribute';
 }
 
 =head3 production_result
