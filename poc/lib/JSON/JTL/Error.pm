@@ -5,7 +5,7 @@ use Moo;
 with 'Throwable';
 with 'StackTrace::Auto'; # Unfortunately, this builds a trace on new, not on throw. However, it's easy.
 
-use overload '""' => sub { sprintf '[%s %s] %s', ref $_[0], $_[0]->error_type // '', $_[0]->message // '' }, cmp => sub { "$_[0]" cmp "$_[1]" };
+use overload '""' => sub { sprintf '[%s %s] %s'."\n".'%s', ref $_[0], $_[0]->error_type // '', $_[0]->message // '', $_[0]->stack_trace // '' }, cmp => sub { "$_[0]" cmp "$_[1]" };
 
 =head1 NAME
 
