@@ -196,7 +196,7 @@ If no templates returned a defined value, undef is returned.
 
 sub apply_templates {
   my $self       = shift;
-  my $applicator = shift;
+  my $applicator = shift // sub { $self->apply_template( shift ) };
   foreach my $template ( reverse @{ $self->templates } ) {
     my $result = $applicator->($template);
     return $result if defined $result;

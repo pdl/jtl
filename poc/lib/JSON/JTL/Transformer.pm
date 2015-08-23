@@ -37,7 +37,7 @@ sub transform {
     $rootScope->declare_template( $template );
   }
 
-  return $rootScope->apply_templates( sub { $rootScope->apply_template( shift ) } );
+  return $rootScope->apply_templates;
 }
 
 =head3 apply_template
@@ -109,18 +109,10 @@ my $instructions = {
         $selected->map( sub {
           my $this = shift;
           my $subScope   = $self->subscope( { current => $this } );
-          my $applicator = sub {
-            $subScope->apply_template( shift );
-          };
-          $subScope->apply_templates(
-            $applicator
-          ) // $self->throw_error('TransformationNoMatchingTemplate');
+          $subScope->apply_templates // $self->throw_error('TransformationNoMatchingTemplate');
         } );
     }
-    my $applicator = sub {
-      $self->apply_template( shift );
-    };
-    return $self->apply_templates( $applicator ) // $self->throw_error('TransformationNoMatchingTemplate');
+    return $self->apply_templates // $self->throw_error('TransformationNoMatchingTemplate');
   },
   'variable' => sub {
     my ( $self ) = @_;
