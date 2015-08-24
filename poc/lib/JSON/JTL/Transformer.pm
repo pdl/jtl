@@ -29,13 +29,9 @@ Returns a nodelist.
 sub transform {
   my ($self, $input, $transformation) = @_;
   #my $coreScope = JSON::JTL::Scope::Core->new();
-  my $rootScope = $self->subscope( { current => document $input, instruction => $transformation } );
+  my $rootScope = $self->subscope( { current => document ($input), instruction => $transformation } );
 
-  # Todo: this should just be an execution of the instructions.
-  # It should be possible to load variables at root scope;
-  foreach my $template ( grep { $_->{JTL} eq 'template' } @{ $transformation->{templates} } ) {
-    $rootScope->declare_template( $template );
-  }
+  $rootScope->evaluate_nodelist_by_attribute('templates') // $self->throw_error('TransformationMissingRequiredAtrribute');
 
   return $rootScope->apply_templates;
 }
@@ -65,7 +61,7 @@ Finds the production result of the match. If it is a single boolean true, return
 
 sub match_template {
   my ( $self ) = @_;
-  my $result = $self->evaluate_nodelist_by_attribute( 'match' ) // throw_error 'TemplateMissingRequiredAttribute';
+  my $result = $self->evaluate_nodelist_by_attribute( 'match' ) // throw_error 'TransformationMissingRequiredAtrribute';
   $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $result->contents };
   $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $result->contents->[0]->type;
   !!$result->contents->[0];
@@ -79,7 +75,7 @@ sub match_template {
 
 sub process_template {
   my ( $self ) = @_;
-  my $result = $self->evaluate_nodelist_by_attribute( 'produce' ) // throw_error 'TemplateMissingRequiredAttribute';
+  my $result = $self->evaluate_nodelist_by_attribute( 'produce' ) // throw_error 'TransformationMissingRequiredAtrribute';
 }
 
 =head3 production_result
@@ -114,6 +110,12 @@ my $instructions = {
         } );
     }
     return $self->apply_templates // $self->throw_error('TransformationNoMatchingTemplate');
+  },
+  'template' => sub {
+    my ( $self ) = @_;
+    my $template = $self->instruction;
+    $self->parent->parent->parent->declare_template($template);
+    return void;
   },
   'variable' => sub {
     my ( $self ) = @_;
