@@ -61,7 +61,20 @@ Further documents will describe extensions to JTL which processors should implem
 
 The JSON value types Object, Array, String, Number, True, False and Null are considered to be nodes in the context of the document to which they belong. A node has a path, a value, and a document.
 
-The path is an expression of the absolute position at which the node can be found from the context of the document, expressed as a list of strings (where the parent is an object property) or non-negative integers (where the parent is an array).
+The path is an expression of the absolute position at which the node can be found from the context of the document, expressed as a series of strings (where the parent is an object property) or non-negative integers (where the parent is an array).
+
+A node may also be said to have a name (if its parent node is a JSON Object), or an index (if its parent node is a JSON Array); in either case, this is simply the last item in the path.
+
+For example, in the following JSON document, the node with the value `"Whittlesford"` has the path `[ "results", 0, "location" ]` and the name `"location"`. Its parent node is the JSON Object which has the path `[ "results", 0 ]`, and the index `0`. It has no name. The JSON Array is the only child of the document node, and its name is "results".
+
+    {
+      "results": [
+        { "id" : 3,  "location": "Horningsea"   },
+        { "id" : 27, "location": "Whittlesford" }
+      ]
+    }
+
+Nodes which are document nodes always have an empty path, no name, and no index. A node may not be a member of more than one document, nor may it have multiple paths.
 
 ## Node lists
 
