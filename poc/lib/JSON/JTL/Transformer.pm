@@ -40,14 +40,18 @@ sub transform {
 
   $self->apply_template( $template );
 
-Attempts to appy a single template to the scope, first using C<match_template>, returning undef if that fails; if it succeeds, returns C<process_template>.
+Attempts to apply a single template to the scope, first using C<match_template>, returning undef if that fails; if it succeeds, evaluates C<produce>.
 
 =cut
 
 sub apply_template {
   my ( $self, $template ) = @_;
   my $mergedScope = $template->subscope( { caller => $self, current => $self->current } );
-  return $mergedScope->process_template ( $mergedScope->instruction ) if ( $mergedScope->match_template );
+
+  if ( $mergedScope->match_template ) {
+    return $mergedScope->evaluate_nodelist_by_attribute( 'produce' ) // throw_error 'TransformationMissingRequiredAtrribute'
+  }
+
   return undef;
 }
 
@@ -65,17 +69,6 @@ sub match_template {
   $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $result->contents };
   $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $result->contents->[0]->type;
   !!$result->contents->[0];
-}
-
-=head3 process_template
-
-  $self->process_template( $template );
-
-=cut
-
-sub process_template {
-  my ( $self ) = @_;
-  my $result = $self->evaluate_nodelist_by_attribute( 'produce' ) // throw_error 'TransformationMissingRequiredAtrribute';
 }
 
 =head3 production_result
