@@ -90,24 +90,48 @@ An instruction, when executed, MUST produce one of the following results:
 - A node list, which may contain zero or more nodes. This may be used in another calculation.
 - A void result, indicating that no result was expected. This is distinct from an empty node list.
 
+### Scope
+
+All JTL instructions are evaluated in a scope, an environment which can be used as an interface to accessible variables and templates.
+
+A new subscope is created for each instruction, and for each evaluation within the instruction.
+
+Unless otherwise specified, a scope has access to variables in a parent (or ancestor) scope. It has access to templates defined in a caller scope (or its caller, etc.).
+
+The caller and parent are often the same, but can be different, e.g. after an `applyTemplates` instruction.
+
+Unless otherwise specified, the current node of a scope is the current node of the caller.
+
+In practice, this means that for variables:
+
+- **Variables** declared inside any given instruction **can** be accessed by **child** instructions.
+- **Variables** declared inside any given instruction **cannot** be accessed by **sibling** instructions.
+- **Variables** declared inside any given instruction **cannot** be accessed by **parent** instructions.
+- **Variables** declared inside any given instruction **cannot** be accessed by **templates called** within that instruction, unless explicitly passed as parameters.
+
+Whereas for templates:
+
+- **Templates** declared inside any given instruction **can** be accessed by **child** instructions.
+- **Templates** declared inside any given instruction **cannot** be accessed by **sibling** instructions.
+- **Templates** declared inside any given instruction **cannot** be accessed by **parent** instructions.
+- **Templates** declared inside any given instruction **can** be accessed by **templates called** within that instruction.
+
 ### Evaluation
 
 An evaluation is represented as a JSON Array, and consists of a series of instructions, which are executed in order and together return a node list.
 
 An instruction may trigger multiple evaluations, for example: a `select` to determine the nodes to perform the instruction on, followed by a `produce` on each of the nodes.
 
-### Production
+Evaluations will return a node list containing a single value, or a list of values.
 
-A production is an evaluation which will return a node list containing a single value, or a list of values.
-
-The results of a production may not always be acceptable to the context in which they are placed, for example:
+The results of an evaluation may not always be acceptable to the context in which they are placed, for example:
 
 - When the results are used to populate a JSON Array, any results are permitted, including an empty list
 - When the results are used to populate a JSON Object, only an even-sized list is acceptable (the list may be empty). These will be taken as keys and values, alternately, and keys must be strings.
-- The `templates` attribute takes a production in which no values may be returned.
+- The `templates` attribute takes an evaluation in which no values may be returned.
 - In the `test` attribute of an instruction, only a single true or false value is permitted.
 
-Instructions may specify further restrictions on allowable values in productions.
+Instructions may specify further restrictions on allowable values resulting from evaluation.
 
 ## Productive Instructions
 
