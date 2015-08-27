@@ -34,6 +34,7 @@ our $error_types = [ qw(
   TransformationMissingRequiredAtrribute
   TransformationNoMatchingTemplate
   TransformationVariableDeclarationFailed
+  TransformationUnknownVariable
   ResultNodesUnexpected
   ResultNodesUnexpectedNumber
   ResultNodesNotEvenNumber

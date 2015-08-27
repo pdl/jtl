@@ -49,7 +49,7 @@ sub apply_template {
   my $mergedScope = $template->subscope( { caller => $self, current => $self->current } );
 
   if ( $mergedScope->match_template ) {
-    return $mergedScope->evaluate_nodelist_by_attribute( 'produce' ) // throw_error 'TransformationMissingRequiredAtrribute'
+    return ( $mergedScope->evaluate_nodelist_by_attribute( 'produce' ) // throw_error 'TransformationMissingRequiredAtrribute' );
   }
 
   return undef;
@@ -81,7 +81,11 @@ Given a production (which must be an arrayref), attempts to evaluate it. Returns
 
 sub production_result {
   my ( $self, $production ) = @_;
-  my $subScope = $self->subscope ( { instruction => $production } );
+  my $subScope = (
+    ( $self->instruction == $production )
+    ? $self
+    : $self->subscope ( { instruction => $production } )
+  );
   my $results = [];
   foreach my $instruction ( @$production ) {
     push @$results, $subScope->subscope ( { instruction => $instruction } )->evaluate_instruction; # should return a nodelist or undef
@@ -92,22 +96,26 @@ sub production_result {
 my $instructions = {
   'applyTemplates' => sub {
     my ( $self ) = @_;
-    my $instruction = $self->instruction;
-    if ( $instruction->{select} ) {
-      my $selected = $self->evaluate_nodelist_by_attribute('select');
-      return
-        $selected->map( sub {
-          my $this = shift;
-          my $subScope   = $self->subscope( { current => $this } );
-          $subScope->apply_templates // $self->throw_error('TransformationNoMatchingTemplate');
-        } );
-    }
-    return $self->apply_templates // $self->throw_error('TransformationNoMatchingTemplate');
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    return
+      $selected->map( sub {
+        my $this = shift;
+        my $subScope = $self->subscope( { current => $this } );
+        $subScope->apply_templates // $subScope->throw_error('TransformationNoMatchingTemplate');
+      } );
   },
   'template' => sub {
     my ( $self ) = @_;
     my $template = $self->instruction;
-    $self->parent->parent->parent->declare_template($template);
+    my @parent   = $self;
+
+    while ( ref ( $parent[0]->instruction ) ne 'ARRAY' ) {
+      @parent = $parent[0]->parent;
+    }
+
+    $parent[0]->declare_template( $template );
+    $parent[0]->parent->parent->declare_template( $template ); # todo: only if in templates
+
     return void;
   },
   'variable' => sub {
@@ -122,7 +130,8 @@ my $instructions = {
     my ( $self ) = @_;
     my $nameNL = $self->evaluate_nodelist_by_attribute('name') // $self->throw_error('TransformationMissingRequiredAtrribute');
     my $name   = $nameNL->contents->[0]->value;
-    return nodelist [ $self->get_symbol( $name ) ];
+    my $node   = $self->get_symbol( $name ) // $self->throw_error('TransformationUnknownVariable');
+    return nodelist [ $node ];
   },
   'current' => sub {
     my ( $self ) = @_;

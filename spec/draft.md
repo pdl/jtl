@@ -407,6 +407,7 @@ The following error types are defined:
   - **TransformationMissingRequiredAtrribute** - thrown when an attribute is required but is not present
   - **TransformationNoMatchingTemplate** - thrown when applyTemplates is called on a node but no matching templates are found
   - **TransformationVariableDeclarationFailed** - thrown when a variable is set in the same scope as an existing variable of the same name
+  - **TransformationUnknownVariable** - thrown when a variable is called but does not exist
 - **ResultNodesUnexpected** - thrown when results were produced which were not consistent with the instruction or context
   - **ResultNodesUnexpectedNumber** - thrown when the more or fewer result nodes were produced than expected
     - **ResultNodesNotEvenNumber** - thrown when an even number of result nodes is expected, but an odd number of items was produced

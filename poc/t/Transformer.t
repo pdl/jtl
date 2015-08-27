@@ -353,6 +353,36 @@ my $test_suite = [
       error_type => 'ResultNodesMultipleNodes',
     }
   },
+  # the default templates don't exist yet
+  {
+    why         => 'Can call applyTemplates',
+    input       => { foo => 'bar' },
+    instruction => [
+      { JTL => 'applyTemplates', select => [ { JTL => 'children' } ] },
+    ],
+    output => [ ], # calls applyTemplates once, finds a child; calls it again, finds nothing; returns
+  },
+  {
+    why         => 'Can declare and use templates in the same scope',
+    input       => { foo => 'bar' },
+    instruction => [
+      { JTL => 'template', match => [ { JTL => 'literal', value => JSON::true } ], produce => [ { JTL => 'literal', value => 'fnord' } ] },
+      { JTL => 'applyTemplates' },
+    ],
+    output => [ 'fnord' ],
+  },
+  {
+    why         => 'template cannot see outside variables',
+    input       => { foo => 'bar' },
+    instruction => [
+      { JTL => 'template', match => [ { JTL => 'literal', value => JSON::true } ], produce => [ { JTL => 'callVariable', name => [ { JTL => 'literal', value => 'fnord' } ] } ] },
+      { JTL => 'variable', name => [ { JTL => 'literal', value => 'fnord' } ], select => [ { JTL => 'current' } ] },
+      { JTL => 'applyTemplates' },
+    ],
+    error => {
+      error_type => 'TransformationUnknownVariable',
+    }
+  },
 ];
 
 foreach my $case (@$test_suite) {
@@ -382,12 +412,13 @@ foreach my $case (@$test_suite) {
 
     if ( $case->{error} ) {
         ok($error, 'This should cause an error');
-        is(ref $error, 'JSON::JTL::Error', 'The error was JSON::JTL::Error');
+        isa_ok( $error, 'JSON::JTL::Error', 'The error was JSON::JTL::Error') or return diag YAML::Dump $error;
         foreach my $key ( keys %{ $case->{error} // {} } ) {
-          is_deeply ($error->$key, $case->{error}->{$key});
+          is_deeply ($error->$key, $case->{error}->{$key}) or return diag YAML::Dump $error;
         }
     } else {
       ok(!$error, 'This should not cause an error') or return diag $error;
+      is ( scalar @{ $result->contents }, scalar @{ $case->{output} }, 'Got the expected number of return values' ) or return diag YAML::Dump $result;
       for my $i ( 0..$#{ $case->{output} } ) {
         # todo: this is a bit awkward
         cmp_deeply ( $result->contents->[$i]->value, $case->{output}->[$i], "$why ($i)" ) or diag YAML::Dump $result;
