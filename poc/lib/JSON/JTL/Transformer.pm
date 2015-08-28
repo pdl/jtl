@@ -90,7 +90,7 @@ sub production_result {
   foreach my $instruction ( @$production ) {
     push @$results, $subScope->subscope ( { instruction => $instruction } )->evaluate_instruction; # should return a nodelist or undef
   }
-  return $results;
+  return nodelist $results;
 }
 
 my $instructions = {
@@ -315,20 +315,6 @@ Given an instruction (a hashref with key JTL) and an attribute name, returns a n
 =cut
 
 sub evaluate_nodelist_by_attribute {
-  my $self = shift;
-  my $result = $self->evaluate_by_attribute(@_);
-  return ( (defined $result) ? nodelist $result : $result );
-}
-
-=head3 evaluate_by_attribute
-
-  $self->evaluate_by_attribute( $instruction, $attribute );
-
-Given an instruction (a hashref with key JTL) and an attribute name, returns an arrayref with the results of the production of the cotents of that attribute.
-
-=cut
-
-sub evaluate_by_attribute {
   my ( $self, $attribute ) = @_;
   my $nodeListContents = [];
   my $instruction = $self->instruction;
