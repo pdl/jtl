@@ -238,6 +238,16 @@ my $instructions = {
     $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $compare->contents ->[0]->type;
     return nodelist [ ( $selected->contents->[0]->value || $compare->contents ->[0]->value ) ? truth : falsehood ];
   },
+  'xor' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    my $compare  = $self->evaluate_nodelist_by_attribute('compare') // $self->throw_error('TransformationMissingRequiredAtrribute');
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $selected->contents };
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $compare->contents };
+    $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $selected->contents->[0]->type;
+    $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $compare->contents ->[0]->type;
+    return nodelist [ ( $selected->contents->[0]->value xor $compare->contents ->[0]->value ) ? truth : falsehood ];
+  },
   'and' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];

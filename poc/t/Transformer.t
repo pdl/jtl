@@ -138,6 +138,30 @@ my $test_suite = [
     output      => [ JSON::true ],
   },
   {
+    why         => 'false xor false is false',
+    input       => JSON::false,
+    instruction => { JTL => 'xor', compare => [ { JTL => 'literal', value => JSON::false } ] },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => 'true xor false is true',
+    input       => JSON::true,
+    instruction => { JTL => 'xor', compare => [ { JTL => 'literal', value => JSON::false } ] },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => 'false xor true is true',
+    input       => JSON::false,
+    instruction => { JTL => 'xor', compare => [ { JTL => 'literal', value => JSON::true } ] },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => 'true xor true is false',
+    input       => JSON::true,
+    instruction => { JTL => 'xor', compare => [ { JTL => 'literal', value => JSON::true } ] },
+    output      => [ JSON::false ],
+  },
+  {
     why         => 'false and false is false',
     input       => JSON::false,
     instruction => { JTL => 'and', compare => [ { JTL => 'literal', value => JSON::false } ] },
