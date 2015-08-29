@@ -203,6 +203,7 @@ my $instructions = {
     my ( $self ) = @_;
     my $test = $self->evaluate_nodelist_by_attribute('test') // $self->throw_error('TransformationMissingRequiredAtrribute');
     $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $test->contents };
+    $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $test->contents->[0]->type;
     if ( $test->contents->[0] ) {
       return $self->evaluate_nodelist_by_attribute('produce');
     }
