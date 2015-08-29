@@ -114,6 +114,18 @@ my $test_suite = [
     output      => [ JSON::false ],
   },
   {
+    why         => 'not true is false',
+    input       => JSON::true,
+    instruction => { JTL => 'not' },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => 'not false is true',
+    input       => JSON::false,
+    instruction => { JTL => 'not' },
+    output      => [ JSON::true ],
+  },
+  {
     why         => 'false or false is false',
     input       => JSON::false,
     instruction => { JTL => 'or', compare => [ { JTL => 'literal', value => JSON::false } ] },

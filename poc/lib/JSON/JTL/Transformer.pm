@@ -228,6 +228,13 @@ my $instructions = {
     }
     return nodelist [ truth ];
   },
+  'not' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $selected->contents };
+    $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $selected->contents->[0]->type;
+    return nodelist [ ( $selected->contents->[0]->value ) ? falsehood : truth ];
+  },
   'or' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
