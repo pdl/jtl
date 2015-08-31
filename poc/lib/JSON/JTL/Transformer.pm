@@ -4,8 +4,9 @@ use warnings;
 use Moo::Role;
 use JSON::JTL::Syntax::Internal;
 use JSON::JTL::Scope;
-use Scalar::Util qw(blessed refaddr);
-use Sub::Name qw(subname);
+use Scalar::Util qw( blessed refaddr );
+use List::Util   qw( any );
+use Sub::Name    qw( subname );
 
 =head1 NAME
 
@@ -293,11 +294,31 @@ my $instructions = {
   },
   'sameNode' => sub {
     my ( $self ) = @_;
-    my $selected = $self->evaluate_nodelist_by_attribute('select') // [ $self->current ];
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
     my $compare  = $self->evaluate_nodelist_by_attribute('compare') // $self->throw_error('TransformationMissingRequiredAtrribute');
     $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $selected->contents };
     $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $compare->contents };
     return nodelist [ sameNode ( $selected->contents->[0], $compare->contents->[0] ) ];
+  },
+  'unique' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+
+    # todo: custom uniqueness conditions; requires current vs alternate
+    my $test = sub {
+      my $scope = shift;
+      my $alt   = shift;
+      sameNode( $scope->current, $alt );
+    };
+
+    my $uniques = [];
+
+    foreach my $node (@{ $selected->contents } ) {
+      my $subScope = $self->subscope( { current => $node } );
+      push @$uniques, $node unless any { $test->( $subScope, $_ ) } @$uniques
+    }
+
+    return nodelist $uniques;
   },
 };
 

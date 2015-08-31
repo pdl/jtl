@@ -316,6 +316,25 @@ my $test_suite = [
     output      => [ JSON::false ],
   },
   {
+    why         => 'unique works',
+    input       => [ 123, 456, 789 ],
+    instruction => {
+      JTL => 'unique',
+      select => [
+        { JTL => 'children' },
+        { JTL => 'children' },
+        { JTL => 'children' },
+      ],
+    },
+    output      => [ 123, 456, 789 ],
+  },
+  {
+    why         => 'unique works on empty list too',
+    input       => [ 123, 456, 789 ],
+    instruction => { JTL => 'unique', select => [ ],  },
+    output      => [ ],
+  },
+  {
     why         => 'name works',
     input       => { foo => 'bar' },
     instruction => { JTL => 'forEach', select => [ { JTL => 'children', }, ], produce => [ { JTL => 'name' } ] },
