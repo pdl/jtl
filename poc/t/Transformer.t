@@ -329,6 +329,18 @@ my $test_suite = [
     output      => [ 123, 456, 789 ],
   },
   {
+    why         => 'unique tests sameNode, not valuesEqual',
+    input       => [ 123, 456, 789 ],
+    instruction => {
+      JTL => 'unique',
+      select => [
+        { JTL => 'children' },
+        { JTL => 'literal', value => 123 },
+      ],
+    },
+    output      => [ 123, 456, 789, 123 ],
+  },
+  {
     why         => 'unique works on empty list too',
     input       => [ 123, 456, 789 ],
     instruction => { JTL => 'unique', select => [ ],  },
