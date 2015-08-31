@@ -419,6 +419,40 @@ my $test_suite = [
       error_type => 'TransformationUnknownVariable',
     }
   },
+  {
+    why         => 'filter with test (one pass, one fail)',
+    input       => { foo => 123, bar => 456 },
+    instruction => {
+      JTL => 'filter',
+      select => [
+        { JTL => 'children' },
+      ],
+      test => [
+        {
+          JTL => 'eq',
+          compare => [ { JTL => 'literal', value => 123 } ]
+        },
+      ],
+    },
+    output => [ 123 ],
+  },
+  {
+    why         => 'filter with test (all can fail)',
+    input       => { foo => 123, bar => 456 },
+    instruction => {
+      JTL => 'filter',
+      select => [
+        { JTL => 'children' },
+      ],
+      test => [
+        {
+          JTL => 'eq',
+          compare => [ { JTL => 'literal', value => 0 } ]
+        },
+      ],
+    },
+    output => [ ],
+  },
 ];
 
 foreach my $case (@$test_suite) {

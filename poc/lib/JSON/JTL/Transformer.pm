@@ -171,6 +171,23 @@ my $instructions = {
       ) // $self->throw_error('TransformationMissingRequiredAtrribute');
     } );
   },
+  'filter' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // $self->throw_error('TransformationMissingRequiredAtrribute');
+    return $selected->map( sub {
+      my $this     = shift;
+      my $subScope = $self->subscope( { current => $this } );
+      my $test     = $subScope->evaluate_nodelist_by_attribute('test') // $subScope->throw_error('TransformationMissingRequiredAtrribute');
+
+      $subScope->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $test->contents };
+      $subScope->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $test->contents->[0]->type;
+
+      if ( $test->contents->[0]->value ) {
+        return $subScope->evaluate_nodelist_by_attribute('produce') // $subScope->current;
+      }
+      return ();
+    } );
+  },
   'literal' => sub {
     my ( $self ) = @_;
     my $instruction = $self->instruction;
