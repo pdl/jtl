@@ -4,8 +4,8 @@ use warnings;
 use JSON;
 use Module::Load;
 use Exporter qw(import);
-our @EXPORT = qw(void document nodelist nodeArray truth falsehood throw_error valuesEqual valueType);
-use Scalar::Util qw(blessed looks_like_number);
+our @EXPORT = qw(void document nodelist nodeArray truth falsehood throw_error sameNode valuesEqual valueType);
+use Scalar::Util qw(blessed refaddr looks_like_number);
 
 =head1 NAME
 
@@ -99,6 +99,36 @@ Creates a new L<JTL::Error> object of the type given and throws it.
 
 sub throw_error {
   JSON::JTL::Error->new( { error_type => $_[0], message => $_[1] } )->throw;
+}
+
+
+=head3 sameNode
+
+  sameNode($left, $right)
+
+Given two nodes, tests if they are the same node, i.e. they have the same document and the same path.
+
+=cut
+
+sub sameNode {
+  my ( $left, $right ) = @_;
+  my ( $leftPath, $rightPath ) = map { $_->path } @_;
+
+  return truth if
+    refaddr ( $left->document )
+    ==
+    refaddr ( $right->document )
+    and
+    @{ $leftPath }
+    ==
+    @{ $rightPath }
+    and
+    !grep {
+      $leftPath->[$_]
+      ne
+      $rightPath->[$_]
+    } 0 .. $#{ $leftPath };
+  return falsehood;
 }
 
 =head3 valuesEqual

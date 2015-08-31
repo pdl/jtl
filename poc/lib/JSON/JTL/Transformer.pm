@@ -297,22 +297,7 @@ my $instructions = {
     my $compare  = $self->evaluate_nodelist_by_attribute('compare') // $self->throw_error('TransformationMissingRequiredAtrribute');
     $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $selected->contents };
     $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $compare->contents };
-    my $comparanda = [ $selected->contents->[0], $compare->contents->[0] ];
-    return nodelist [ truth ] if
-      refaddr ( $comparanda->[0]->document )
-      ==
-      refaddr ( $comparanda->[1]->document )
-      and
-      @{ $comparanda->[0]->path }
-      ==
-      @{ $comparanda->[1]->path }
-      and
-      !grep {
-        $comparanda->[0]->path->[$_]
-        ne
-        $comparanda->[1]->path->[$_]
-      } 0 .. $#{ $comparanda->[0]->path };
-    return nodelist [ falsehood ];
+    return nodelist [ sameNode ( $selected->contents->[0], $compare->contents->[0] ) ];
   },
 };
 
