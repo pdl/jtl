@@ -150,51 +150,60 @@ Instructions may specify further restrictions on allowable values resulting from
 
 The following instructions create a node list of one item:
 
+### literal
+
+ - value
+
+Returns a JSON literal, taken as the contents of `value`. Note that `value` is taken verbatim not evaluated as attributes normally are, so the following produces a nodelist containing an array of two hashes, not a nodelist of two hashes:
+
+    {
+      "JTL"   : "literal",
+      "value" : [ {}, {} ]
+    }
+
 ### object
 
  - select
 
-Returns an object node populated with the contents of `select`, which must evaluate to an even-sized list of property names and corresponding values.
+Returns an object node (which is also a document node) populated with the contents of `select`, which must evaluate to an even-sized list of property names and corresponding values.
+
+The following JTL always produces `{ "items" : {} }`:
+
+    {
+      "JTL"    : "object",
+      "select" : [
+        { "JTL": "literal", "value": "items" },
+        { "JTL": "object" }
+      ]
+    }
 
 ### array
 
  - select
 
-Returns an array node populated with the contents of `select`.
+Returns an array node (which is also a document node) populated with the contents of `select`.
 
-### scalar
+The following JTL always produces `[ "items", [] ]`:
 
- - select
-
-### string
-
- - value
-
-Returns a node whose value is a string given in the `value` attribute.
-
-### number
-
- - value
-
-Returns a node whose value is a number given in the `value` attribute.
-
-### boolean
-
- - value
-
-Returns either true or false depending on the `value`.
+    {
+      "JTL"   : "array",
+      "select" : [
+        { "JTL": "literal", "value": "items" },
+        { "JTL": "array" }
+      ]
+    }
 
 ### true
 
-Returns a node whose value is boolean true.
+Returns a node (which is also a document node) whose value is boolean true.
 
 ### false
 
-Returns a node whose value is boolean false.
+Returns a node (which is also a document node) whose value is boolean false.
 
 ### null
 
-Returns a node whose value is `null`.
+Returns a node (which is also a document node) whose value is `null`.
 
 ## Instructions for flow control and calculation
 
