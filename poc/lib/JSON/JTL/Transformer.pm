@@ -227,6 +227,11 @@ my $instructions = {
     }
     return nodelist;
   },
+  'count' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    return nodelist [ document scalar @{ $selected->contents } ];
+  },
   'any' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];

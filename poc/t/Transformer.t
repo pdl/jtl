@@ -246,6 +246,24 @@ my $test_suite = [
     output      => [ 0, 1 ],
   },
   {
+    why         => 'count multiple nodes',
+    input       => [ { foo => 'bar' }, 'xyz' ],
+    instruction => { JTL => 'count', select => [ { JTL => 'children' }, ] },
+    output      => [ 2 ],
+  },
+  {
+    why         => 'count multiple nodes, even when the same',
+    input       => [ { foo => 'bar' }, 'xyz' ],
+    instruction => { JTL => 'count', select => [ { JTL => 'children' }, { JTL => 'children' }, ] },
+    output      => [ 4 ],
+  },
+  {
+    why         => 'count zero nodes',
+    input       => [ ],
+    instruction => { JTL => 'count', select => [ { JTL => 'children' } ] },
+    output      => [ 0 ],
+  },
+  {
     why         => 'sameNode: current vs current',
     input       => { foo => 123, bar => 123 },
     instruction => {
