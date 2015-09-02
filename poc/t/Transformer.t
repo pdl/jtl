@@ -334,6 +334,39 @@ my $test_suite = [
     output      => [ JSON::false ],
   },
   {
+    why         => 'reverse works (multiple nodes)',
+    input       => [ 123, 456, 789 ],
+    instruction => {
+      JTL => 'reverse',
+      select => [
+        { JTL => 'children' },
+      ],
+    },
+    output      => [ 789, 456, 123 ],
+  },
+  {
+    why         => 'reverse works (single node)',
+    input       => [ 123 ],
+    instruction => {
+      JTL => 'reverse',
+      select => [
+        { JTL => 'children' },
+      ],
+    },
+    output      => [ 123 ],
+  },
+  {
+    why         => 'reverse works (no nodes)',
+    input       => [ ],
+    instruction => {
+      JTL => 'reverse',
+      select => [
+        { JTL => 'children' },
+      ],
+    },
+    output      => [ ],
+  },
+  {
     why         => 'unique works',
     input       => [ 123, 456, 789 ],
     instruction => {

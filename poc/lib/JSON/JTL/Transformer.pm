@@ -163,6 +163,11 @@ my $instructions = {
       return defined $children ? @$children : ();
     } );
   },
+  'reverse' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    nodelist [ reverse @{ $selected->contents } ];
+  },
   'forEach' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // $self->throw_error('TransformationMissingRequiredAtrribute');
