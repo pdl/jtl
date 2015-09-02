@@ -385,10 +385,10 @@ my $test_suite = [
     output      => [ ],
   },
   {
-    why         => 'unique works',
+    why         => 'union works',
     input       => [ 123, 456, 789 ],
     instruction => {
-      JTL => 'unique',
+      JTL => 'union',
       select => [
         { JTL => 'children' },
         { JTL => 'children' },
@@ -398,10 +398,10 @@ my $test_suite = [
     output      => [ 123, 456, 789 ],
   },
   {
-    why         => 'unique tests sameNode, not valuesEqual',
+    why         => 'union tests sameNode, not valuesEqual',
     input       => [ 123, 456, 789 ],
     instruction => {
-      JTL => 'unique',
+      JTL => 'union',
       select => [
         { JTL => 'children' },
         { JTL => 'literal', value => 123 },
@@ -410,9 +410,9 @@ my $test_suite = [
     output      => [ 123, 456, 789, 123 ],
   },
   {
-    why         => 'unique works on empty list too',
+    why         => 'union works on empty list too',
     input       => [ 123, 456, 789 ],
-    instruction => { JTL => 'unique', select => [ ],  },
+    instruction => { JTL => 'union', select => [ ],  },
     output      => [ ],
   },
   {

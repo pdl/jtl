@@ -310,7 +310,7 @@ my $instructions = {
     $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $compare->contents };
     return nodelist [ sameNode ( $selected->contents->[0], $compare->contents->[0] ) ];
   },
-  'unique' => sub {
+  'union' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
 
