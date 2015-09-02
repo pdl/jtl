@@ -310,6 +310,14 @@ Evaluates `select`, and filters them so that no node is returned more than once.
 
 Evaluates `select` and `compare`, and filters them so that only nodes which appear in both node lists are returned.
 
+### symmetricDifference
+
+ - select
+ - compare
+ - test ??? (union of values vs union of nodes)
+
+Evaluates `select` and `compare`, and filters them so that only nodes which appear in one node lists - but not both - are returned.
+
 #### filter
 
  - select
@@ -320,12 +328,35 @@ Evaluates `select` and `compare`, and filters them so that only nodes which appe
 ### unique
 
  - select
+ - test
+
+Evaluates `select`, and filters them so that no duplicate node is returned (not even the first instance of a duplicate is returned). By default, duplication is determined by deciding if two nodes are the same.
 
 ### sort
 
  - select
+ - test
 
-(note that this is different from sort in XSLT)
+Returns the nodes in `select`, sorted in ascending order.
+
+Note that this differs from `xsl:sort` in XSLT, which itself is empty but causes certain parents (e.g. `xsl:for-each`) to order the selection.
+
+If `test` exists, it is evaluated for pairs of nodes. Return values must be `true`, `false`, or `undefined`. If `true`, the nodes are in the correct order. If false, they are in the wrong order. If `undefined`, either order is acceptable.
+
+The default value of test sorts nodes:
+
+- missing before present (e.g. `[]` sorts before `[ 0 ]` );
+- by type in in the following order: undefined, false, true, array, object, number, string;
+- arrays are compared by comparing each of their children;
+- objects are compared by taking a unique sorted list of keys and looking at each of their values.
+- numbers are sorted in ascending numerical order
+- strings are sorted by codepoint
+
+### reverse
+
+ - select
+
+Returns the nodes in `select`, but in reverse order, i.e. from last to first.
 
 ## Instructions which always return booleans
 
@@ -336,7 +367,6 @@ Evaluates `select` and `compare`, and filters them so that only nodes which appe
 ### emptyList, nonemptyList
 
   - select
-
 
 ### zero, nonzero
 
@@ -351,9 +381,23 @@ Evaluates `select` and `compare`, and filters them so that only nodes which appe
  - select
  - compare
 
+### sameNode
+
+ - select
+ - compare
+
+Returns true if the nodes are the same node, i.e. they share a document and have the same path from the root of the document.
+
 ### equal
 
  - select
+
+Returns true if the nodes are the equal in value, i.e. they are of the same type, and:
+
+- arrays have the same number of children and each corresponding child is equal
+- objects have the same keys and each key has the same value
+- numbers have the same mathematical value
+- strings are identical
 
 ### greaterThan, lessThan
 
