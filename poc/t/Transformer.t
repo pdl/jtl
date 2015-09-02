@@ -234,6 +234,24 @@ my $test_suite = [
     output      => [ JSON::true ],
   },
   {
+    why         => 'true is true',
+    input       => {},
+    instruction => { JTL => 'true' },
+    output      => [ JSON::true ],
+  },
+  {
+    why         => 'false is false',
+    input       => {},
+    instruction => { JTL => 'false' },
+    output      => [ JSON::false ],
+  },
+  {
+    why         => 'null is null',
+    input       => {},
+    instruction => { JTL => 'null' },
+    output      => [ undef ],
+  },
+  {
     why         => 'name returns name',
     input       => { foo => 'bar' },
     instruction => { JTL => 'forEach', select => [ { JTL => 'children' }, ], produce => [ { JTL => 'name' } ] },

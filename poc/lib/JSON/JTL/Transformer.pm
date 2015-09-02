@@ -330,6 +330,18 @@ my $instructions = {
 
     return nodelist $uniques;
   },
+  'true' => sub {
+    my ( $self ) = @_;
+    nodelist [ truth ];
+  },
+  'false' => sub {
+    my ( $self ) = @_;
+    nodelist [ falsehood ];
+  },
+  'null' => sub {
+    my ( $self ) = @_;
+    nodelist [ document undef ];
+  },
 };
 
 # As a developer, I would like more meaningful stack traces than anonymous subroutines
