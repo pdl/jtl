@@ -60,12 +60,4 @@ sub map {
   } );
 }
 
-sub grep {
-  my $self = shift;
-  my $code = shift;
-  return JSON::JTL::NodeList->new( {
-    contents => [ grep { $code->($_) } @{ $self->contents } ],
-  } );
-}
-
 1;
