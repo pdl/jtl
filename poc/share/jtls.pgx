@@ -11,6 +11,21 @@ nameToken: /- ([a-zA-Z]+) -/
 # template {...} | template (...)
 
 instruction:
+  functionalInstruction | instructionChain
+
+instructionChain:
+  ( value | pathExpression | functionalInstruction | argumentList )
+  ( chainedInstruction )+
+
+chainedInstruction:
+  ( infix )
+  ( nameToken )
+  ( explicitArguments | implicitArguments )
+
+infix:
+  /- '->' -/
+
+functionalInstruction:
   ( nameToken )
   ( explicitArguments | implicitArguments )
 

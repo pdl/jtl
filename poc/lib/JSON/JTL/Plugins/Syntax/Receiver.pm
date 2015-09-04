@@ -13,13 +13,41 @@ sub got_explicitArguments {
 }
 
 sub got_implicitArguments {
-  my $args = pop->[0];
+  my $args = pop;
   @$args ? +{ _implicit_argument => $args } : +{};
+}
+
+sub got_argumentList {
+  shift;
+  return [ map @$_, @{(pop)} ];
 }
 
 sub got_instruction {
   shift;
+  return pop;
+}
+
+sub got_functionalInstruction {
+  shift;
   return { JTL => $_[0][0], %{ $_[0][1] } };
+}
+
+sub got_chainedInstruction {
+  shift;
+  #my $infix = shift @{$_[0]};
+  return { JTL => $_[0][0], %{ $_[0][1] } };
+}
+
+sub got_instructionChain {
+  shift;
+  my $chain   = $_[0][1];
+  my @current = $_[0][0];
+  while ( @$chain ) {
+    my $prev = $current[0];
+    @current = shift @$chain;
+    $current[0]->{select} = $prev;
+  }
+  return $current[0];
 }
 
 sub got_nameToken {

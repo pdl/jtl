@@ -105,6 +105,26 @@ my $tests = [
     means  => { JTL => 'child', name => ['foo'] },
     what   => 'pathExpression',
   },
+  {
+    syntax => "./foo->children()",
+    means  => { JTL => 'children', select => { JTL => 'child', name => ['foo'] } },
+    what   => 'instruction',
+  },
+  {
+    syntax => "filter { select: ( ./foo, ./bar ) }",
+    what   => 'instruction',
+    means  => { JTL => 'filter', select => [ { JTL => 'child', name => ['foo'] }, { JTL => 'child', name => ['bar'] } ] },
+  },
+  {
+    syntax => "filter { select: ( foo() ) }",
+    what   => 'instruction',
+    means  => { JTL => 'filter', select => [ { JTL => 'foo' } ] },
+  },
+  {
+    syntax => "(./foo, ./bar)->filter()",
+    what   => 'instruction',
+    means  => { JTL => 'filter', select => [ { JTL => 'child', name => ['foo'] }, { JTL => 'child', name => ['bar'] } ] },
+  },
 ];
 
 foreach my $case ( @$tests ) {
