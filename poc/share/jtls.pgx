@@ -11,14 +11,14 @@ nameToken: /- ([a-zA-Z]+) -/
 # template {...} | template (...)
 
 instruction:
-  functionalInstruction | instructionChain
+  instructionChain | functionalInstruction
 
 instructionChain:
   ( chainLoneArgument | argumentList )
   ( chainedInstruction )+
 
 chainLoneArgument:
-  ( literal | pathExpression | functionalInstruction)
+  ( literal | pathExpression | functionalInstruction )
 
 chainedInstruction:
   ( infix )

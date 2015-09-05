@@ -2,6 +2,7 @@ package JSON::JTL::Plugins::Syntax::Receiver;
 use strict;
 use warnings;
 use Pegex::Base;
+use JSON;
 extends 'Pegex::JSON::Data';
 
 sub _lit {
@@ -149,5 +150,9 @@ sub got_stepNumber {
   shift;
   return { JTL => '_parser_step', step => 'index', value => _lit $_[0] };
 }
+
+
+sub got_true  { JSON::true }
+sub got_false { JSON::false }
 
 1;

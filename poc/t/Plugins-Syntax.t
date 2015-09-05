@@ -2,7 +2,8 @@ use strict;
 use warnings;
 use Test::More;
 use JSON::JTL::Plugins::Syntax;
-use YAML;# for diags
+use JSON; # for true/false
+use YAML; # for diags
 
 # In this test script, we will unit-test JSON::JTL::Plugins::Syntax
 
@@ -134,6 +135,16 @@ my $tests = [
     syntax => "[1,2,3]->filter()->filter()",
     what   => 'instruction',
     means  => { JTL => 'filter', select => [ { JTL => 'filter', select => [ { JTL => 'literal', value => [1,2,3] } ] } ] }
+  },
+  {
+    syntax => "true->not()",
+    what   => 'instruction',
+    means  => { JTL => 'not', select => [ { JTL => 'literal', value => JSON::true } ] }
+  },
+  {
+    syntax => "parent()->name()",
+    what   => 'instruction',
+    means  => { JTL => 'name', select => [ { JTL => 'parent' } ] }
   },
 ];
 
