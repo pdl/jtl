@@ -11,7 +11,7 @@ my $parser = JSON::JTL::Plugins::Syntax->new->parser;
 my $tests = [
   {
     syntax => 'template { foo:bar ( "" ) }',
-    means  => { 'JTL' => 'template', 'foo' => { JTL => 'bar', _implicit_argument => [''] } },
+    means  => { 'JTL' => 'template', 'foo' => { JTL => 'bar', _implicit_argument => [ { JTL => 'literal', value => '' } ] } },
   },
   {
     syntax => 'template{foo : bar( ) }',
@@ -23,35 +23,35 @@ my $tests = [
   },
   {
     syntax => 'template{foo:"bar"}',
-    means  => { 'JTL' => 'template', 'foo' => "bar" },
+    means  => { 'JTL' => 'template', 'foo' => { JTL => 'literal', value => 'bar' } },
   },
   {
     syntax => 'template{foo:{}}',
-    means  => { 'JTL' => 'template', 'foo' => {} },
+    means  => { 'JTL' => 'template', 'foo' =>  { JTL => 'literal', value => {} } },
   },
   {
     syntax => './foo',
-    means  => { JTL => 'child', name => ['foo'] },
+    means  => { JTL => 'child', name => [ { JTL => 'literal', value => 'foo' } ] },
     what   => 'pathExpression',
   },
   {
     syntax => '. / 0',
-    means  => { JTL => 'child', index => [0] },
+    means  => { JTL => 'child', index => [ { JTL => 'literal', value => 0 }] },
     what   => 'pathExpression',
   },
   {
     syntax => './foo/bar',
-    means  => { JTL => 'child', select => [ { JTL => 'child', name => ['foo'] } ], name => ['bar'] },
+    means  => { JTL => 'child', select => [ { JTL => 'child', name => [ { JTL => 'literal', value => 'foo' } ] } ], name => [ { JTL => 'literal', value => 'bar' } ] },
     what   => 'pathExpression',
   },
   {
     syntax => '. / * [ eq{ select:name(), compare:"foo" } ]',
-    means  => { JTL => 'filter', 'select' => [ { JTL => 'children' } ], test => [ { JTL => 'eq', select => { JTL => 'name' }, 'compare' => 'foo' } ] },
+    means  => { JTL => 'filter', 'select' => [ { JTL => 'children' } ], test => [ { JTL => 'eq', select => { JTL => 'name' }, 'compare' =>  { JTL => 'literal', value => 'foo' } } ] },
     what   => 'pathExpression',
   },
   {
     syntax => 'template{foo:./bar}',
-    means  => { 'JTL' => 'template', 'foo' => { JTL => 'child', name => ['bar'] } },
+    means  => { 'JTL' => 'template', 'foo' => { JTL => 'child', name => [ { JTL => 'literal', value => 'bar' } ] } },
   },
   # Some tests for single-quoted and double-quoted strings
   # For some unnerving reason these need to go at the end as otherwise tests which occur after them fail
@@ -97,23 +97,23 @@ my $tests = [
   },
   {
     syntax => './"foo"',
-    means  => { JTL => 'child', name => ['foo'] },
+    means  => { JTL => 'child', name => [ { JTL => 'literal', value => 'foo' } ] },
     what   => 'pathExpression',
   },
   {
     syntax => "./'foo'",
-    means  => { JTL => 'child', name => ['foo'] },
+    means  => { JTL => 'child', name => [ { JTL => 'literal', value => 'foo' } ] },
     what   => 'pathExpression',
   },
   {
     syntax => "./foo->children()",
-    means  => { JTL => 'children', select => { JTL => 'child', name => ['foo'] } },
+    means  => { JTL => 'children', select => [ { JTL => 'child', name => [ { JTL => 'literal', value => 'foo' } ] } ] },
     what   => 'instruction',
   },
   {
     syntax => "filter { select: ( ./foo, ./bar ) }",
     what   => 'instruction',
-    means  => { JTL => 'filter', select => [ { JTL => 'child', name => ['foo'] }, { JTL => 'child', name => ['bar'] } ] },
+    means  => { JTL => 'filter', select => [ { JTL => 'child', name => [ { JTL => 'literal', value => 'foo' } ] }, { JTL => 'child', name => [ { JTL => 'literal', value => 'bar' }] } ] },
   },
   {
     syntax => "filter { select: ( foo() ) }",
@@ -123,7 +123,17 @@ my $tests = [
   {
     syntax => "(./foo, ./bar)->filter()",
     what   => 'instruction',
-    means  => { JTL => 'filter', select => [ { JTL => 'child', name => ['foo'] }, { JTL => 'child', name => ['bar'] } ] },
+    means  => { JTL => 'filter', select => [ { JTL => 'child', name => [ { JTL => 'literal', value => 'foo' } ] }, { JTL => 'child', name => [ { JTL => 'literal', value => 'bar' } ] } ] },
+  },
+  {
+    syntax => "[1,2,3]->filter()",
+    what   => 'instruction',
+    means  => { JTL => 'filter', select => [ { JTL => 'literal', value => [1,2,3] } ] }
+  },
+  {
+    syntax => "[1,2,3]->filter()->filter()",
+    what   => 'instruction',
+    means  => { JTL => 'filter', select => [ { JTL => 'filter', select => [ { JTL => 'literal', value => [1,2,3] } ] } ] }
   },
 ];
 

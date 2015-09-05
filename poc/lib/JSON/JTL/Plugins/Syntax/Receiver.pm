@@ -4,6 +4,10 @@ use warnings;
 use Pegex::Base;
 extends 'Pegex::JSON::Data';
 
+sub _lit {
+  { JTL => 'literal', value => shift }
+}
+
 sub got_jtls {
   return pop;
 }
@@ -41,17 +45,27 @@ sub got_chainedInstruction {
 sub got_instructionChain {
   shift;
   my $chain   = $_[0][1];
-  my @current = $_[0][0];
+  my @current = @{ $_[0][0] };
   while ( @$chain ) {
-    my $prev = $current[0];
+    my $prev = [ @current ];
     @current = shift @$chain;
     $current[0]->{select} = $prev;
   }
   return $current[0];
 }
 
+sub got_chainLoneArgument {
+  shift;
+  return [ pop ];
+}
+
 sub got_nameToken {
   return pop;
+}
+
+
+sub got_literal {
+  return _lit pop->[0];
 }
 
 sub got_filter {
@@ -123,17 +137,17 @@ sub got_stepAny {
 
 sub got_stepNameToken {
   shift;
-  return { JTL => '_parser_step', step => 'name', value => $_[0] };
+  return { JTL => '_parser_step', step => 'name', value => _lit $_[0] };
 }
 
 sub got_stepString {
   shift;
-  return { JTL => '_parser_step', step => 'name', value => $_[0] };
+  return { JTL => '_parser_step', step => 'name', value => _lit $_[0] };
 }
 
 sub got_stepNumber {
   shift;
-  return { JTL => '_parser_step', step => 'index', value => $_[0] };
+  return { JTL => '_parser_step', step => 'index', value => _lit $_[0] };
 }
 
 1;

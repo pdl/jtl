@@ -14,8 +14,11 @@ instruction:
   functionalInstruction | instructionChain
 
 instructionChain:
-  ( value | pathExpression | functionalInstruction | argumentList )
+  ( chainLoneArgument | argumentList )
   ( chainedInstruction )+
+
+chainLoneArgument:
+  ( literal | pathExpression | functionalInstruction)
 
 chainedInstruction:
   ( infix )
@@ -59,7 +62,10 @@ argumentList:
   /- ')' -/
 
 argument:
-  ( instruction | value | pathExpression )
+  ( instruction | literal | pathExpression )
+
+loneArgument:
+  ( argument )
 
 pathExpression:
   ( anchor )
@@ -105,6 +111,8 @@ integer: /(
   DASH?
   (: '0' | [1-9] DIGIT* )
 )/
+
+literal: - value -
 
 # Hereafter taken straight from the JSON grammar, except that string has been split into singlestring and doublestring
 
