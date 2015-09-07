@@ -42,7 +42,7 @@ has document => (
 
 =head3 type
 
-Returns any of 'object', 'array', 'string', 'numeric', 'integer', or 'boolean' according to the JSON type of the node's value.
+Returns any of 'object', 'array', 'string', 'number', or 'boolean' according to the JSON type of the node's value.
 
 =cut
 

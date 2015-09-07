@@ -5,7 +5,7 @@ use JSON;
 use Module::Load;
 use Exporter qw(import);
 our @EXPORT = qw(void document nodelist nodeArray truth falsehood throw_error sameNode valuesEqual valueType);
-use Scalar::Util qw(blessed refaddr looks_like_number);
+use Scalar::Util qw(blessed refaddr);
 
 =head1 NAME
 
@@ -135,7 +135,7 @@ sub sameNode {
 
   valuesEqual($left, $right)
 
-Given two values, tests if they are of the same type and equal. 'numeric' and 'integer' are considered to have the same type ofr this purpose.
+Given two values, tests if they are of the same type and equal.
 
 =cut
 
@@ -163,9 +163,9 @@ sub valuesEqual {
         )
       )
     ) or (
-      $leftType =~ /^(?:numeric|integer)$/
+      $leftType eq 'number'
       and
-      $rightType =~ /^(?:numeric|integer)$/
+      $rightType eq 'number'
       and
       $left
       ==
@@ -196,7 +196,7 @@ sub valuesEqual {
 
   valueType($value)
 
-Returns any of 'object', 'array', 'string', 'numeric', 'integer', or 'boolean', depending on the value passed in as the first argument.
+Returns any of 'object', 'array', 'string', 'number', or 'boolean', depending on the value passed in as the first argument.
 
 =cut
 
@@ -206,14 +206,19 @@ sub valueType {
   return 'null' unless ( defined $val );
   my $ref = ref $val;
   unless ( $ref ) {
-    return 'integer' if $val =~ /^-?\d+\z/;
-    return 'number' if looks_like_number($val);
+    return 'number' if _is_number($val);
     return 'string';
   }
   return 'array' if $ref eq 'ARRAY';
   return 'object' if $ref eq 'HASH';
   return 'boolean' if $ref =~ 'Boolean';
   return 'blessed';
+}
+
+sub _is_number {
+  $_[0] eq ''
+    ? 0
+    : substr($_[0]^$_[0],0,1) ne "\c@";
 }
 
 # These come last otherwise there will be load order problems
