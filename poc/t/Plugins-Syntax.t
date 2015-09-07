@@ -158,4 +158,28 @@ foreach my $case ( @$tests ) {
   }
 }
 
+my $complete_transformation = q`
+transformation (
+  template ( current() ),
+  template {
+    test: type()->eq('array'),
+    produce: array( children() )
+  },
+  template {
+    test: type()->eq('object'),
+    produce: object (
+      children()->forEach(
+        name(),
+        applyTemplates()
+      )
+    )
+  }
+)`;
+
+subtest 'Can parse a complete transformation' => sub { eval {
+    my $result = $parser->parse( $complete_transformation, 'jtls' );
+    ok $result, 'only minimal check here for now';
+  }; fail "parsing failed - $@"  if $@;
+};
+
 done_testing;
