@@ -29,14 +29,9 @@ A compact syntax optimised for ease of reading and writing which maps to this na
 
     template {
       match:   isArray(),
-      produce: array(
-        applyTemplates (
-          filter {
-            select: children(),
-            test:   isHash()
-          }
-        )
-      )
+      produce: ./*[ isHash() ]
+        ->applyTemplates()
+        ->array()
     }
 
 ## How it works
