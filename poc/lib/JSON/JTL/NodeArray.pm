@@ -55,7 +55,7 @@ has contents => (
 
 These methods are provided so that node arrays can have the same API as nodes.
 
-=head1 children
+=head3 children
 
 Returns the node array's contents as an array reference.
 
@@ -63,7 +63,7 @@ Returns the node array's contents as an array reference.
 
 sub children { shift->contents; }
 
-=head1 parent
+=head3 parent
 
 Returns C<undef>.
 
@@ -71,7 +71,7 @@ Returns C<undef>.
 
 sub parent { undef }
 
-=head1 name
+=head3 name
 
 Returns C<undef>.
 
@@ -79,12 +79,20 @@ Returns C<undef>.
 
 sub name { undef }
 
-=head1 index
+=head3 index
 
 Returns C<undef>.
 
 =cut
 
 sub index { undef }
+
+=head3 type
+
+Returns the string C<nodeArray>.
+
+=cut
+
+sub type { 'nodeArray' }
 
 1;

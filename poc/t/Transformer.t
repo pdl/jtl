@@ -30,10 +30,16 @@ my $test_suite = [
     output      => [ { foo => { bar => 123 } } ],
   },
   {
-    why         => 'object type is "object"',
-    input       => { foo => 123 },
-    instruction => { JTL => 'type' },
-    output      => [ 'object' ],
+    why         => 'type() of JSON literals',
+    input       => [ {}, [], 123, "123", JSON::true, JSON::false, undef ],
+    instruction => { JTL => 'forEach', select => [ { JTL => 'children' } ], produce => [ { JTL => 'type' } ] },
+    output      => [ qw( object array number string boolean boolean null ) ],
+  },
+  {
+    why         => 'type() of JSON literals',
+    input       => [ ],
+    instruction => { JTL => 'forEach', select => [ { JTL => 'nodeArray' } ], produce => [ { JTL => 'type' } ] },
+    output      => [ qw( nodeArray ) ],
   },
   {
     why         => '"foo" eq "foo" is true',
