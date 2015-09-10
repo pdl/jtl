@@ -330,6 +330,29 @@ my $instructions = {
 
     return nodelist $uniques;
   },
+  'intersection' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    my $compared = $self->evaluate_nodelist_by_attribute('compare') // $self->throw_error('TransformationMissingRequiredAtrribute');
+
+    # todo: custom uniqueness conditions; requires current vs alternate
+    my $test = sub {
+      my $scope = shift;
+      my $alt   = shift;
+      sameNode( $scope->current, $alt );
+    };
+
+    my $intersection = [];
+
+    foreach my $node (@{ $selected->contents } ) {
+      my $subScope = $self->subscope( { current => $node } );
+      if ( any { $test->( $subScope, $_ ) } @{ $compared->contents } ) {
+        push @$intersection, $node unless any { $test->( $subScope, $_ ) } @$intersection
+      }
+    }
+
+    return nodelist $intersection;
+  },
   'true' => sub {
     my ( $self ) = @_;
     nodelist [ truth ];

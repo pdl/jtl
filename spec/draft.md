@@ -293,8 +293,6 @@ Returns the current node.
 
 ### source
 
-(I have forgotten what I intended this to mean. PErhaps it will return.)
-
 ### union
 
  - select

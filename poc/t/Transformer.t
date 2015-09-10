@@ -422,6 +422,36 @@ my $test_suite = [
     output      => [ ],
   },
   {
+    why         => 'intersection works',
+    input       => [ 123, 456, 789 ],
+    instruction => { JTL => 'intersection', select => [
+      { JTL => 'filter', select => [ { JTL => 'children' } ], test => [ { JTL => 'eq', compare => [ { JTL => 'literal', value => 123 } ] } ] },
+      { JTL => 'filter', select => [ { JTL => 'children' } ], test => [ { JTL => 'eq', compare => [ { JTL => 'literal', value => 456 } ] } ] },
+    ], compare => [
+      { JTL => 'filter', select => [ { JTL => 'children' } ], test => [ { JTL => 'eq', compare => [ { JTL => 'literal', value => 456 } ] } ] },
+      { JTL => 'filter', select => [ { JTL => 'children' } ], test => [ { JTL => 'eq', compare => [ { JTL => 'literal', value => 789 } ] } ] },
+    ] },
+    output      => [ 456 ],
+  },
+  {
+    why         => 'intersection tests identity, not value',
+    input       => [ 123, 456, 789 ],
+    instruction => { JTL => 'intersection', select => [ { JTL => 'literal', value => 123 } ], compare => [ { JTL => 'literal', value => 123 } ] },
+    output      => [ ],
+  },
+  {
+    why         => 'intersection works when all members match',
+    input       => [ 123, 456, 789 ],
+    instruction => { JTL => 'intersection', select => [ { JTL => 'children' } ], compare => [ { JTL => 'children' } ] },
+    output      => [ 123, 456, 789 ],
+  },
+  {
+    why         => 'intersection works on empty lists',
+    input       => [ 123, 456, 789 ],
+    instruction => { JTL => 'intersection', select => [ ], compare => [ ] },
+    output      => [ ],
+  },
+  {
     why         => 'name works',
     input       => { foo => 'bar' },
     instruction => { JTL => 'forEach', select => [ { JTL => 'children', }, ], produce => [ { JTL => 'name' } ] },
