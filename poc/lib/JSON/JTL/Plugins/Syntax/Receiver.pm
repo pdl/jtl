@@ -60,6 +60,11 @@ sub got_chainLoneArgument {
   return [ pop ];
 }
 
+sub got_loneArgument {
+  shift;
+  return [ pop ];
+}
+
 sub got_nameToken {
   return pop;
 }

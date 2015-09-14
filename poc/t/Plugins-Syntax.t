@@ -12,23 +12,23 @@ my $parser = JSON::JTL::Plugins::Syntax->new->parser;
 my $tests = [
   {
     syntax => 'template { foo:bar ( "" ) }',
-    means  => { 'JTL' => 'template', 'foo' => { JTL => 'bar', _implicit_argument => [ { JTL => 'literal', value => '' } ] } },
+    means  => { 'JTL' => 'template', 'foo' => [ { JTL => 'bar', _implicit_argument => [ { JTL => 'literal', value => '' } ] } ] },
   },
   {
     syntax => 'template{foo : bar( ) }',
-    means  => { 'JTL' => 'template', 'foo' => { JTL => 'bar' } },
+    means  => { 'JTL' => 'template', 'foo' => [ { JTL => 'bar' } ] },
   },
   {
     syntax => 'template{foo:bar{}}',
-    means  => { 'JTL' => 'template', 'foo' => { JTL => 'bar', } },
+    means  => { 'JTL' => 'template', 'foo' => [ { JTL => 'bar', } ] },
   },
   {
     syntax => 'template{foo:"bar"}',
-    means  => { 'JTL' => 'template', 'foo' => { JTL => 'literal', value => 'bar' } },
+    means  => { 'JTL' => 'template', 'foo' => [ { JTL => 'literal', value => 'bar' } ] },
   },
   {
     syntax => 'template{foo:{}}',
-    means  => { 'JTL' => 'template', 'foo' =>  { JTL => 'literal', value => {} } },
+    means  => { 'JTL' => 'template', 'foo' => [ { JTL => 'literal', value => {} } ] },
   },
   {
     syntax => './foo',
@@ -47,12 +47,12 @@ my $tests = [
   },
   {
     syntax => '. / * [ eq{ select:name(), compare:"foo" } ]',
-    means  => { JTL => 'filter', 'select' => [ { JTL => 'children' } ], test => [ { JTL => 'eq', select => { JTL => 'name' }, 'compare' =>  { JTL => 'literal', value => 'foo' } } ] },
+    means  => { JTL => 'filter', 'select' => [ { JTL => 'children' } ], test => [ { JTL => 'eq', select => [ { JTL => 'name' } ], 'compare' => [ { JTL => 'literal', value => 'foo' } ] } ] },
     what   => 'pathExpression',
   },
   {
     syntax => 'template{foo:./bar}',
-    means  => { 'JTL' => 'template', 'foo' => { JTL => 'child', name => [ { JTL => 'literal', value => 'bar' } ] } },
+    means  => { 'JTL' => 'template', 'foo' => [ { JTL => 'child', name => [ { JTL => 'literal', value => 'bar' } ] } ] },
   },
   # Some tests for single-quoted and double-quoted strings
   # For some unnerving reason these need to go at the end as otherwise tests which occur after them fail
@@ -120,6 +120,16 @@ my $tests = [
     syntax => "filter { select: ( foo() ) }",
     what   => 'instruction',
     means  => { JTL => 'filter', select => [ { JTL => 'foo' } ] },
+  },
+  {
+    syntax => "filter { select: foo() }",
+    what   => 'instruction',
+    means  => { JTL => 'filter', select => [ { JTL => 'foo' } ] },
+  },
+  {
+    syntax => "filter { select: 'foo' }",
+    what   => 'instruction',
+    means  => { JTL => 'filter', select => [ { JTL => 'literal', value => 'foo' } ] },
   },
   {
     syntax => "(./foo, ./bar)->filter()",
