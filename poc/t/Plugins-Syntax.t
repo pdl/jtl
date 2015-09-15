@@ -156,6 +156,11 @@ my $tests = [
     what   => 'instruction',
     means  => { JTL => 'name', select => [ { JTL => 'parent' } ] }
   },
+  {
+    syntax => '$foo',
+    what   => 'argument',
+    means  => { JTL => 'callVariable', name => [ { JTL => 'literal', value => 'foo' } ] }
+  },
 ];
 
 foreach my $case ( @$tests ) {

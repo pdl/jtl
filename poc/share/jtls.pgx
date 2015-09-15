@@ -18,7 +18,7 @@ instructionChain:
   ( chainedInstruction )+
 
 chainLoneArgument:
-  ( literal | pathExpression | functionalInstruction )
+  ( literal | variableCall | pathExpression | functionalInstruction )
 
 chainedInstruction:
   ( infix )
@@ -62,7 +62,7 @@ argumentList:
   /- ')' -/
 
 argument:
-  ( instruction | literal | pathExpression )
+  ( instruction | variableCall | literal | pathExpression )
 
 loneArgument:
   ( argument )
@@ -71,7 +71,11 @@ pathExpression:
   ( anchor )
   ( step )+
 
-# Todo: handle both the slashes in the step, as it's still legal to do foo//bar
+variableCall:
+  /- '$' /
+  ( nameToken )
+
+# Todo: handle both the slashes in the step, as it's arguably still legal to do foo//bar
 
 anchor: # NB: this rule is sensitive to order of items
   anchorChild | anchorParent | anchorRoot

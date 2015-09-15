@@ -70,6 +70,10 @@ sub got_nameToken {
 }
 
 
+sub got_variableCall {
+  return { JTL => 'callVariable', name => [ _lit ( pop->[0] ) ] };
+}
+
 sub got_literal {
   return _lit pop->[0];
 }
