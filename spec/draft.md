@@ -233,12 +233,6 @@ Searches through the templates in reverse order of declaration and from the curr
 
 Returns the contents of the variable with the name given in `name`, which must produce a single string.
 
-### callParam
-
- - name
-
-Returns the contents a parameter with the name given in `name`, which must produce a single string.
-
 ### callFunction
 
  - name
@@ -314,14 +308,14 @@ Evaluates `select` and `compare`, and filters them so that only nodes which appe
  - compare
  - test ??? (union of values vs union of nodes)
 
-Evaluates `select` and `compare`, and filters them so that only nodes which appear in one node lists - but not both - are returned.
+Evaluates `select` and `compare`, and filters them so that only nodes which appear in one of the two node lists - but not both - are returned.
 
-#### filter
+### filter
 
  - select
  - test
 
-(isn't this just foreach?)
+Evaluates `select`, and then evaluates `test` for each node. Only nodes for which `test` returns true will be returned. `test` must return boolean values only.
 
 ### unique
 
@@ -372,7 +366,7 @@ Returns the nodes in `select`, but in reverse order, i.e. from last to first.
 
 ### not
 
- - test
+ - select
 
 ### or, and
 
@@ -389,6 +383,7 @@ Returns true if the nodes are the same node, i.e. they share a document and have
 ### equal
 
  - select
+ - compare
 
 Returns true if the nodes are the equal in value, i.e. they are of the same type, and:
 
