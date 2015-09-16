@@ -102,6 +102,33 @@ sub children {
   return undef;
 }
 
+=head3 child
+
+  my $child = $self->child(2);
+  my $child = $self->child('foo');
+
+Returns the node representing the nth child of an array node, or the named child of an object node.
+
+=cut
+
+
+
+sub child {
+  my $self  = shift;
+  my $which = shift;
+  my $type  = $self->type;
+  my $path  = $self->path;
+  my $value = $self->value;
+  if ($type eq 'array') {
+    return undef unless $value->[$which];
+    return $self->document->find_node( [ @$path, $which ] );
+  } elsif ($type eq 'object') {
+    return undef unless $value->{$which};
+    return $self->document->find_node( [ @$path, $which ] );
+  }
+  return undef;
+}
+
 =head3 name
 
 If the parent node is an object, returns the property name associated with this ndoe.

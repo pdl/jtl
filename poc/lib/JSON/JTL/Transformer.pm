@@ -27,6 +27,42 @@ Returns a nodelist.
 =cut
 
 
+has instruction_spec => (
+  is      => 'ro',
+  lazy    => 1,
+  default => sub {
+    my $fn = File::ShareDir::dist_file('JSON-JTL', 'instructionSpec.json');
+    open my $fh, '<:encoding(UTF-8)', $fn or die qq(Could not open $fn);
+    my $s = '';
+    while (<$fh>) { $s .= $_ };
+    JSON::decode_json $s;
+  },
+);
+
+sub get_primary_attribute_name {
+  my $self = shift;
+  my $instruction = shift;
+  my $instruction_spec = $self->instruction_spec;
+  $self->throw_error( 'ImplementationError' ) unless exists ( $instruction_spec->{$instruction} );
+  return undef unless exists $instruction_spec->{$instruction}->{params};
+  return undef unless 'HASH' eq ref $instruction_spec->{$instruction}->{params};
+  foreach my $name ( keys %{ $instruction_spec->{$instruction}->{params} } ) {
+    return $name if $instruction_spec->{$instruction}->{params}->{$name}->{primary};
+  }
+  return undef;
+}
+
+sub is_primary_attribute {
+  my $self        = shift;
+  my $instruction = shift;
+  my $attribute   = shift;
+  my $instruction_spec = $self->instruction_spec;
+  $self->throw_error( 'ImplementationError' ) unless exists ( $instruction_spec->{$instruction} );
+  return undef unless exists $instruction_spec->{$instruction}->{params};
+  return undef unless 'HASH' eq ref $instruction_spec->{$instruction}->{params};
+  return $instruction_spec->{$instruction}->{params}->{$attribute}->{primary};
+}
+
 sub transform {
   my ($self, $input, $transformation) = @_;
   #my $coreScope = JSON::JTL::Scope::Core->new();
@@ -82,6 +118,7 @@ Given a production (which must be an arrayref), attempts to evaluate it. Returns
 
 sub production_result {
   my ( $self, $production ) = @_;
+  $self->throw_error( 'TransformationUnexpectedType' ) unless 'ARRAY' eq ref $production;
   my $subScope = (
     ( $self->instruction == $production )
     ? $self
@@ -162,6 +199,16 @@ my $instructions = {
       my $children = shift->children();
       return defined $children ? @$children : ();
     } );
+  },
+  'child' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    my $which    = $self->evaluate_nodelist_by_attribute('name')
+      // $self->evaluate_nodelist_by_attribute('index')
+      // $self->throw_error('ImplementationError');
+    return $selected->map( sub {
+      shift->child( $which->contents->[0]->value ) // ();
+    } ) // $self->throw_error('ImplementationError');
   },
   'reverse' => sub {
     my ( $self ) = @_;
@@ -313,22 +360,32 @@ my $instructions = {
   'union' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    my $test     = $self->instruction->{test} // $self->instruction->{_implicit_argument}; #$self->instruction_attribute('test');
 
     # todo: custom uniqueness conditions; requires current vs alternate
-    my $test = sub {
-      my $scope = shift;
-      my $alt   = shift;
-      sameNode( $scope->current, $alt );
-    };
+    my $tester = ( defined $test )
+      ? sub {
+          my $scope  = shift;
+          my $alt    = shift;
+          my $both   = nodeArray [ $scope->current, $alt ];
+          my $result = $scope->subscope( { current => $both } )->evaluate_nodelist_by_attribute('test');
+          $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $result->contents };
+          $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $result->contents->[0]->type;
+          return map { !! $_->value } @{ $result->contents };
+        }
+      : sub {
+        my $scope = shift;
+        my $alt   = shift;
+        sameNode( $scope->current, $alt );
+      };
 
-    my $uniques = [];
+    my @uniques = ();
 
-    foreach my $node (@{ $selected->contents } ) {
+    foreach my $node ( @{ $selected->contents } ) {
       my $subScope = $self->subscope( { current => $node } );
-      push @$uniques, $node unless any { $test->( $subScope, $_ ) } @$uniques
+      push @uniques, $node unless any { !! $_ } map { $tester->( $subScope, $_ ) } @{[ @uniques ]}; # if this seems odd... it is. It works, but I'm not sure why it refuses to be simplified
     }
-
-    return nodelist $uniques;
+    return nodelist [ @uniques ];
   },
   'intersection' => sub {
     my ( $self ) = @_;
@@ -404,6 +461,11 @@ sub evaluate_nodelist_by_attribute {
   my ( $self, $attribute ) = @_;
   my $nodeListContents = [];
   my $instruction = $self->instruction;
+  if ( exists ( $instruction->{_implicit_argument} ) ) {
+    if ( $self->is_primary_attribute ( $instruction->{JTL}, $attribute ) ) {
+      return $self->production_result( $instruction->{_implicit_argument} ); # always an arrayref
+    }
+  }
   if ( exists $instruction->{$attribute} ) {
     return $self->production_result($instruction->{$attribute} ); # always an arrayref
   }

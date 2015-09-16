@@ -1,0 +1,165 @@
+{
+  "literal" : {
+    "params" : {
+      "select" : false,
+      "value" : {
+        "required" : true,
+        "literal"  : true
+      }
+    }
+  },
+  "object" : {
+    "params" : {}
+  },
+  "array" : {
+    "params" : {}
+  },
+  "eq" : {
+    "params" : {
+      "compare" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
+  "applyTemplates" : {
+    "params" : {
+      "compare" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
+  "callVariable" : {
+    "select" : false,
+    "params" : {
+      "name" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
+  "forEach" : {
+    "params" : {
+      "produce" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
+  "if" : {
+    "params" : {
+      "produce" : {
+        "required" : false,
+        "default"  : [ { "JTL": "current" } ],
+        "primary"  : true
+      }
+    }
+  },
+  "filter" : {
+    "params" : {
+      "test" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
+  "type" : { },
+  "count" : { },
+  "current" : { },
+  "reverse" : { },
+  "union" : {
+    "params" : {
+      "compare" : {
+        "required" : false,
+        "primary"  : true
+      },
+      "test" : {
+        "required" : false
+      }
+    }
+  },
+  "intersection" : {
+    "params" : {
+      "compare" : {
+        "required" : false,
+        "default" : [],
+        "primary"  : true
+      },
+      "test" : {
+        "required" : false
+      }
+    }
+  },
+  "symmetricDifference" : {
+    "params" : {
+      "compare" : {
+        "required" : false,
+        "default" : [],
+        "primary"  : true
+      },
+      "test" : {
+        "required" : false
+      }
+    }
+  },
+  "unique" : {
+    "params" : {
+      "compare" : {
+        "required" : false,
+        "default" : [],
+        "primary"  : true
+      },
+      "test" : {
+        "required" : false
+      }
+    }
+  },
+  "and" : {
+    "params" : {
+      "compare" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
+  "or" : {
+    "params" : {
+      "compare" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
+  "xor" : {
+    "params" : {
+      "compare" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
+  "variable" : {
+    "params" : {
+      "name" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
+  "template" : {
+    "params" : {
+      "match" : {
+        "required" : false,
+        "type" : "boolean"
+      },
+      "name" : {
+        "required" : false
+      },
+      "produce" : {
+        "required" : true,
+        "primary" : true
+      }
+    }
+  }
+}

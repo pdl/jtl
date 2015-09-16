@@ -63,6 +63,20 @@ Returns the node array's contents as an array reference.
 
 sub children { shift->contents; }
 
+=head3 child
+
+  my $child = $self->child(2);
+
+Returns the nth child node in the node array.
+
+=cut
+
+sub child {
+  my $self  = shift;
+  my $index = shift;
+  return $self->contents->[ $index ];
+}
+
 =head3 parent
 
 Returns C<undef>.
@@ -73,7 +87,7 @@ sub parent { undef }
 
 =head3 name
 
-Returns C<undef>.
+Returns C<undef>. Node arrays may not be part of documents.
 
 =cut
 
@@ -81,7 +95,7 @@ sub name { undef }
 
 =head3 index
 
-Returns C<undef>.
+Returns C<undef>. Node arrays may not be part of documents.
 
 =cut
 
