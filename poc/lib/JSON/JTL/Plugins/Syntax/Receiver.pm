@@ -122,11 +122,15 @@ sub got_pathExpression {
   shift;
   my $steps = [];
   my $expression;
-  if ( $_[0][0]->{anchor} eq 'parent' ) {
+
+  if ( ( $_[0][0]->{JTL} // '' ) eq 'callVariable' ) {
+    $expression = $_[0][0]
+  } elsif ( $_[0][0]->{anchor} eq 'parent' ) {
     $expression = { JTL => 'parent' }
   } elsif ( $_[0][0]->{anchor} eq 'root' ) {
     $expression = { JTL => 'root' }
   }
+
   foreach my $step_and_filter ( @{ $_[0][1] } ) {
     my ( $step, $filter ) = @$step_and_filter;
     $expression = ( ( $step->{step} eq 'any' )

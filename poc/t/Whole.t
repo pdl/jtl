@@ -60,10 +60,7 @@ __DATA__
                   (
                     'country', $country,
                     'cities', (
-                      $cities
-                        ->children()
-                        ->filter( ./country->eq( $country ) )
-                        ->child { name: 'city' }
+                      $cities/*[ ./country->eq( $country ) ]/city
                     )->array()
                   )->object()
                 )

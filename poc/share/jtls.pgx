@@ -62,13 +62,13 @@ argumentList:
   /- ')' -/
 
 argument:
-  ( instruction | variableCall | literal | pathExpression )
+  ( instruction | literal | pathExpression | variableCall )
 
 loneArgument:
   ( argument )
 
 pathExpression:
-  ( anchor )
+  ( variableCall | anchor )
   ( step )+
 
 variableCall:
