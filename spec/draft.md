@@ -400,7 +400,8 @@ Returns true if the nodes are the equal in value, i.e. they are of the same type
 
 ### variable
 
- - select/produce
+ - select
+ - name
 
 Defines a variable in the current scope.
 

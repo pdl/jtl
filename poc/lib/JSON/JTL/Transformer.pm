@@ -160,7 +160,7 @@ my $instructions = {
     my ( $self ) = @_;
     my $nameNL   = $self->evaluate_nodelist_by_attribute('name') // $self->throw_error('TransformationMissingRequiredAtrribute');
     my $name     = $nameNL->contents->[0]->value;
-    my $selected = $self->evaluate_nodelist_by_attribute('select') // $self->throw_error('TransformationMissingRequiredAtrribute');
+    my $selected = $self->evaluate_nodelist_by_attribute('select')  // nodelist [ $self->current ];
     $self->parent->declare_symbol( $name, $selected );
     return void;
   },

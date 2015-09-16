@@ -52,11 +52,11 @@ __DATA__
           template {
             match: type()->eq('array'),
             produce: (
-              current()->variable('cities'),
+              variable('cities'),
               ./*/country
                 ->union { test: ./0->eq( ./1 ) }
                 ->forEach(
-                  current()->variable('country'),
+                  variable('country'),
                   (
                     'country', $country,
                     'cities', (
