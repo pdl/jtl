@@ -12,7 +12,11 @@ use Sub::Name    qw( subname );
 
 JSON::JTL::Transformer - perform transformations
 
-=cut
+=head1 DESCRIPTION
+
+This class is a role which provides transformation-related methods to JSON::JTL::Scope, and is not meant to be used directly.
+
+You should only need to interact with this module if you are a developer of this perl package or of a plugin: if you are just writing JTL, you want to be reading L<JSON::JTL>.
 
 =head1 METHODS
 
@@ -26,6 +30,7 @@ Returns a nodelist.
 
 =cut
 
+my $instructions;
 
 has instruction_spec => (
   is      => 'ro',
@@ -131,7 +136,50 @@ sub production_result {
   return nodelist $results;
 }
 
-my $instructions = {
+=head3 evaluate_instruction
+
+  $self->evaluate_instruction;
+
+Given an instruction (a hashref with key JTL), evaluates the result. Throws an error if the value of JTL does not correspond to a known instruction.
+
+=cut
+
+
+sub evaluate_instruction {
+  my ( $self ) = @_;
+  my $instruction = $self->instruction;
+  $self->throw_error('TransformationUnexpectedType' => ("Not a JSON Object")) unless 'HASH' eq ref $instruction;
+  my $instructionName = $instruction->{JTL};
+  if ( defined ( $instructions->{$instructionName} ) ) {
+    return $instructions->{$instructionName}->($self, $instruction);
+  }
+  $self->throw_error('TransformationUnknownInstruction' => "Cannot understand '$instructionName'");
+}
+
+=head3 evaluate_nodelist_by_attribute
+
+  $self->evaluate_nodelist_by_attribute( $instruction, $attribute );
+
+Given an instruction (a hashref with key JTL) and an attribute name, returns a nodelist with the results of the production of the cotents of that attribute.
+
+=cut
+
+sub evaluate_nodelist_by_attribute {
+  my ( $self, $attribute ) = @_;
+  my $nodeListContents = [];
+  my $instruction = $self->instruction;
+  if ( exists ( $instruction->{_implicit_argument} ) ) {
+    if ( $self->is_primary_attribute ( $instruction->{JTL}, $attribute ) ) {
+      return $self->production_result( $instruction->{_implicit_argument} ); # always an arrayref
+    }
+  }
+  if ( exists $instruction->{$attribute} ) {
+    return $self->production_result($instruction->{$attribute} ); # always an arrayref
+  }
+  return undef;
+}
+
+$instructions = {
   'applyTemplates' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
@@ -427,49 +475,6 @@ my $instructions = {
 # As a developer, I would like more meaningful stack traces than anonymous subroutines
 for my $name (keys %$instructions) {
   subname "i_$name", $instructions->{$name};
-}
-
-=head3 evaluate_instruction
-
-  $self->evaluate_instruction;
-
-Given an instruction (a hashref with key JTL), evaluates the result. Throws an error if the value of JTL does not correspond to a known instruction.
-
-=cut
-
-
-sub evaluate_instruction {
-  my ( $self ) = @_;
-  my $instruction = $self->instruction;
-  $self->throw_error('TransformationUnexpectedType' => ("Not a JSON Object")) unless 'HASH' eq ref $instruction;
-  my $instructionName = $instruction->{JTL};
-  if ( defined ( $instructions->{$instructionName} ) ) {
-    return $instructions->{$instructionName}->($self, $instruction);
-  }
-  $self->throw_error('TransformationUnknownInstruction' => "Cannot understand '$instructionName'");
-}
-
-=head3 evaluate_nodelist_by_attribute
-
-  $self->evaluate_nodelist_by_attribute( $instruction, $attribute );
-
-Given an instruction (a hashref with key JTL) and an attribute name, returns a nodelist with the results of the production of the cotents of that attribute.
-
-=cut
-
-sub evaluate_nodelist_by_attribute {
-  my ( $self, $attribute ) = @_;
-  my $nodeListContents = [];
-  my $instruction = $self->instruction;
-  if ( exists ( $instruction->{_implicit_argument} ) ) {
-    if ( $self->is_primary_attribute ( $instruction->{JTL}, $attribute ) ) {
-      return $self->production_result( $instruction->{_implicit_argument} ); # always an arrayref
-    }
-  }
-  if ( exists $instruction->{$attribute} ) {
-    return $self->production_result($instruction->{$attribute} ); # always an arrayref
-  }
-  return undef;
 }
 
 1;
