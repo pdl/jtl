@@ -120,6 +120,7 @@ sub child {
   my $path  = $self->path;
   my $value = $self->value;
   if ($type eq 'array') {
+    return undef unless 'number' eq valueType($which) && $which == int $which;
     return undef unless $value->[$which];
     return $self->document->find_node( [ @$path, $which ] );
   } elsif ($type eq 'object') {

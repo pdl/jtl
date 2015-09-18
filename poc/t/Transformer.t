@@ -258,6 +258,42 @@ my $test_suite = [
     output      => [ undef ],
   },
   {
+    why         => 'children works on arrays',
+    input       => [ 'foo', 'bar' ],
+    instruction => { JTL => 'children' },
+    output      => [ 'foo', 'bar' ],
+  },
+  {
+    why         => 'children works on objects',
+    input       => { foo => 'bar' },
+    instruction => { JTL => 'children' },
+    output      => [ 'bar' ],
+  },
+  {
+    why         => 'children returns empty list on strings, numbers, booleans, nulls',
+    input       => [ 'abc', 123, JSON::true, undef ],
+    instruction => { JTL => 'forEach', select => [ { JTL => 'children' }, ], produce => [ { JTL => 'children' } ] },
+    output      => [ ],
+  },
+  {
+    why         => 'child works on arrays',
+    input       => [ 'abc', 123, JSON::true, undef ],
+    instruction => { JTL => 'child', index => [ { JTL => 'literal', value => 1 }, ], },
+    output      => [ 123 ],
+  },
+  {
+    why         => 'child works on objects',
+    input       => { 'foo' => 'bar', 'abc' => 123 },
+    instruction => { JTL => 'child', name => [ { JTL => 'literal', value => 'abc' }, ], },
+    output      => [ 123 ],
+  },
+  {
+    why         => 'child returns empty list on strings, numbers, booleans, nulls',
+    input       => [ 'abc', 123, JSON::true, undef ],
+    instruction => { JTL => 'forEach', select => [ { JTL => 'child', name => [ { JTL => 'literal', value => 'abc' }, ], }, ], produce => [ { JTL => 'children' } ] },
+    output      => [ ],
+  },
+  {
     why         => 'name returns name',
     input       => { foo => 'bar' },
     instruction => { JTL => 'forEach', select => [ { JTL => 'children' }, ], produce => [ { JTL => 'name' } ] },
