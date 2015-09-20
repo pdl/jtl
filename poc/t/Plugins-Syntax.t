@@ -161,6 +161,26 @@ my $tests = [
     what   => 'argument',
     means  => { JTL => 'callVariable', name => [ { JTL => 'literal', value => 'foo' } ] }
   },
+  {
+    syntax => '../*',
+    means  => { JTL => 'children', select => [ { JTL => 'parent' } ] },
+    what   => 'pathExpression',
+  },
+  {
+    syntax => '../.[ eq(2) ]',
+    means  => { JTL => 'filter', select => [ { JTL => 'parent' } ], test => [ { JTL => 'eq', _implicit_argument => [ { JTL => 'literal', value => 2 } ] } ] },
+    what   => 'pathExpression',
+  },
+  {
+    syntax => './..',
+    means  => { JTL => 'parent' },
+    what   => 'pathExpression',
+  },
+  {
+    syntax => '../..',
+    means  => { JTL => 'parent', select => [ { JTL => 'parent' } ] },
+    what   => 'pathExpression',
+  },
 ];
 
 foreach my $case ( @$tests ) {

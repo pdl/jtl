@@ -78,7 +78,7 @@ variableCall:
 # Todo: handle both the slashes in the step, as it's arguably still legal to do foo//bar
 
 anchor: # NB: this rule is sensitive to order of items
-  anchorChild | anchorParent | anchorRoot
+  anchorParent | anchorChild | anchorRoot
 
 anchorRoot:
   ''
@@ -91,11 +91,17 @@ anchorParent:
 
 step:
   /- '/' -/
-  ( stepAny | stepNameToken | stepNumber | stepString )
+  ( stepParent | stepSelf | stepAny | stepNameToken | stepNumber | stepString )
   ( filter? )
 
 stepAny:
   '*'
+
+stepSelf:
+  '.'
+
+stepParent:
+  '..'
 
 stepNameToken:
   ( nameToken )

@@ -133,20 +133,36 @@ sub got_pathExpression {
 
   foreach my $step_and_filter ( @{ $_[0][1] } ) {
     my ( $step, $filter ) = @$step_and_filter;
-    $expression = ( ( $step->{step} eq 'any' )
-      ? { JTL => 'children', ( $expression ? ( select => [ $expression ] ) : () ) }
-      : { JTL => 'child', $step->{step} => [ $step->{value} ], ( $expression ? ( select => [ $expression ] ) : () ) }
+    $expression = (
+      ( $step->{step} eq 'self' )
+      ? $expression
+      : ( $step->{step} eq 'parent' )
+        ? { JTL => 'parent',  ( $expression ? ( select => [ $expression ] ) : () )  }
+        : ( $step->{step} eq 'any' )
+          ? { JTL => 'children', ( $expression ? ( select => [ $expression ] ) : () ) }
+          : { JTL => 'child', $step->{step} => [ $step->{value} ], ( $expression ? ( select => [ $expression ] ) : () ) }
     );
     if ( $filter ) {
       $expression = { %$filter, select => [ $expression ] };
     }
   }
+
   return $expression;
 }
 
 sub got_stepAny {
   shift;
   return { JTL => '_parser_step', step => 'any' };
+}
+
+sub got_stepParent {
+  shift;
+  return { JTL => '_parser_step', step => 'parent' };
+}
+
+sub got_stepSelf {
+  shift;
+  return { JTL => '_parser_step', step => 'self' };
 }
 
 sub got_stepNameToken {
