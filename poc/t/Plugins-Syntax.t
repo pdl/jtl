@@ -181,6 +181,11 @@ my $tests = [
     means  => { JTL => 'parent', select => [ { JTL => 'parent' } ] },
     what   => 'pathExpression',
   },
+  {
+    syntax => '/.[ type()->eq("array") ]',
+    means  => { JTL => 'filter', select => [ { JTL => 'root' } ], test => [ { JTL => 'eq', select => [ { JTL => 'type' } ], _implicit_argument => [ { JTL => 'literal', value => 'array' } ] } ] },
+    what   => 'pathExpression',
+  },
 ];
 
 foreach my $case ( @$tests ) {
