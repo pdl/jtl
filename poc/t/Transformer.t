@@ -574,7 +574,7 @@ my $test_suite = [
     why         => 'Can declare and use templates in the same scope',
     input       => { foo => 'bar' },
     instruction => [
-      { JTL => 'template', match => [ { JTL => 'literal', value => JSON::true } ], produce => [ { JTL => 'literal', value => 'fnord' } ] },
+      { JTL => 'declareTemplates', select => [ { JTL => 'template', match => [ { JTL => 'literal', value => JSON::true } ], produce => [ { JTL => 'literal', value => 'fnord' } ] } ] },
       { JTL => 'applyTemplates' },
     ],
     output => [ 'fnord' ],
@@ -583,7 +583,7 @@ my $test_suite = [
     why         => 'template cannot see outside variables',
     input       => { foo => 'bar' },
     instruction => [
-      { JTL => 'template', match => [ { JTL => 'literal', value => JSON::true } ], produce => [ { JTL => 'callVariable', name => [ { JTL => 'literal', value => 'fnord' } ] } ] },
+      { JTL => 'declareTemplates', select => [ { JTL => 'template', match => [ { JTL => 'literal', value => JSON::true } ], produce => [ { JTL => 'callVariable', name => [ { JTL => 'literal', value => 'fnord' } ] } ] } ] },
       { JTL => 'variable', name => [ { JTL => 'literal', value => 'fnord' } ], select => [ { JTL => 'current' } ] },
       { JTL => 'applyTemplates' },
     ],

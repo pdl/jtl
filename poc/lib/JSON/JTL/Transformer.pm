@@ -73,9 +73,11 @@ sub transform {
   #my $coreScope = JSON::JTL::Scope::Core->new();
   my $rootScope = $self->subscope( { current => document ($input), instruction => $transformation } );
 
-  $rootScope->evaluate_nodelist_by_attribute('templates') // $self->throw_error('TransformationMissingRequiredAtrribute');
+  my $templates = $rootScope->evaluate_nodelist_by_attribute('templates') // $self->throw_error('TransformationMissingRequiredAtrribute');
 
-  return $rootScope->apply_templates;
+  $rootScope->declare_template($_) for @{ $templates->contents };
+
+  $rootScope->apply_templates;
 }
 
 =head3 apply_template
@@ -192,15 +194,24 @@ $instructions = {
   },
   'template' => sub {
     my ( $self ) = @_;
-    my $template = $self->instruction;
-    my @parent   = $self;
+    return nodelist [ $self->enclose( { instruction => $self->instruction, caller => undef } ) ];
+  },
+  'declareTemplates' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
 
-    while ( ref ( $parent[0]->instruction ) ne 'ARRAY' ) {
-      @parent = $parent[0]->parent;
-    }
+    $selected->map( sub {
+      my $this   = shift;
+      my @parent = $self;
 
-    $parent[0]->declare_template( $template );
-    $parent[0]->parent->parent->declare_template( $template ); # todo: only if in templates
+      while ( ref ( $parent[0]->instruction ) ne 'ARRAY' ) {
+        @parent = $parent[0]->parent;
+      }
+
+      $parent[0]->declare_template( $this );
+
+      void;
+    } );
 
     return void;
   },

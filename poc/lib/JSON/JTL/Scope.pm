@@ -179,9 +179,8 @@ Declares a template, adding it to the end of the templates list.
 sub declare_template {
   my $self     = shift;
   my $template = shift;
-  my $closure  = $self->enclose( { instruction => $template, caller => undef } );
-  push @{ $self->templates }, $closure;
-  return $closure;
+  push @{ $self->templates }, $template;
+  return $template;
 }
 
 =head3 apply_templates
