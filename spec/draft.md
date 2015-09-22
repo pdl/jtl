@@ -57,7 +57,7 @@ Further documents will describe extensions to JTL which processors should implem
 
 ## Core Concepts
 
-## Nodes
+### Nodes
 
 The JSON value types Object, Array, String, Number, True, False and Null are considered to be nodes in the context of the document to which they belong. A node has a path, a value, and a document.
 
@@ -76,7 +76,7 @@ For example, in the following JSON document, the node with the value `"Whittlesf
 
 Nodes which are document nodes always have an empty path, no name, and no index. A node may not be a member of more than one document, nor may it have multiple paths.
 
-## Node lists
+### Node lists
 
 A node list is an ordered collection of zero or more nodes. The key features of a node list are:
 
@@ -85,7 +85,7 @@ A node list is an ordered collection of zero or more nodes. The key features of 
 
 Most instructions return node lists.
 
-## Node arrays
+### Node arrays
 
 A node array is a structure containing an ordered collection of zero or more nodes. The key features of a node array are:
 
@@ -102,6 +102,17 @@ An instruction, when executed, MUST produce one of the following results:
 
 - A node list, which may contain zero or more nodes. This may be used in another calculation.
 - A void result, indicating that no result was expected. This is distinct from an empty node list.
+
+### Templates
+
+A template is created by the `template` instruction. A template is typically:
+
+- created in the `templates` attribute in the `transformation` element
+- passed into the `select` attribute of the `declareTemplates` instruction
+
+When `applyTemplates` is called, templates are compared against the current node using the template's `match` attribute (if it exists), which must return a single boolean value.
+
+When a matching template is found, the `produce` attribute of the template is evaluated and returned.
 
 ### Scope
 
@@ -197,13 +208,39 @@ The following JTL always produces `[ "items", [] ]`:
 
 Returns a node (which is also a document node) whose value is boolean true.
 
+The following two instructions are therefore equivalent:
+
+  { "JTL": "literal", "value": true }
+
+  { "JTL": "true" }
+
 ### false
 
 Returns a node (which is also a document node) whose value is boolean false.
 
+The following two instructions are therefore equivalent:
+
+  { "JTL": "literal", "value": false }
+
+  { "JTL": "false" }
+
 ### null
 
 Returns a node (which is also a document node) whose value is `null`.
+
+The following two instructions are therefore equivalent:
+
+  { "JTL": "literal", "value": null }
+
+  { "JTL": "null" }
+
+### template
+
+ - match
+ - produce
+ - name
+
+Returns a template (which can be used in declareTemplates).
 
 ## Instructions for flow control and calculation
 
@@ -290,9 +327,11 @@ Returns the current node.
 ### union
 
  - select
- - test ??? (union of values vs union of nodes)
+ - test
 
 Evaluates `select`, and filters them so that no node is returned more than once. Nodes are returned in the order in which they were first seen.
+
+If `test` is present, a test for uniqueness other than identity is possible (e.g. an equality test).
 
 ### intersection
 
@@ -302,13 +341,17 @@ Evaluates `select`, and filters them so that no node is returned more than once.
 
 Evaluates `select` and `compare`, and filters them so that only nodes which appear in both node lists are returned.
 
+If `test` is present, a test for uniqueness other than identity is possible (e.g. an equality test).
+
 ### symmetricDifference
 
  - select
  - compare
- - test ??? (union of values vs union of nodes)
+ - test
 
 Evaluates `select` and `compare`, and filters them so that only nodes which appear in one of the two node lists - but not both - are returned.
+
+If `test` is present, a test for uniqueness other than identity is possible (e.g. an equality test).
 
 ### filter
 
@@ -405,23 +448,9 @@ Returns true if the nodes are the equal in value, i.e. they are of the same type
 
 Defines a variable in the current scope.
 
-### function
+### declareTemplate
 
- - name
- - params
- - produce
-
-Defines a variable in the current scope.
-
-When the function is executed, `params` is called with the current node of the caller scope (but the scope should have the scope in which it was declared as its parent).
-
-A hash is then built with the parameters
-
-### template
-
- - match
- - produce
- - name
+ - select
 
 Adds this template to the current scope's templates. Returns void.
 
