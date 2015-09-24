@@ -1,7 +1,15 @@
-requires 'perl', '5.008005';
+requires 'perl', '5.010001'; # Defined-or is too good!
 
-# requires 'Some::Module', 'VERSION';
+requires 'Moo', '0';
+requires 'Pegex', '0';
+requires 'JSON', '0';
+requires 'YAML', '0';
+requires 'Module::Load', '0';
+requires 'Sub::Name', '0';
+requires 'List::Util', '0';
 
 on test => sub {
+    requires 'Test::Deep', '0.117';
     requires 'Test::More', '0.96';
 };
+
