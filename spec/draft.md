@@ -210,9 +210,9 @@ Returns a node (which is also a document node) whose value is boolean true.
 
 The following two instructions are therefore equivalent:
 
-  { "JTL": "literal", "value": true }
+    { "JTL": "literal", "value": true }
 
-  { "JTL": "true" }
+    { "JTL": "true" }
 
 ### false
 
@@ -220,9 +220,9 @@ Returns a node (which is also a document node) whose value is boolean false.
 
 The following two instructions are therefore equivalent:
 
-  { "JTL": "literal", "value": false }
+    { "JTL": "literal", "value": false }
 
-  { "JTL": "false" }
+    { "JTL": "false" }
 
 ### null
 
@@ -230,9 +230,9 @@ Returns a node (which is also a document node) whose value is `null`.
 
 The following two instructions are therefore equivalent:
 
-  { "JTL": "literal", "value": null }
+    { "JTL": "literal", "value": null }
 
-  { "JTL": "null" }
+    { "JTL": "null" }
 
 ### template
 
