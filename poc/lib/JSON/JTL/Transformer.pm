@@ -181,6 +181,26 @@ sub evaluate_nodelist_by_attribute {
   return undef;
 }
 
+
+sub _tester_from_test {
+  my $test = shift;
+  return ( defined $test )
+    ? sub {
+        my $scope  = shift;
+        my $alt    = shift;
+        my $both   = nodeArray [ $scope->current, $alt ];
+        my $result = $scope->subscope( { current => $both } )->evaluate_nodelist_by_attribute('test');
+        $scope->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $result->contents };
+        $scope->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $result->contents->[0]->type;
+        return !! ${ $result->contents }[0]->value;
+      }
+    : sub {
+      my $scope = shift;
+      my $alt   = shift;
+      sameNode( $scope->current, $alt );
+    };
+}
+
 $instructions = {
   'applyTemplates' => sub {
     my ( $self ) = @_;
@@ -420,23 +440,7 @@ $instructions = {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
     my $test     = $self->instruction->{test} // $self->instruction->{_implicit_argument}; #$self->instruction_attribute('test');
-
-    # todo: custom uniqueness conditions; requires current vs alternate
-    my $tester = ( defined $test )
-      ? sub {
-          my $scope  = shift;
-          my $alt    = shift;
-          my $both   = nodeArray [ $scope->current, $alt ];
-          my $result = $scope->subscope( { current => $both } )->evaluate_nodelist_by_attribute('test');
-          $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $result->contents };
-          $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $result->contents->[0]->type;
-          return map { !! $_->value } @{ $result->contents };
-        }
-      : sub {
-        my $scope = shift;
-        my $alt   = shift;
-        sameNode( $scope->current, $alt );
-      };
+    my $tester   = _tester_from_test ( $test );
 
     my @uniques = ();
 
@@ -450,24 +454,44 @@ $instructions = {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
     my $compared = $self->evaluate_nodelist_by_attribute('compare') // $self->throw_error('TransformationMissingRequiredAtrribute');
-
-    # todo: custom uniqueness conditions; requires current vs alternate
-    my $test = sub {
-      my $scope = shift;
-      my $alt   = shift;
-      sameNode( $scope->current, $alt );
-    };
+    my $test     = $self->instruction->{test} // $self->instruction->{_implicit_argument}; #$self->instruction_attribute('test');
+    my $tester   = _tester_from_test ( $test );
 
     my $intersection = [];
 
-    foreach my $node (@{ $selected->contents } ) {
+    foreach my $node ( @{ $selected->contents } ) {
       my $subScope = $self->subscope( { current => $node } );
-      if ( any { $test->( $subScope, $_ ) } @{ $compared->contents } ) {
-        push @$intersection, $node unless any { $test->( $subScope, $_ ) } @$intersection
+      if ( any { $tester->( $subScope, $_ ) } @{ $compared->contents } ) {
+        push @$intersection, $node unless any { $tester->( $subScope, $_ ) } @$intersection
       }
     }
 
     return nodelist $intersection;
+  },
+  'symmetricDifference' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    my $compared = $self->evaluate_nodelist_by_attribute('compare') // $self->throw_error('TransformationMissingRequiredAtrribute');
+    my $test     = $self->instruction->{test} // $self->instruction->{_implicit_argument}; #$self->instruction_attribute('test');
+    my $tester   = _tester_from_test ( $test );
+
+    my $sd = [];
+
+    foreach my $node (  @{ $selected->contents } ) {
+      my $subScope = $self->subscope( { current => $node } );
+      if ( ! any { $tester->( $subScope, $_ ) } @{ $compared->contents } ) {
+        push @$sd, $node unless any { $tester->( $subScope, $_ ) } @$sd;
+      }
+    }
+
+    foreach my $node ( @{ $compared->contents } ) {
+      my $subScope = $self->subscope( { current => $node } );
+      if ( ! any { $tester->( $subScope, $_ ) } @{ $selected->contents } ) {
+        push @$sd, $node unless any { $tester->( $subScope, $_ ) } @$sd;
+      }
+    }
+
+    return nodelist $sd;
   },
   'true' => sub {
     my ( $self ) = @_;

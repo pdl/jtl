@@ -54,6 +54,12 @@ my $test_suite = [
     output      => [ JSON::false ],
   },
   {
+    why         => '123 eq 456 is false',
+    input       => 123,
+    instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => 456 } ] },
+    output      => [ JSON::false ],
+  },
+  {
     why         => '"foo" eq [] is false',
     input       => 'foo',
     instruction => { JTL => 'eq', compare => [ { JTL => 'literal', value => [] } ] },
@@ -452,6 +458,19 @@ my $test_suite = [
     output      => [ 123, 456, 789, 123 ],
   },
   {
+    why         => 'union can apply custom test',
+    input       => [ 123, 456, 789 ],
+    instruction => {
+      JTL => 'union',
+      test => [ { JTL => 'eq', select => [ { JTL => 'child', index => [ { JTL => 'literal', value => 0 } ], } ], compare => [ { JTL => 'child', index => [ { JTL => 'literal', value => 1 } ], } ] } ],
+      select => [
+        { JTL => 'children' },
+        { JTL => 'literal', value => 123 },
+      ],
+    },
+    output      => [ 123, 456, 789 ],
+  },
+  {
     why         => 'union works on empty list too',
     input       => [ 123, 456, 789 ],
     instruction => { JTL => 'union', select => [ ],  },
@@ -476,6 +495,17 @@ my $test_suite = [
     output      => [ ],
   },
   {
+    why         => 'intersection can apply custom test',
+    input       => [ 123, 456, 789 ],
+    instruction => {
+      JTL     => 'intersection',
+      test    => [ { JTL => 'eq', select => [ { JTL => 'child', index => [ { JTL => 'literal', value => 0 } ], } ], compare => [ { JTL => 'child', index => [ { JTL => 'literal', value => 1 } ], } ] } ],
+      select  => [ { JTL => 'children' } ],
+      compare => [ { JTL => 'literal', value => 123 } ],
+    },
+    output => [ 123 ],
+  },
+  {
     why         => 'intersection works when all members match',
     input       => [ 123, 456, 789 ],
     instruction => { JTL => 'intersection', select => [ { JTL => 'children' } ], compare => [ { JTL => 'children' } ] },
@@ -485,6 +515,51 @@ my $test_suite = [
     why         => 'intersection works on empty lists',
     input       => [ 123, 456, 789 ],
     instruction => { JTL => 'intersection', select => [ ], compare => [ ] },
+    output      => [ ],
+  },
+  {
+    why         => 'symmetricDifference works',
+    input       => [ 123, 456, 789 ],
+    instruction => { JTL => 'symmetricDifference', select => [
+      { JTL => 'filter', select => [ { JTL => 'children' } ], test => [ { JTL => 'eq', compare => [ { JTL => 'literal', value => 123 } ] } ] },
+      { JTL => 'filter', select => [ { JTL => 'children' } ], test => [ { JTL => 'eq', compare => [ { JTL => 'literal', value => 456 } ] } ] },
+    ], compare => [
+      { JTL => 'filter', select => [ { JTL => 'children' } ], test => [ { JTL => 'eq', compare => [ { JTL => 'literal', value => 456 } ] } ] },
+      { JTL => 'filter', select => [ { JTL => 'children' } ], test => [ { JTL => 'eq', compare => [ { JTL => 'literal', value => 789 } ] } ] },
+    ] },
+    output      => [ 123, 789 ],
+  },
+  {
+    why         => 'symmetricDifference tests identity, not value',
+    input       => [ 123, 456, 789 ],
+    instruction => { JTL => 'symmetricDifference', select => [ { JTL => 'literal', value => 123 } ], compare => [ { JTL => 'literal', value => 123 } ] },
+    output      => [ 123, 123 ],
+  },
+  {
+    why         => 'symmetricDifference can apply custom test',
+    input       => [ 123, 456, 789 ],
+    instruction => {
+      JTL     => 'symmetricDifference',
+      test    => [ {
+          JTL     => 'eq',
+          select  => [ { JTL => 'child', index => [ { JTL => 'literal', value => 0 } ] } ],
+          compare => [ { JTL => 'child', index => [ { JTL => 'literal', value => 1 } ] } ]
+      } ],
+      select  => [ { JTL => 'children' } ],
+      compare => [ { JTL => 'literal', value => 123 }, { JTL => 'literal', value => 'xyz' } ],
+    },
+    output => [ 456, 789, 'xyz' ],
+  },
+  {
+    why         => 'symmetricDifference works when all members match',
+    input       => [ 123, 456, 789 ],
+    instruction => { JTL => 'symmetricDifference', select => [ { JTL => 'children' } ], compare => [ { JTL => 'children' } ] },
+    output      => [ ],
+  },
+  {
+    why         => 'symmetricDifference works on empty lists',
+    input       => [ 123, 456, 789 ],
+    instruction => { JTL => 'symmetricDifference', select => [ ], compare => [ ] },
     output      => [ ],
   },
   {
