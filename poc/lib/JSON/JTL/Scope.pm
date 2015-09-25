@@ -41,13 +41,18 @@ has templates => (
 
 A weak reference to the node considered to be the 'current' node in the scope.
 
+If defined, this must be a JTL::Node, a JTL::NodeArray or a JTL::Scope.
+
 =cut
 
 
 has current => ( # the current node
   is      => 'rw',
   isweak  => 1,
-  isa     => sub { throw_error('ImplementationError' => qq(Got "$_[0]")) unless ((ref $_[0]) =~ /JTL::Node|JTL::Document/) }
+  isa     => sub {
+    throw_error('ImplementationError' => qq(Got "$_[0]"))
+      if defined $_[0] and ((ref $_[0]) !~ /JTL::Node|JTL::Document|JTL::Scope/) 
+  }
 );
 
 =head3 parent
@@ -223,6 +228,17 @@ sub throw_error {
   }
 }
 
+=head3 enclose
+
+  my $template = $self->enclose;
+  my $template = $self->enclose( $args );
+
+Creates a template based on the current scope, like a 'closure'.
+
+A copy of the current symbol table and current is taken, and the instruction is also taken from C<$self>. The current node, parent node and the caller are discarded.
+
+=cut
+
 sub enclose {
   my $self    = shift;
   my $args    = shift;
@@ -241,7 +257,10 @@ sub enclose {
   return __PACKAGE__->new( {
     symbols     => $symbols,
     instruction => $self->instruction,
-    $args ? %$args : ()
+    $args ? %$args : (),
+    current     => undef,
+    parent      => undef,
+    caller      => undef,
   } );
 }
 

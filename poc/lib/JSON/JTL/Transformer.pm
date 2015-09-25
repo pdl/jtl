@@ -214,7 +214,7 @@ $instructions = {
   },
   'template' => sub {
     my ( $self ) = @_;
-    return nodelist [ $self->enclose( { instruction => $self->instruction, caller => undef } ) ];
+    return nodelist [ $self->enclose ];
   },
   'declareTemplates' => sub {
     my ( $self ) = @_;
