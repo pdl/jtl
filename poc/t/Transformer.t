@@ -581,6 +581,30 @@ my $test_suite = [
     output      => [ 'foo' ],
   },
   {
+    why         => 'range works',
+    input       => 1,
+    instruction => [
+      { JTL => 'range', select => [ { JTL => 'literal', value => 1 } ], end => [ { JTL => 'literal', value => 5 } ] },
+    ],
+    output      => [ 1, 2, 3, 4, 5 ],
+  },
+  {
+    why         => 'range works in reverse',
+    input       => 5,
+    instruction => [
+      { JTL => 'range', end => [ { JTL => 'literal', value => 1 } ] },
+    ],
+    output      => [ 5, 4, 3, 2, 1 ],
+  },
+  {
+    why         => 'range works with only one item',
+    input       => 1,
+    instruction => [
+      { JTL => 'range', end => [ { JTL => 'literal', value => 1 } ] },
+    ],
+    output      => [ 1 ],
+  },
+  {
     why         => 'Variable works',
     input       => { foo => 'bar' },
     instruction => [

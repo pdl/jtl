@@ -505,6 +505,29 @@ $instructions = {
     my ( $self ) = @_;
     nodelist [ document undef ];
   },
+  'range' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    my $compare  = $self->evaluate_nodelist_by_attribute('end') // $self->throw_error('TransformationMissingRequiredAtrribute');
+
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $selected->contents };
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $compare->contents };
+
+    my $start = $selected->contents->[0]->value;
+    my $end   = $compare->contents->[0]->value;
+
+    $self->throw_error('ResultNodeUnexpectedType') unless 'number' eq valueType($start);
+    $self->throw_error('ResultNodeUnexpectedType') unless 'number' eq valueType($end);
+
+    $self->throw_error('ResultNodeUnexpectedType') unless $start == int $start;
+    $self->throw_error('ResultNodeUnexpectedType') unless $end   == int $end;
+
+    return nodelist [ map { document $_ }
+      $start > $end
+      ? reverse ($end..$start)
+      : $start..$end
+    ];
+  },
 };
 
 # As a developer, I would like more meaningful stack traces than anonymous subroutines

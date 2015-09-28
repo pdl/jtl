@@ -159,7 +159,7 @@ Instructions may specify further restrictions on allowable values resulting from
 
 ## Productive Instructions
 
-The following instructions create a node list of one item:
+The following instructions create a node list of at least one item:
 
 ### literal
 
@@ -241,6 +241,13 @@ The following two instructions are therefore equivalent:
  - name
 
 Returns a template (which can be used in declareTemplates).
+
+### range
+
+- select
+- end
+
+Evaluates `select` and `end`, expecting both to be single integers. Returns a list of integers starting at `select` and ending at `end` (inclusively, e.g. `1, 2, 3`). If `select` and `end` are equal, a list of one item will be returned (e.g. `1`). If `select` is greater than `end`, the list of integers will count downwards instead.
 
 ## Instructions for flow control and calculation
 
