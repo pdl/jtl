@@ -106,6 +106,7 @@ sub subscope {
     caller      => $self,
     current     => $self->current,
     instruction => $self->instruction,
+    language    => $self->language,
     ( $_[0] ? %{$_[0]} : () )
   };
   return __PACKAGE__->new( $args );
