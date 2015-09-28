@@ -40,9 +40,27 @@ has instruction_spec => (
   },
 );
 
+=head1 METHODS
+
+=head3 get_instruction
+
+Returns a coderef representing the implementation of an instruction, which takes a single argument, a L<JSON::JTL::Scope>.
+
+Returns undef if no implementation exists.
+
+=cut
+
 sub get_instruction {
   return $instructions->{$_[1]};
 }
+
+=head3 get_primary_attribute_name
+
+  $self->get_primary_attribute_name('eq'); # returns 'compare'
+
+Returns the name of the 'primary' attribute, i.e. the one which describes the most important attribute other than select. Used for the resolution of implicit arguments.
+
+=cut
 
 sub get_primary_attribute_name {
   my $self = shift;
@@ -56,6 +74,16 @@ sub get_primary_attribute_name {
   }
   return undef;
 }
+
+=head3 is_primary_attribute
+
+  $self->is_primary_attribute_name('eq', 'compare'); # returns a true value
+
+Returns a true value if the attribute given as the second argument is the primary attribute of the instruction given as the first.
+
+Returns a false value (typically undef) otherwise.
+
+=cut
 
 sub is_primary_attribute {
   my $self        = shift;

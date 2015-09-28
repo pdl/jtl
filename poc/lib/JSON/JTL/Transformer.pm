@@ -18,6 +18,14 @@ You should only need to interact with this module if you are a developer of this
 
 =cut
 
+=head1 ATTRIBUTES
+
+=head3 language
+
+An instance of the language, currently always L<JSON::JTL::Language::WorkingDraft>.
+
+=cut
+
 has language => (
   is      => 'ro',
   default => sub {
