@@ -277,6 +277,23 @@ $instructions = {
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
     return nodelist [ document scalar @{ $selected->contents } ];
   },
+  'reduce' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    my $length   = @{ $selected->contents };
+    $self->throw_error('ResultNodesUnexpectedNumber') unless $length >= 2;
+    my $current  = $selected->contents->[0];
+    my $last     = $length - 1;
+
+    for my $i ( 1..$last ) {
+      my $subscope = $self->subscope( { current => nodeArray [ $current, $selected->contents->[$i] ] } );
+      my $l        = $subscope->evaluate_nodelist_by_attribute('produce');
+      $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $l->contents };
+      $current = $l->contents->[0];
+    }
+
+    return $current;
+  },
   'any' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];

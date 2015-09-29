@@ -724,6 +724,69 @@ my $test_suite = [
     },
     output => [ ],
   },
+  {
+    why         => 'reduce works',
+    input       => [ 1, 2, 3 ],
+    instruction => {
+      JTL => 'reduce',
+      select => [
+        { JTL => 'children' },
+      ],
+      produce => [
+        {
+          JTL => 'array',
+          select => [
+            { JTL => 'child', index => [ { JTL => 'literal', value => 0 } ] },
+            { JTL => 'child', index => [ { JTL => 'literal', value => 1 } ] },
+          ]
+        }
+      ],
+    },
+    output => [ [ [ 1, 2 ], 3 ] ],
+  },
+  {
+    why         => 'reduce requires at least two values',
+    input       => [ ],
+    instruction => {
+      JTL => 'reduce',
+      select => [
+        { JTL => 'children' },
+      ],
+      produce => [
+        {
+          JTL => 'array',
+          select => [
+            { JTL => 'child', index => [ { JTL => 'literal', value => 0 } ] },
+            { JTL => 'child', index => [ { JTL => 'literal', value => 1 } ] },
+         ]
+        }
+      ],
+    },
+    error => {
+      error_type => 'ResultNodesUnexpectedNumber',
+    }
+  },  {
+    why         => 'reduce requires at least two values (got one)',
+    input       => [ 1 ],
+    instruction => {
+      JTL => 'reduce',
+      select => [
+        { JTL => 'children' },
+      ],
+      produce => [
+        {
+          JTL => 'array',
+          select => [
+            { JTL => 'child', index => [ { JTL => 'literal', value => 0 } ] },
+            { JTL => 'child', index => [ { JTL => 'literal', value => 1 } ] },
+          ]
+        }
+      ],
+    },
+    error => {
+      error_type => 'ResultNodesUnexpectedNumber',
+    }
+  },
 ];
 
 foreach my $case (@$test_suite) {

@@ -367,6 +367,15 @@ If `test` is present, a test for uniqueness other than identity is possible (e.g
 
 Evaluates `select`, and then evaluates `test` for each node. Only nodes for which `test` returns true will be returned. `test` must return boolean values only.
 
+### reduce
+
+- select
+- produce
+
+Evaluates `select`, and then, for each item in the result (apart from the first), evaluates `produce`, with the current node set to a node array consisting of the item and the result of the previous `produce` (which must be a single item), or in the case of the first evalueation, the first item in select.
+
+Throws an error if `select` contains fewer than two items.
+
 ### unique
 
  - select
