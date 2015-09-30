@@ -765,7 +765,8 @@ my $test_suite = [
     error => {
       error_type => 'ResultNodesUnexpectedNumber',
     }
-  },  {
+  },
+  {
     why         => 'reduce requires at least two values (got one)',
     input       => [ 1 ],
     instruction => {
@@ -786,6 +787,36 @@ my $test_suite = [
     error => {
       error_type => 'ResultNodesUnexpectedNumber',
     }
+  },
+  {
+    why         => 'zip with arrays of equal size',
+    input       => [ [1,2,3], ['a', 'b','c'], ['A','B','C'] ],
+    instruction => { JTL => 'children', select => [ { JTL => 'zip', select => [ { JTL => 'children' }, ], }, ], },
+    output => [ [1, 'a', 'A'], [ 2, 'b', 'B'], [ 3, 'c', 'C'] ],
+  },
+  {
+    why         => 'zip returns nodeArray',
+    input       => [ [1,2,3], ['a', 'b','c'], ['A','B','C'] ],
+    instruction => { JTL => 'type', select => [ { JTL => 'zip', select => [ { JTL => 'children' }, ], }, ], },
+    output => [ 'nodeArray' ],
+  },
+  {
+    why         => 'zip with only one array',
+    input       => [ [1,2,3] ],
+    instruction => { JTL => 'children', select => [ { JTL => 'zip', select => [ { JTL => 'children' }, ], }, ], },
+    output => [ [1], [2], [3] ],
+  },
+  {
+    why         => 'zip with arrays of unequal size',
+    input       => [ [1,2,3], ['a', 'b',], ['A'] ],
+    instruction => { JTL => 'children', select => [ { JTL => 'zip', select => [ { JTL => 'children' }, ], }, ], },
+    output => [ [1, 'a', 'A'], [ 2, 'b', 'A'], [ 3, 'a', 'A'] ],
+  },
+  {
+    why         => 'zip with some empty arrays',
+    input       => [ [], ['a', 'b',], ['A'] ],
+    instruction => { JTL => 'children', select => [ { JTL => 'zip', select => [ { JTL => 'children' }, ], }, ], },
+    output => [ ['a', 'A'], ['b', 'A'] ],
   },
 ];
 

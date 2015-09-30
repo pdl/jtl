@@ -5,7 +5,7 @@ use Moo;
 use JSON::JTL::Syntax::Internal;
 use JSON::JTL::Scope;
 use Scalar::Util qw( blessed refaddr );
-use List::Util   qw( any );
+use List::Util   qw( any max );
 use Sub::Name    qw( subname );
 
 =head1 NAME
@@ -260,7 +260,9 @@ $instructions = {
   },
   'type' => sub {
     my ( $self ) = @_;
-    return document ( $self->current->type );
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $selected->contents };
+    return document ( $selected->contents->[0]->type );
   },
   'if' => sub {
     my ( $self ) = @_;
@@ -313,6 +315,23 @@ $instructions = {
       return nodelist [ falsehood ] unless $val;
     }
     return nodelist [ truth ];
+  },
+  'zip' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    my $arrays   = [ grep { !!@$_ } map { $_->value } @{ $selected->contents } ];
+    my $extent   = max ( map { $#$_ } @$arrays );
+    my $results  = [];
+
+    return nodelist nodeArray [] unless $extent;
+
+    for my $i (0..$extent) {
+      push @$results, document [ map {
+        $_->[$i%@$_]
+      } @$arrays ];
+    }
+
+    return nodelist [ nodeArray $results ];
   },
   'not' => sub {
     my ( $self ) = @_;

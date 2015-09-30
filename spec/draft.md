@@ -376,6 +376,14 @@ Evaluates `select`, and then, for each item in the result (apart from the first)
 
 Throws an error if `select` contains fewer than two items.
 
+### zip
+
+- select
+
+Evaluates `select`, which shoud be a list of arrays or node arrays. Returns a list of arrays such that the first array contains the first element of each of the input arrays, the second array contains the second element, etc. If one array is exhausted, its values are recycled from the beginning until the end of the longest array. If any arrays are empty, they will not be used at all.
+
+If select contains no non-empty arrays/node arrays, an empty nodelist is returned.
+
 ### unique
 
  - select
