@@ -87,7 +87,7 @@ Finds the production result of the match. If it is a single boolean true, return
 
 sub match_template {
   my ( $self ) = @_;
-  my $result = $self->evaluate_nodelist_by_attribute( 'match' ) // throw_error 'TransformationMissingRequiredAtrribute';
+  my $result = $self->evaluate_nodelist_by_attribute( 'match' ) // return 1;
   $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $result->contents };
   $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $result->contents->[0]->type;
   !!$result->contents->[0];

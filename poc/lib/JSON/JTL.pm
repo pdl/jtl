@@ -1,11 +1,14 @@
 package JSON::JTL;
 use strict;
 use warnings;
-use JSON::JTL::Transformer;
-use JSON;
+
 use 5.010_001;
 our $VERSION = '0.001';
+
+use JSON;
+use JSON::JTL::Scope;
 use JSON::JTL::Syntax::Internal qw(throw_error);
+use JSON::JTL::Plugins::Syntax;
 
 =head1 NAME
 
@@ -29,9 +32,17 @@ use Moo;
 
 =head1 METHODS
 
+=head3 transform
+
+  my @json_results = $jtl->transform( '{}', '{ "JTL": "transformation", ... }' );
+  my @data_results = $jtl->transform(  {},   { JTL => 'transformation', ... }  );
+  my @data_results = $jtl->transform(  {},  'transformation { ... }'           );
+
+Takes a JSON string or data structure to be transformed; a JTLS string or a JSON string or a data structure of the transformation; returns a list of data structures which are the results of the transformation, or JSON strings if the original document was a JSON string.
+
 =head3 transform_json
 
-Takes a JSON string to be transformed, a JSON string of; returns a list of JSON strings which are the results of the transformation.
+Takes a JSON string to be transformed, a JSON string of the transformation; returns a list of JSON strings which are the results of the transformation.
 
 =head3 transform_data
 
@@ -53,12 +64,41 @@ has transformer => (
   default => sub { JSON::JTL::Scope->new() },
 );
 
+sub transform {
+  my $self           = shift;
+  my $source         = shift;
+  my $transformation = shift;
+  my $return_json    = 0;
+
+  unless (ref $source) {
+    eval {
+      $source = JSON::decode_json($source);
+      $return_json++;
+    }; throw_error 'InputNotWellFormed', $@ if $@;
+  }
+  unless (ref $transformation) {
+    if ( $transformation =~ /^\s*\{.*\}\s*$/ ) { # looks like a json object
+      eval {
+        $transformation = JSON::decode_json($transformation);
+      }; throw_error 'TransformationNotWellFormed', $@ if $@;
+    }
+    else {
+       eval {
+        $transformation = JSON::JTL::Plugins::Syntax->new->preprocess($transformation);
+      }; throw_error 'TransformationNotWellFormed', $@ if $@;
+    }
+  }
+  my $result = $self->transformer->transform( $source, $transformation );
+  return map { $return_json ? to_json $_->value, { allow_nonref => 1 } : $_->value } @{ $result->contents };
+
+}
+
 sub transform_data {
   my $self           = shift;
   my $source         = shift;
   my $transformation = shift;
   my $result = $self->transformer->transform( $source, $transformation );
-  return map { $_->contents } @{ $result->contents };
+  return map { $_->value } @{ $result->contents };
 }
 
 sub transform_json {
@@ -73,7 +113,7 @@ sub transform_json {
     $source = JSON::decode_json($json_source);
   }; throw_error 'TransformationNotWellFormed', $@ if $@;
   my $result = $self->transformer->transform( $source, $transformation );
-  return map { to_json $_->contents } @{ $result->contents };
+  return map { to_json $_->value, { allow_nonref => 1 } } @{ $result->contents };
 }
 
 =head1 SEE ALSO
