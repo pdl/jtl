@@ -88,7 +88,8 @@ sub transform {
       }; throw_error 'TransformationNotWellFormed', $@ if $@;
     }
   }
-  my $result = $self->transformer->transform( $source, $transformation );
+  my $result = $self->transformer->transform( $source, $transformation )
+    // throw_error 'TransformationNoMatchingTemplate';
   return map { $return_json ? to_json $_->value, { allow_nonref => 1 } : $_->value } @{ $result->contents };
 
 }
@@ -97,7 +98,8 @@ sub transform_data {
   my $self           = shift;
   my $source         = shift;
   my $transformation = shift;
-  my $result = $self->transformer->transform( $source, $transformation );
+  my $result = $self->transformer->transform( $source, $transformation )
+    // throw_error 'TransformationNoMatchingTemplate';
   return map { $_->value } @{ $result->contents };
 }
 
@@ -112,7 +114,8 @@ sub transform_json {
   eval {
     $source = JSON::decode_json($json_source);
   }; throw_error 'TransformationNotWellFormed', $@ if $@;
-  my $result = $self->transformer->transform( $source, $transformation );
+  my $result = $self->transformer->transform( $source, $transformation )
+    // throw_error 'TransformationNoMatchingTemplate';
   return map { to_json $_->value, { allow_nonref => 1 } } @{ $result->contents };
 }
 
