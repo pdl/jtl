@@ -9,7 +9,7 @@ requires 'Sub::Name', '0';
 requires 'List::Util', '0';
 
 on test => sub {
-    requires 'Test::Deep', '0.117';
+    requires 'Test::Deep', '0.115';
     requires 'Test::More', '0.96';
 };
 
