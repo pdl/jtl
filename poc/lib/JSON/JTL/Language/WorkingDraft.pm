@@ -171,12 +171,12 @@ $instructions = {
   'name' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
-    nodelist [ document $selected->contents->[0]->name ];
+    $selected->map( sub { my $name = $_->name; defined $name ? document $name : return; } );
   },
   'index' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
-    nodelist [ document $selected->contents->[0]->index ];
+    $selected->map( sub { my $index = $_->index; defined $index ? document $index : return; } );
   },
   'parent' => sub {
     my ( $self ) = @_;
@@ -374,9 +374,18 @@ $instructions = {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
     my $compare  = $self->evaluate_nodelist_by_attribute('compare') // $self->throw_error('TransformationMissingRequiredAtrribute');
-    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $selected->contents };
-    $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $compare->contents };
-    return nodelist [ valuesEqual( map { $_->value } map { @{ $_->contents } } $selected, $compare) ];
+
+    return nodelist [ falsehood ] unless @{ $selected->contents } == @{ $compare->contents };
+
+    for my $i ( 0..$#{ $selected->contents } ) {
+      return nodelist [ falsehood ]
+        unless valuesEqual(
+          $selected->contents->[$i]->value,
+          $compare->contents->[$i]->value
+        );
+    }
+
+    return nodelist [ truth ];
   },
   'sameNode' => sub {
     my ( $self ) = @_;
