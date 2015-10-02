@@ -68,6 +68,16 @@
   "count" : { },
   "current" : { },
   "reverse" : { },
+  "first" : { },
+  "last" : { },
+  "sameNode" : {
+    "params" : {
+      "compare" : {
+        "required" : false,
+        "primary"  : true
+      }
+    }
+  },
   "union" : {
     "params" : {
       "compare" : {

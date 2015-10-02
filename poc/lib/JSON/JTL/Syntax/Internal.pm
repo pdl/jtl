@@ -98,6 +98,7 @@ Creates a new L<JTL::Error> object of the type given and throws it.
 =cut
 
 sub throw_error {
+  shift if ref $_[0];
   JSON::JTL::Error->new( { error_type => $_[0], message => $_[1] } )->throw;
 }
 

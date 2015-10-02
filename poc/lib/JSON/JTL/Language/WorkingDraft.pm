@@ -178,6 +178,16 @@ $instructions = {
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
     $selected->map( sub { my $index = $_->index; defined $index ? document $index : return; } );
   },
+  'first' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // return nodelist [ $self->current ];
+    nodelist [ $selected->contents->[0] // () ];
+  },
+  'last' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // return nodelist [ $self->current ];
+    nodelist [ $selected->contents->[-1] // () ];
+  },
   'parent' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
