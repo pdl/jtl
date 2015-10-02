@@ -2,8 +2,12 @@ package JSON::JTL::Language::WorkingDraft;
 use strict;
 use warnings;
 use Moo;
+
 use JSON::JTL::Syntax::Internal;
 use JSON::JTL::Scope;
+
+use File::ShareDir;
+
 use Scalar::Util qw( blessed refaddr );
 use List::Util   qw( any max );
 use Sub::Name    qw( subname );
@@ -26,7 +30,7 @@ A copy of the instruction specification C<instructionSpec.json>, as a perl data 
 
 =cut
 
-my $instructions;
+our $instructions;
 
 has instruction_spec => (
   is      => 'ro',
