@@ -5,7 +5,8 @@ use JSON::JTL::Plugins::Syntax;
 use JSON; # for true/false
 use YAML; # for diags
 
-# In this test script, we will unit-test JSON::JTL::Plugins::Syntax
+# In this test script, we will unit-test JSON::JTL::Plugins::Syntax,
+# specifically, we will make sure that JTLS translates to the correct JSON representation of JTL
 
 my $parser = JSON::JTL::Plugins::Syntax->new->parser;
 
@@ -223,3 +224,4 @@ subtest 'Can parse a complete transformation' => sub { eval {
 };
 
 done_testing;
+

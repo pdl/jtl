@@ -4,6 +4,12 @@ use Test::More;
 use Test::Deep qw(cmp_deeply);
 use JSON::JTL::Scope;
 
+# In this script, we will unit-test each instruction.
+#
+# By default, they should complete without error and produce the expected output.
+#
+# Some tests include the key 'error', instead of 'output' - in which case we are expecting an error of the type specified to be thrown.
+
 my $test_suite = [
   {
     why         => 'literal returns value, irrespective of current node',

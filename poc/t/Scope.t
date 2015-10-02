@@ -4,6 +4,8 @@ use Test::More;
 use JSON::JTL::Scope;
 use JSON::JTL::NodeList;
 
+# In this test, we will be performing a rudimentary unit-test of the methods in the Scope class
+
 {
   my $root = JSON::JTL::Scope->new( current => JSON::JTL::NodeList->new);
 

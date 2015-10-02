@@ -4,6 +4,8 @@ use Test::More;
 
 use JSON::JTL::Syntax::Internal qw(document);
 
+# In this script, we will be performing a rudimentary unit-test of the Document class.
+
 {
   my $doc = document( { foo => [ 'bar', undef ] } );
 

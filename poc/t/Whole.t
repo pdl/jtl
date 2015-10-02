@@ -3,6 +3,8 @@ use warnings;
 use Test::More;
 use Test::Deep;
 
+# In this test, we will be ensuring that a whole-document transformation is possible using JTL::Scope
+
 use JSON qw(decode_json);
 use JSON::JTL::Plugins::Syntax;
 use JSON::JTL::Scope;

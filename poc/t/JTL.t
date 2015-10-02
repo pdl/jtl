@@ -4,6 +4,10 @@ use Test::More;
 
 use JSON::JTL;
 
+# In this script, we will be testing the user-facing JSON::JTL interface.
+#
+# It should do the correct dwimmery and return the right output.
+
 my $suite = [
   {
     why            => 'Transform data structures',
