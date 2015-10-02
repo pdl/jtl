@@ -563,6 +563,51 @@ my $test_suite = [
     output      => [ ],
   },
   {
+    why         => 'unique works',
+    input       => [ 123, 456, 789 ],
+    instruction => {
+      JTL => 'unique',
+      select => [
+        { JTL => 'children' },
+        { JTL => 'children' },
+        { JTL => 'literal', value => 'abc' },
+      ],
+    },
+    output      => [ 'abc' ],
+  },
+  {
+    why         => 'unique tests sameNode, not valuesEqual',
+    input       => [ 123, 456, 789 ],
+    instruction => {
+      JTL => 'unique',
+      select => [
+        { JTL => 'children' },
+        { JTL => 'literal', value => 123 },
+      ],
+    },
+    output      => [ 123, 456, 789, 123 ],
+  },
+  {
+    why         => 'unique can apply custom test',
+    input       => [ 123, 456, 789 ],
+    instruction => {
+      JTL => 'unique',
+      test => [ { JTL => 'eq', select => [ { JTL => 'child', index => [ { JTL => 'literal', value => 0 } ], } ], compare => [ { JTL => 'child', index => [ { JTL => 'literal', value => 1 } ], } ] } ],
+      select => [
+        { JTL => 'children' },
+        { JTL => 'literal', value => 123 },
+      ],
+    },
+    output      => [ 456, 789 ],
+  },
+  {
+    why         => 'unique works on empty list too',
+    input       => [ 123, 456, 789 ],
+    instruction => { JTL => 'unique', select => [ ],  },
+    output      => [ ],
+  },
+
+  {
     why         => 'name works',
     input       => { foo => 'bar' },
     instruction => { JTL => 'forEach', select => [ { JTL => 'children', }, ], produce => [ { JTL => 'name' } ] },

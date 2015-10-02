@@ -466,6 +466,21 @@ $instructions = {
 
     return nodelist $sd;
   },
+  'unique' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    my $test     = $self->instruction->{test} // $self->instruction->{_implicit_argument}; #$self->instruction_attribute('test');
+    my $tester   = _tester_from_test ( $test );
+
+    my @uniques = ();
+
+    foreach my $node ( @{ $selected->contents } ) {
+      my $subScope = $self->subscope( { current => $node } );
+      push @uniques, $node unless 1 < grep { !! $_ } map { $tester->( $subScope, $_ ) } @{ $selected->contents };
+    }
+
+    return nodelist [ @uniques ];
+  },
   'true' => sub {
     my ( $self ) = @_;
     nodelist [ truth ];

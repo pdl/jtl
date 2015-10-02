@@ -8,10 +8,28 @@
       }
     }
   },
+  "null" : {
+    "params" : {
+      "select" : false
+    }
+  },
+  "false" : {
+    "params" : {
+      "select" : false
+    }
+  },
+  "true" : {
+    "params" : {
+      "select" : false
+    }
+  },
   "object" : {
     "params" : {}
   },
   "array" : {
+    "params" : {}
+  },
+  "nodeArray" : {
     "params" : {}
   },
   "eq" : {
@@ -64,16 +82,29 @@
       }
     }
   },
-  "type" : { },
-  "count" : { },
-  "current" : { },
-  "reverse" : { },
-  "first" : { },
-  "last" : { },
+  "name"     : { },
+  "index"    : { },
+  "type"     : { },
+  "count"    : { },
+  "current"  : { },
+  "reverse"  : { },
+  "reverse"  : { },
+  "first"    : { },
+  "last"     : { },
+  "parent"   : { },
+  "children" : { },
   "sameNode" : {
     "params" : {
       "compare" : {
         "required" : false,
+        "primary"  : true
+      }
+    }
+  },
+  "child" : {
+    "params" : {
+      "which" : {
+        "required" : true,
         "primary"  : true
       }
     }
@@ -113,15 +144,31 @@
       }
     }
   },
+  "any" : {
+    "params" : {
+      "test" : {
+        "required" : false,
+        "primary"  : true
+      }
+    }
+  },
   "unique" : {
     "params" : {
       "compare" : {
         "required" : false,
-        "default" : [],
+        "default"  : [],
         "primary"  : true
       },
       "test" : {
         "required" : false
+      }
+    }
+  },
+  "reduce" : {
+    "params" : {
+      "produce" : {
+        "required" : true,
+        "primary"  : true
       }
     }
   },
@@ -149,6 +196,35 @@
       }
     }
   },
+  "not" : {
+    "params" : {
+      "select" : {
+        "primary"  : true
+      }
+    }
+  },
+  "all" : {
+    "params" : {
+      "select" : {
+        "primary"  : true
+      }
+    }
+  },
+  "zip" : {
+    "params" : {
+      "select" : {
+        "primary"  : true
+      }
+    }
+  },
+  "range" : {
+    "params" : {
+      "compare" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
   "variable" : {
     "params" : {
       "name" : {
@@ -169,6 +245,13 @@
       "produce" : {
         "required" : true,
         "primary" : true
+      }
+    }
+  },
+  "declareTemplates" : {
+    "params" : {
+      "select" : {
+        "primary"  : true
       }
     }
   }
