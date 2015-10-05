@@ -128,6 +128,7 @@ sub subscope {
     parent      => $self,
     caller      => $self,
     current     => $self->current,
+    iteration   => $self->iteration,
     instruction => $self->instruction,
     language    => $self->language,
     ( $_[0] ? %{$_[0]} : () )
