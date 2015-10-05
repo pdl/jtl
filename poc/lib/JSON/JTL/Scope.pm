@@ -51,7 +51,7 @@ has current => ( # the current node
   isweak  => 1,
   isa     => sub {
     throw_error('ImplementationError' => qq(Got "$_[0]"))
-      if defined $_[0] and ((ref $_[0]) !~ /JTL::Node|JTL::Document|JTL::Scope/) 
+      if defined $_[0] and ((ref $_[0]) !~ /JTL::Node|JTL::Document|JTL::Scope/)
   }
 );
 
@@ -88,6 +88,29 @@ has instruction => (
   isweak  => 1,
 );
 
+=head3 iteration
+
+An integer accessible to the template indicating the position in a loop.
+
+=cut
+
+has iteration => (
+  is      => 'ro',
+  default => sub { 0 },
+);
+
+=head3 subscope_iteration_index
+
+An integer which will be used to determine the iteration of the next subscope to be created.
+
+=cut
+
+has subscope_iteration_index => (
+  is      => 'rw',
+  default => sub { 0 },
+);
+
+
 =head1 METHODS
 
 =head3 subscope
@@ -110,6 +133,13 @@ sub subscope {
     ( $_[0] ? %{$_[0]} : () )
   };
   return __PACKAGE__->new( $args );
+}
+
+sub numbered_subscope {
+  my $self      = shift;
+  my $iteration = $self->subscope_iteration_index;
+  $self->subscope_iteration_index( $iteration + 1 );
+  return $self->subscope( { $_[0] ? %{ $_[0] } : () , iteration => $iteration } );
 }
 
 =head3 is_valid_symbol

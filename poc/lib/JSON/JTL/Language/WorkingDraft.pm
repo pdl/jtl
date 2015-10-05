@@ -107,7 +107,7 @@ sub _tester_from_test {
         my $scope  = shift;
         my $alt    = shift;
         my $both   = nodeArray [ $scope->current, $alt ];
-        my $result = $scope->subscope( { current => $both } )->evaluate_nodelist_by_attribute('test');
+        my $result = $scope->subscope( { current => $both, iteration => $scope->iteration } )->evaluate_nodelist_by_attribute('test');
         $scope->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $result->contents };
         $scope->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $result->contents->[0]->type;
         return !! ${ $result->contents }[0]->value;
@@ -126,7 +126,7 @@ $instructions = {
     return
       $selected->map( sub {
         my $this = shift;
-        my $subScope = $self->subscope( { current => $this } );
+        my $subScope = $self->numbered_subscope( { current => $this } );
         $subScope->apply_templates // $subScope->throw_error('TransformationNoMatchingTemplate');
       } );
   },
@@ -206,6 +206,12 @@ $instructions = {
 
     return nodelist $results;
   },
+  'iteration' => sub {
+    my ( $self )  = @_;
+    my $parent    = $self->parent->parent // nodelist [ document 0 ];
+    my $iteration = $parent->iteration;
+    nodelist [ document $iteration ];
+  },
   'parent' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
@@ -240,7 +246,7 @@ $instructions = {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // $self->throw_error('TransformationMissingRequiredAtrribute');
     return $selected->map( sub {
-      $self->subscope( { current => shift } )->evaluate_nodelist_by_attribute (
+      $self->numbered_subscope( { current => shift } )->evaluate_nodelist_by_attribute (
         'produce',
       ) // $self->throw_error('TransformationMissingRequiredAtrribute');
     } );
@@ -250,7 +256,7 @@ $instructions = {
     my $selected = $self->evaluate_nodelist_by_attribute('select') // $self->throw_error('TransformationMissingRequiredAtrribute');
     return $selected->map( sub {
       my $this     = shift;
-      my $subScope = $self->subscope( { current => $this } );
+      my $subScope = $self->numbered_subscope( { current => $this } );
       my $test     = $subScope->evaluate_nodelist_by_attribute('test') // $subScope->throw_error('TransformationMissingRequiredAtrribute');
 
       $subScope->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $test->contents };
@@ -316,7 +322,7 @@ $instructions = {
     my $last     = $length - 1;
 
     for my $i ( 1..$last ) {
-      my $subscope = $self->subscope( { current => nodeArray [ $current, $selected->contents->[$i] ] } );
+      my $subscope = $self->numbered_subscope( { current => nodeArray [ $current, $selected->contents->[$i] ] } );
       my $l        = $subscope->evaluate_nodelist_by_attribute('produce');
       $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $l->contents };
       $current = $l->contents->[0];
@@ -432,7 +438,7 @@ $instructions = {
     my @uniques = ();
 
     foreach my $node ( @{ $selected->contents } ) {
-      my $subScope = $self->subscope( { current => $node } );
+      my $subScope = $self->numbered_subscope( { current => $node } );
       push @uniques, $node unless any { !! $_ } map { $tester->( $subScope, $_ ) } @{[ @uniques ]}; # if this seems odd... it is. It works, but I'm not sure why it refuses to be simplified
     }
     return nodelist [ @uniques ];
@@ -447,7 +453,7 @@ $instructions = {
     my $intersection = [];
 
     foreach my $node ( @{ $selected->contents } ) {
-      my $subScope = $self->subscope( { current => $node } );
+      my $subScope = $self->numbered_subscope( { current => $node } );
       if ( any { $tester->( $subScope, $_ ) } @{ $compared->contents } ) {
         push @$intersection, $node unless any { $tester->( $subScope, $_ ) } @$intersection
       }
@@ -465,14 +471,14 @@ $instructions = {
     my $sd = [];
 
     foreach my $node (  @{ $selected->contents } ) {
-      my $subScope = $self->subscope( { current => $node } );
+      my $subScope = $self->numbered_subscope( { current => $node } );
       if ( ! any { $tester->( $subScope, $_ ) } @{ $compared->contents } ) {
         push @$sd, $node unless any { $tester->( $subScope, $_ ) } @$sd;
       }
     }
 
     foreach my $node ( @{ $compared->contents } ) {
-      my $subScope = $self->subscope( { current => $node } );
+      my $subScope = $self->numbered_subscope( { current => $node } );
       if ( ! any { $tester->( $subScope, $_ ) } @{ $selected->contents } ) {
         push @$sd, $node unless any { $tester->( $subScope, $_ ) } @$sd;
       }
@@ -489,7 +495,7 @@ $instructions = {
     my @uniques = ();
 
     foreach my $node ( @{ $selected->contents } ) {
-      my $subScope = $self->subscope( { current => $node } );
+      my $subScope = $self->numbered_subscope( { current => $node } );
       push @uniques, $node unless 1 < grep { !! $_ } map { $tester->( $subScope, $_ ) } @{ $selected->contents };
     }
 

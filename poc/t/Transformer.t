@@ -318,6 +318,12 @@ my $test_suite = [
     output      => [ 0, 1 ],
   },
   {
+    why         => 'iteration returns 0-based index',
+    input       => [ { foo => 'bar' }, 'xyz' ],
+    instruction => { JTL => 'forEach', select => [ { JTL => 'children' }, ], produce => [ { JTL => 'iteration' } ] },
+    output      => [ 0, 1 ],
+  },
+  {
     why         => 'count multiple nodes',
     input       => [ { foo => 'bar' }, 'xyz' ],
     instruction => { JTL => 'count', select => [ { JTL => 'children' }, ] },
