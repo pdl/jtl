@@ -1,0 +1,18 @@
+transformation {
+  templates: (
+    template {
+      produce: current()
+    },
+    template {
+      match: type()->eq('array'),
+      produce: children()->applyTemplates()->array()
+    },
+    template {
+      match: type()->eq('object'),
+      produce: children()->forEach(
+          name(),
+          applyTemplates()
+        )->object()
+    }
+  )
+}

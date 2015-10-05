@@ -1,0 +1,21 @@
+transformation {
+  templates: (
+    template {
+      produce: current()
+    },
+    template {
+      match: type()->eq('array'),
+      produce: (
+        ./*[ eq(0)->not() ]->variable('filtered'),
+        $filtered->last()->variable('last'),
+        $filtered->forEach(
+          current(),
+          if {
+            test: sameNode($last)->not(),
+            produce: ', '
+          }
+        )->array()
+      )
+    }
+  )
+}

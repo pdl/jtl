@@ -1,0 +1,19 @@
+transformation {
+  templates: (
+    template {
+      produce: current()
+    },
+    template {
+      match: type()->eq('array'),
+      produce: (
+        ./*[ eq(0)->not() ]->forEach(
+          if {
+            test: iteration()->eq(0)->not(),
+            produce: ', '
+          },
+          current()
+        )->array()
+      )
+    }
+  )
+}
