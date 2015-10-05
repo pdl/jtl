@@ -192,6 +192,20 @@ $instructions = {
     my $selected = $self->evaluate_nodelist_by_attribute('select') // return nodelist [ $self->current ];
     nodelist [ $selected->contents->[-1] // () ];
   },
+  'nth' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    my $subscope = $self->subscope( { current => nodeArray [ $selected ] } );
+    my $indexes  = $self->evaluate_nodelist_by_attribute('which') // $self->throw_error('TransformationMissingAttribute');
+    my $results  = [];
+
+    foreach my $index ( map { $_->value } @{ $indexes->contents } ) {
+      $self->throw_error('ResultNodeUnexpectedType') unless 'number' eq valueType($index);
+      push @$results, $selected->contents->[$index] if exists $selected->contents->[$index];
+    }
+
+    return nodelist $results;
+  },
   'parent' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];

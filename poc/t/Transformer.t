@@ -439,6 +439,86 @@ my $test_suite = [
     output      => [ ],
   },
   {
+    why         => 'first works',
+    input       => [ 123, 456, 789 ],
+    instruction => {
+      JTL => 'first',
+      select => [
+        { JTL => 'children' },
+      ],
+    },
+    output      => [ 123 ],
+  },
+  {
+    why         => 'first works (no nodes)',
+    input       => [ ],
+    instruction => {
+      JTL => 'first',
+      select => [
+        { JTL => 'children' },
+      ],
+    },
+    output      => [ ],
+  },
+  {
+    why         => 'last works',
+    input       => [ 123, 456, 789 ],
+    instruction => {
+      JTL => 'last',
+      select => [
+        { JTL => 'children' },
+      ],
+    },
+    output      => [ 789 ],
+  },
+  {
+    why         => 'last works (no nodes)',
+    input       => [ ],
+    instruction => {
+      JTL => 'last',
+      select => [
+        { JTL => 'children' },
+      ],
+    },
+    output      => [ ],
+  },
+  {
+    why         => 'nth works',
+    input       => [ 123, 456, 789 ],
+    instruction => {
+      JTL => 'nth',
+      select => [
+        { JTL => 'children' },
+      ],
+      which => [ { JTL => 'literal', 'value' => 1 } ]
+   },
+    output => [ 456],
+  },
+  {
+    why         => 'nth works (multiple integers)',
+    input       => [ 123, 456, 789 ],
+    instruction => {
+      JTL => 'nth',
+      select => [
+        { JTL => 'children' },
+      ],
+      which => [ { JTL => 'literal', 'value' => 1 }, { JTL => 'literal', 'value' => 2 } ]
+    },
+    output      => [ 456, 789 ],
+  },
+  {
+    why         => 'nth works (no nodes)',
+    input       => [ ],
+    instruction => {
+      JTL => 'nth',
+      select => [
+        { JTL => 'children' },
+      ],
+      which => [ { JTL => 'literal', 'value' => 1 } ]
+    },
+    output      => [ ],
+  },
+  {
     why         => 'union works',
     input       => [ 123, 456, 789 ],
     instruction => {

@@ -109,6 +109,14 @@
       }
     }
   },
+  "nth" : {
+    "params" : {
+      "which" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
   "union" : {
     "params" : {
       "compare" : {

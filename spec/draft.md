@@ -417,6 +417,25 @@ The default value of test sorts nodes:
 
 Returns the nodes in `select`, but in reverse order, i.e. from last to first.
 
+### first
+
+ - select
+
+Evaluates `select`, and returns only the first node.
+
+### last
+
+ - select
+
+Evaluates `select`, and returns only the last node.
+
+### nth
+
+ - select
+ - which
+
+Evaluetes `select`, and returns only the nodes with the indexes given in `nth`, which should be a list of 0-based integers. The current node when evaluating `nth` is a node array of nodes returned by `select`.
+
 ## Instructions which always return booleans
 
 ### empty, nonempty
