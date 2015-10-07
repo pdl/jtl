@@ -67,10 +67,10 @@ Attempts to apply a single template to the scope, first using C<match_template>,
 =cut
 
 sub apply_template {
-  my ( $self, $template ) = @_;
+  my ( $self, $template, $options ) = @_;
   my $mergedScope = $template->subscope( { caller => $self, current => $self->current } );
 
-  if ( $mergedScope->match_template ) {
+  if ( $mergedScope->match_template($options) ) {
     return ( $mergedScope->evaluate_nodelist_by_attribute( 'produce' ) // throw_error 'TransformationMissingRequiredAtrribute' );
   }
 
@@ -86,7 +86,25 @@ Finds the production result of the match. If it is a single boolean true, return
 =cut
 
 sub match_template {
-  my ( $self ) = @_;
+  my ( $self, $options ) = @_;
+
+  $options //= {};
+
+  # First, we check if the name of the template is the name we have been given.
+
+  my $name = $self->evaluate_nodelist_by_attribute( 'name' ) // undef; # todo: we should really have done this at compile time
+
+  if ( defined $name ) {
+    if ( @{ $name->contents } ) {
+      $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $name->contents };
+      $name = $name->contents->[0]->value;
+    } else {
+      $name = undef;
+    }
+
+    return undef unless ( valuesEqual ( $name, $options->{name} ) );
+  }
+
   my $result = $self->evaluate_nodelist_by_attribute( 'match' ) // return 1;
   $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $result->contents };
   $self->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $result->contents->[0]->type;

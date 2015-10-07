@@ -123,11 +123,18 @@ $instructions = {
   'applyTemplates' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    my $name     = $self->evaluate_nodelist_by_attribute('name')   // undef;
+
+    if ( defined $name ) {
+      $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $name->contents };
+      $name = $name->contents->[0]->value;
+    }
+
     return
       $selected->map( sub {
         my $this = shift;
         my $subScope = $self->numbered_subscope( { current => $this } );
-        $subScope->apply_templates // $subScope->throw_error('TransformationNoMatchingTemplate');
+        $subScope->apply_templates( { name => $name } ) // $subScope->throw_error('TransformationNoMatchingTemplate');
       } );
   },
   'template' => sub {

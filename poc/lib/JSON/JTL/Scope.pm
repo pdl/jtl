@@ -222,22 +222,26 @@ sub declare_template {
 
 =head3 apply_templates
 
-  $self->apply_templates($applicator);
+  $self->apply_templates;
+  $self->apply_templates( { name => 'xyz' } );
+  $self->apply_templates( { $original_scope => $some_other_scope } );
 
-Progresses through the templates in the current scope in reverse order, followed by the parent scopes; at each template, executes the applicator (which must be a coderef) in scalar context with the template as the first argument. If the return value is defined, this value is returned from apply_templates immeidately and no further templates are tried.
+Progresses through the templates in the current scope in reverse order, followed by the parent scopes; at each template, performs C<< $original_scope->apply_template($template) >> in scalar context. If the return value is defined, this value is returned from apply_templates immeidately and no further templates are tried.
 
 If no templates returned a defined value, undef is returned.
 
 =cut
 
 sub apply_templates {
-  my $self       = shift;
-  my $applicator = shift // sub { $self->apply_template( shift ) };
+  my $self    = shift;
+  my $options = { original_scope => $self, $_[0] ? %{ $_[0] } : () };
+
   foreach my $template ( reverse @{ $self->templates } ) {
-    my $result = $applicator->($template);
+    my $result = $options->{original_scope}->apply_template($template, $options);
     return $result if defined $result;
   }
-  return $self->caller->apply_templates($applicator) if ( defined $self->caller );
+
+  return $self->caller->apply_templates($options) if ( defined $self->caller );
   return undef;
 }
 

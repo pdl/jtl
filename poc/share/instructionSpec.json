@@ -47,7 +47,7 @@
   },
   "applyTemplates" : {
     "params" : {
-      "compare" : {
+      "name" : {
         "required" : true,
         "primary"  : true
       }

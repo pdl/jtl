@@ -828,6 +828,18 @@ my $test_suite = [
     }
   },
   {
+    why         => 'Can use named templates',
+    input       => { foo => 'bar' },
+    instruction => [
+      { JTL => 'declareTemplates', select => [
+        { JTL => 'template', match => [ { JTL => 'literal', value => JSON::true } ], name => [ { JTL => 'literal', value => 'xyz' } ], produce => [ { JTL => 'literal', value => 'fnord' } ] },
+        { JTL => 'template', match => [ { JTL => 'literal', value => JSON::true } ], name => [ { JTL => 'literal', value => 'BAD' } ], produce => [ { JTL => 'literal', value => 'WRONG' } ] },
+      ] },
+      { JTL => 'applyTemplates', name => [ { JTL => 'literal', value => 'xyz' } ] },
+    ],
+    output => [ 'fnord' ],
+  },
+  {
     why         => 'filter with test (one pass, one fail)',
     input       => { foo => 123, bar => 456 },
     instruction => {
