@@ -962,10 +962,40 @@ my $test_suite = [
     output => [ [1, 'a', 'A'], [ 2, 'b', 'A'], [ 3, 'a', 'A'] ],
   },
   {
-    why         => 'zip with some empty arrays',
-    input       => [ [], ['a', 'b',], ['A'] ],
-    instruction => { JTL => 'children', select => [ { JTL => 'zip', select => [ { JTL => 'children' }, ], }, ], },
-    output => [ ['a', 'A'], ['b', 'A'] ],
+    why         => '1-1=0',
+    input       => 1,
+    instruction => { JTL => 'subtract', compare => [ { JTL => 'literal', value => 1 }, ], },
+    output => [ 0 ],
+  },
+  {
+    why         => '1+1=2',
+    input       => 1,
+    instruction => { JTL => 'add', compare => [ { JTL => 'literal', value => 1 }, ], },
+    output => [ 2 ],
+  },
+  {
+    why         => '2*3=6',
+    input       => 2,
+    instruction => { JTL => 'multiply', compare => [ { JTL => 'literal', value => 3 }, ], },
+    output => [ 6 ],
+  },
+  {
+    why         => '7/2=3.5',
+    input       => 7,
+    instruction => { JTL => 'divide', compare => [ { JTL => 'literal', value => 2 }, ], },
+    output => [ 3.5 ],
+  },
+  {
+    why         => '7%2=1',
+    input       => 7,
+    instruction => { JTL => 'modulo', compare => [ { JTL => 'literal', value => 2 }, ], },
+    output => [ 1 ],
+  },
+  {
+    why         => '7**2=49',
+    input       => 7,
+    instruction => { JTL => 'power', compare => [ { JTL => 'literal', value => 2 }, ], },
+    output => [ 49 ],
   },
 ];
 

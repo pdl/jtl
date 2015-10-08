@@ -45,6 +45,54 @@
       }
     }
   },
+  "add" : {
+    "params" : {
+      "compare" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
+  "subtract" : {
+    "params" : {
+      "compare" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
+  "multiply" : {
+    "params" : {
+      "compare" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
+  "divide" : {
+    "params" : {
+      "compare" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
+  "modulo" : {
+    "params" : {
+      "compare" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
+  "power" : {
+    "params" : {
+      "compare" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
   "applyTemplates" : {
     "params" : {
       "name" : {

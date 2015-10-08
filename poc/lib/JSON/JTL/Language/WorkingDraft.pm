@@ -119,6 +119,26 @@ sub _tester_from_test {
     };
 }
 
+sub _arithmetic {
+  my ( $self, $code ) = @_;
+  my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+  my $compare  = $self->evaluate_nodelist_by_attribute('compare') // $self->throw_error('TransformationMissingRequiredAtrribute');
+
+  $self->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $compare->contents };
+
+  my $compareValue = $compare->contents->[0]->value;
+
+  $self->throw_error('ResultNodeUnexpectedType') unless 'number' eq valueType($compareValue);
+
+  $selected->map( sub {
+    my $node = shift;
+    my $val  = $node->value;
+    $self->throw_error('ResultNodeUnexpectedType') unless 'number' eq valueType($val);
+    document ( $code->( $val,  $compareValue ) );
+  } );
+};
+
+
 $instructions = {
   'applyTemplates' => sub {
     my ( $self ) = @_;
@@ -543,6 +563,12 @@ $instructions = {
       : $start..$end
     ];
   },
+  'add'      => sub { _arithmetic ( shift, sub { shift() + shift() } ) },
+  'subtract' => sub { _arithmetic ( shift, sub { shift() - shift() } ) },
+  'multiply' => sub { _arithmetic ( shift, sub { shift() * shift() } ) },
+  'divide'   => sub { _arithmetic ( shift, sub { shift() / shift() } ) },
+  'modulo'   => sub { _arithmetic ( shift, sub { shift() % shift() } ) },
+  'power'    => sub { _arithmetic ( shift, sub { shift() **shift() } ) },
 };
 
 # As a developer, I would like more meaningful stack traces than anonymous subroutines
