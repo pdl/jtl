@@ -147,6 +147,7 @@
   "index"    : { },
   "type"     : { },
   "count"    : { },
+  "length"   : { },
   "current"  : { },
   "reverse"  : { },
   "reverse"  : { },

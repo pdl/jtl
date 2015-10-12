@@ -1,5 +1,7 @@
 use strict;
 use warnings;
+use utf8;
+
 use Test::More;
 use Test::Deep qw(cmp_deeply);
 use JSON::JTL::Scope;
@@ -1027,7 +1029,12 @@ my $test_suite = [
     instruction => { JTL => 'join', select => [ { JTL => 'children' } ], delimiter => [ { JTL => 'literal', value => ': ' }, { JTL => 'literal', value => '; ' } ] },
     output      => [ 'a: b; c: d; e' ],
   },
-
+  {
+    why         => 'Can get string length',
+    input       => [ 'foo', '', 'é' ],
+    instruction => { JTL => 'length', select => [ { JTL => 'children' } ] },
+    output      => [ 3, 0, 1 ],
+  },
 ];
 
 foreach my $case (@$test_suite) {

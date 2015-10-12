@@ -340,6 +340,16 @@ $instructions = {
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
     return nodelist [ document scalar @{ $selected->contents } ];
   },
+  'length' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    $selected->map( sub {
+      my $current = shift;
+      my $value   = $current->value;
+      $self->throw_error('ResultNodesUnexpectedType') unless 'string' eq valueType $value;
+      return document length $value;
+    } );
+  },
   'reduce' => sub {
     my ( $self ) = @_;
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
