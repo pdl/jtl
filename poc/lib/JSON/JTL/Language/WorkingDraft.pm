@@ -569,6 +569,28 @@ $instructions = {
   'divide'   => sub { _arithmetic ( shift, sub { shift() / shift() } ) },
   'modulo'   => sub { _arithmetic ( shift, sub { shift() % shift() } ) },
   'power'    => sub { _arithmetic ( shift, sub { shift() **shift() } ) },
+  'join'     => sub {
+    my ( $self ) = @_;
+    my $selected  = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    my $delimiter = $self->evaluate_nodelist_by_attribute('delimiter') // nodelist [ document '' ];
+    my $delims    = [ map { $_->value } @{ $delimiter->contents } ];
+
+    $self->throw_error('ResultNodesUnexpectedNumber') unless @$delims;
+    $self->throw_error('ResultNodesUnexpectedType') if grep { valueType($_) !~ /^(?:string|numeric)$/ } @$delims;
+    $self->throw_error('ResultNodesUnexpectedType') if grep { valueType($_->value) !~ /^(?:string|numeric)$/ } @{ $selected->contents };
+
+    my $last = $#{ $selected->contents };
+
+    my $result = '';
+
+    for my $i ( 0..$last ) {
+      $result .= $selected->contents->[$i]->value;
+      $result .= $delims->[ $i % ( 1 + $#$delims ) ] unless $i == $last;
+    }
+
+    return nodelist [ document $result ];
+  },
+
 };
 
 # As a developer, I would like more meaningful stack traces than anonymous subroutines

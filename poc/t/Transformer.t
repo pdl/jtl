@@ -997,6 +997,37 @@ my $test_suite = [
     instruction => { JTL => 'power', compare => [ { JTL => 'literal', value => 2 }, ], },
     output => [ 49 ],
   },
+  {
+    why         => 'Can join strings',
+    input       => [ 'a', 'b', 'c' ],
+    instruction => { JTL => 'join', select => [ { JTL => 'children' } ] },
+    output      => [ 'abc' ],
+  },
+  {
+    why         => 'Can join strings with delimiter',
+    input       => [ 'a', 'b', 'c' ],
+    instruction => { JTL => 'join', select => [ { JTL => 'children' } ], delimiter => [ { JTL => 'literal', value => '; ' } ] },
+    output      => [ 'a; b; c' ],
+  },
+  {
+    why         => 'Can join strings when only one value',
+    input       => [ 'a' ],
+    instruction => { JTL => 'join', select => [ { JTL => 'children' } ], delimiter => [ { JTL => 'literal', value => '; ' } ] },
+    output      => [ 'a' ],
+  },
+  {
+    why         => 'Can join strings when zero values',
+    input       => [ ],
+    instruction => { JTL => 'join', select => [ { JTL => 'children' } ], delimiter => [ { JTL => 'literal', value => '; ' } ] },
+    output      => [ '' ],
+  },
+  {
+    why         => 'Can join strings with multiple delimiters',
+    input       => [ 'a', 'b', 'c', 'd', 'e' ],
+    instruction => { JTL => 'join', select => [ { JTL => 'children' } ], delimiter => [ { JTL => 'literal', value => ': ' }, { JTL => 'literal', value => '; ' } ] },
+    output      => [ 'a: b; c: d; e' ],
+  },
+
 ];
 
 foreach my $case (@$test_suite) {

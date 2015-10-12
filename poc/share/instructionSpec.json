@@ -93,6 +93,14 @@
       }
     }
   },
+  "join" : {
+    "params" : {
+      "delimiter" : {
+        "required" : false,
+        "primary"  : true
+      }
+    }
+  },
   "applyTemplates" : {
     "params" : {
       "name" : {
