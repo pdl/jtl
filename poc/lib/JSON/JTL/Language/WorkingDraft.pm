@@ -259,7 +259,9 @@ $instructions = {
     my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
     my $which    = $self->evaluate_nodelist_by_attribute('name')
       // $self->evaluate_nodelist_by_attribute('index')
-      // $self->throw_error('ImplementationError');
+      // $self->evaluate_nodelist_by_attribute('which')
+      // $self->throw_error('TransformationMissingRequiredAttribute');
+    $self->throw_error('ResultNodesUnexpectedNumber') unless 1 == @{ $which->contents };
     return $selected->map( sub {
       shift->child( $which->contents->[0]->value ) // ();
     } ) // $self->throw_error('ImplementationError');
