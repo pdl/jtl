@@ -233,6 +233,33 @@ $instructions = {
 
     return nodelist $results;
   },
+  'slice' => sub {
+    my ( $self )  = @_;
+    my $selected  = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+    my $subscope  = $self->subscope( { current => nodeArray [ $selected ] } );
+    my $from_list = $self->evaluate_nodelist_by_attribute('from') // nodelist [ document 0 ];
+    my $to_list   = $self->evaluate_nodelist_by_attribute('to') // nodelist [ document -1 ];
+    my $results   = [];
+    my $length    = @{ $selected->contents };
+
+    my ( $from, $to ) = map {
+      my $contents = $_->contents;
+      $self->throw_error('ResultNodesUnexpectedNumber') unless 1 == @$contents;
+      my $index = $contents->[0]->value;
+      $self->throw_error('ResultNodeUnexpectedType') unless 'number' eq valueType($index);
+      $index < 0
+        ? $length + $index
+        : $index;
+    } $from_list, $to_list;
+
+    my ( $f, $t ) = sort ( $from, $to );
+
+    $results = [ splice ( @{ $selected->contents }, $f, 1+$t-$f ) ];
+
+    return $f == $from
+      ? nodelist $results
+      : nodelist [ reverse @$results ];
+  },
   'iteration' => sub {
     my ( $self )  = @_;
     my $parent    = $self->parent->parent // nodelist [ document 0 ];

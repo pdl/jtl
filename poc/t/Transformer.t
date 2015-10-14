@@ -1035,6 +1035,30 @@ my $test_suite = [
     instruction => { JTL => 'length', select => [ { JTL => 'children' } ] },
     output      => [ 3, 0, 1 ],
   },
+  {
+    why         => 'Can get nodelist splice of single item',
+    input       => [ 'a', 'b', 'c', 'd' ],
+    instruction => { JTL => 'slice', select => [ { JTL => 'children' } ], from => [ { JTL => 'literal', value => 2 } ], to => [ { JTL => 'literal', value => 2 } ] },
+    output      => [ 'c' ],
+  },
+  {
+    why         => 'Can get nodelist splice with only "from"',
+    input       => [ 'a', 'b', 'c', 'd' ],
+    instruction => { JTL => 'slice', select => [ { JTL => 'children' } ], from => [ { JTL => 'literal', value => 1 } ] },
+    output      => [ 'b', 'c', 'd' ],
+  },
+  {
+    why         => 'Can get nodelist splice with only "to"',
+    input       => [ 'a', 'b', 'c', 'd' ],
+    instruction => { JTL => 'slice', select => [ { JTL => 'children' } ], to => [ { JTL => 'literal', value => 1 } ] },
+    output      => [ 'a', 'b' ],
+  },
+  {
+    why         => 'Can get nodelist splice with negative indices',
+    input       => [ 'a', 'b', 'c', 'd' ],
+    instruction => { JTL => 'slice', select => [ { JTL => 'children' } ], from => [ { JTL => 'literal', value => -3 } ], to => [ { JTL => 'literal', value => -2 } ] },
+    output      => [ 'b', 'c' ],
+  },
 ];
 
 foreach my $case (@$test_suite) {
