@@ -296,6 +296,12 @@ my $test_suite = [
     output      => [ 123 ],
   },
   {
+    why         => 'child works on arrays when index is 0',
+    input       => [ 'abc', 123, JSON::true, undef ],
+    instruction => { JTL => 'child', index => [ { JTL => 'literal', value => 0 }, ], },
+    output      => [ 'abc' ],
+  },
+  {
     why         => 'child works on objects',
     input       => { 'foo' => 'bar', 'abc' => 123 },
     instruction => { JTL => 'child', name => [ { JTL => 'literal', value => 'abc' }, ], },
