@@ -2,12 +2,16 @@ package JSON::JTL::Node;
 use strict;
 use warnings;
 use Moo;
+use JSON::JTL::Syntax::Internal qw(valueType);
+
 use overload bool => sub {
   my $val  = $_[0]->value;
-  $val && ref $val;
+  if ( 'boolean' ne valueType $val ) {
+    throw_error('InternalError', 'Assumed that a value was a boolean, when it was a ' . ( ref $val || 'scalar' ) );
+  }
+  !!$val;
 };
 
-use JSON::JTL::Syntax::Internal qw(valueType);
 
 =head1 NAME
 
