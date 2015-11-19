@@ -71,7 +71,7 @@ sub apply_template {
   my $mergedScope = $template->subscope( { caller => $self, current => $self->current } );
 
   if ( $mergedScope->match_template($options) ) {
-    return ( $mergedScope->evaluate_nodelist_by_attribute( 'produce' ) // throw_error 'TransformationMissingRequiredAtrribute' );
+    return ( $mergedScope->evaluate_nodelist_by_attribute( 'produce' ) // $self->throw_error('TransformationMissingRequiredAtrribute') );
   }
 
   return undef;
