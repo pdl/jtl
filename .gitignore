@@ -2,6 +2,7 @@
 *~
 *.old
 *.save
+*.swp
 Makefile
 blib/
 pm_to_blib
@@ -24,3 +25,5 @@ JSON-JTL-0.*/
 META.json
 Build.PL
 poc/README.md
+
+node_modules

@@ -1,0 +1,27 @@
+{
+  "name": "jtl",
+  "version": "0.0.0",
+  "description": "JSON Transformation Language (JS Library)",
+  "main": "index.js",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "dependencies": {
+    "chai": "~3.3.0"
+  },
+  "devDependencies": {
+    "mocha": "~2.3.3"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "JSON",
+    "JTL",
+    "XSLT",
+    "Transformation"
+  ],
+  "author": "Daniel Perrett",
+  "license": "GPL"
+}
