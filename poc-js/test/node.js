@@ -2,6 +2,7 @@
 var assert   = require('assert');
 var chai     = require('../node_modules/chai');
 var mocha    = require('../node_modules/mocha');
+var fs       = require('fs');
 
 // JTL packages
 
@@ -169,21 +170,100 @@ describe ('JTL Scope', function() {
     ).to.be.true;
   } );
 
+  it('can transform', function() {
+
   var result = instance.transform( { }, {
-    JTL: 'transformation',
-    templates: [
-      {
-        JTL: 'template',
-        produce: [
-          {
-            JTL: 'literal',
-            value: 'foo'
-          }
-        ]
-      }
-    ]
+      JTL: 'transformation',
+      templates: [
+        {
+          JTL: 'template',
+          produce: [
+            {
+              JTL: 'literal',
+              value: 'foo'
+            }
+          ]
+        }
+      ]
+    } );
+
+    chai.expect( result.contents()[0].value() ).to.equal('foo');
   } );
 
-  chai.expect( result.contents()[0].value() ).to.equal('foo');
+  var testSuite = JSON.parse( fs.readFileSync('../poc/share/instructionTests.json') );
+
+  describe('Conformance test:', function() {
+    for ( var i = 0 ; i < 4; i++ ) {
+      describe('"' + testSuite[i].why + '"', function () {
+        var testCase = testSuite[i];
+        var transformation = {
+          JTL : 'transformation',
+          templates : [
+            {
+              JTL     : 'template',
+              match   : [ { JTL : 'literal', value : true } ],
+              produce : (
+                ( testCase.instruction.JTL )
+                ? [ testCase.instruction ]
+                : testCase.instruction
+              )
+            }
+          ]
+        };
+        var result;
+        var resultError;
+
+        try {
+          result = scope.new().transform( testCase.input, transformation );
+        } catch ( error ) {
+          resultError = error;
+        };
+
+        if ( testCase.error ) {
+          it ('Should return an error', function() {
+            chai.expect(resultError).to.not.be.undefined;
+          } );
+          it ('Should return a ' + testCase.error, function() {
+            chai.expect(resultError.type()).to.equal(testCase.error);
+          } );
+        } else {
+          it ('Should not return an error', function() {
+            chai.expect(resultError).to.be.undefined;
+          } );
+
+          if (resultError) {
+            return;
+          }
+
+          describe ('- the return value is correct', function() {
+
+            it ('(' + testCase.output.length + ' nodes expected)', function() {
+              chai.expect(
+                result.contents().length
+              ).to.equal(
+                testCase.output.length
+              );
+            } );
+
+            if ( result.contents().length !== testCase.output.length ) {
+              return;
+            }
+
+            for (var j = 0; j < testCase.output.length; j++) {
+              var jj = j; // because chai defers execution until after j has changed
+              //var r  = result; // because chai defers execution until after result has changed
+              it ('(node ' + jj + '/' + testCase.output.length + ')', function() {
+                chai.expect(
+                  result.contents()[jj].value()
+                ).to.deep.equal(
+                  testCase.output[jj]
+                );
+              } );
+            }
+          } );
+        }
+      } );
+    }
+  } );
 
 } );

@@ -321,7 +321,7 @@ var Scope = internal.Class( {
       return implementation.call(self, instruction);
     }
 
-    self.throwError('TransformationUnknownInstruction', "Cannot understand 'instructionName'");
+    self.throwError('TransformationUnknownInstruction', "Cannot understand '" + instructionName + "'");
   },
 
   evaluateNodelistByAttribute: function (attribute) {

@@ -80,7 +80,7 @@ var Language = internal.Class( {
       },
 
       'callVariable' : function () {
-        var self = this;
+        var self   = this;
         var nameNL = self.evaluateNodelistByAttribute('name') || self.throwError('TransformationMissingRequiredAtrribute');
         var name   = nameNL.contents()[0].value();
         var node   = self.get_symbol( name ) || self.throwError('TransformationUnknownVariable');
@@ -89,7 +89,7 @@ var Language = internal.Class( {
 
       'current' : function () {
         var self = this;
-        internal.nodeList.new( [ self.current() ] );
+        return internal.nodeList.new( [ self.current() ] );
       },
 
       'name' : function () {
@@ -170,9 +170,42 @@ var Language = internal.Class( {
 
         return internal.nodeList.new(results);
       },
+      'slice' : function () {
+        var selected  = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var subscope  = self.subscope( { current : nodeArray [ selected ] } );
+        var from_list = self.evaluateNodelistByAttribute('from') || internal.nodeList.new( [ internal.doc.new (0) ] );
+        var to_list   = self.evaluateNodelistByAttribute('to') || internal.nodeList.new( [ internal.doc.new (-1) ] );
+        var results   = [];
+        var len       = selected.contents().length;
 
+        var from_to = [ from_list, to_list ].map( function (item) {
+          var contents = item.contents();
+
+          if ( 1 !== contents.length ) {
+            self.throwError('ResultNodesUnexpectedNumber')
+          }
+
+          var index = contents[0].value();
+
+          if ( 'number' !== valueType(index) ) {
+            self.throwError('ResultNodeUnexpectedType')
+          }
+
+          index < 0
+            ? len + index
+            : index;
+        } ).sort();
+
+        results = [ selected.contents().splice( from_to[0], from_to[1] ) ];
+
+        return internal.nodelist.new (results);
+        //TODO:f == from
+        //TODO:  ? nodelist results
+        //TODO:  : internal.nodeList.new( [ reverse @results ] );
+      },
     };
-  }
+  },
+
 
 } );
 
@@ -180,33 +213,6 @@ exports = module.exports = { package: Language, new: function(){ return new Lang
 
 internal.language = Language;
 
-//   'slice' : function () {
-//     var ( self )  = @_;
-//     var selected  = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var subscope  = self.subscope( { current : nodeArray [ selected ] } );
-//     var from_list = self.evaluateNodelistByAttribute('from') || internal.nodeList.new( [ document 0 ] );
-//     var to_list   = self.evaluateNodelistByAttribute('to') || internal.nodeList.new( [ document -1 ] );
-//     var results   = [];
-//     var length    = selected.contents().length;
-//
-//     var ( from, to ) = map {
-//       var contents = _.contents();
-//       if ( 1 !== @contents ) { self.throwError('ResultNodesUnexpectedNumber')  }
-//       var index = contents[0].value();
-//       if ( ! 'number' eq valueType(index) ) { self.throwError('ResultNodeUnexpectedType')  }
-//       index < 0
-//         ? length + index
-//         : index;
-//     } from_list, to_list;
-//
-//     var ( f, t ) = sort ( from, to );
-//
-//     results = [ splice ( @{ selected.contents() }, f, 1+t-f ) ];
-//
-//     return f == from
-//       ? nodelist results
-//       : internal.nodeList.new( [ reverse @results ] );
-//   },
 //   'iteration' : function () {
 //     var ( self )  = @_;
 //     var parent    = self.parent.parent || internal.nodeList.new( [ document 0 ] );
