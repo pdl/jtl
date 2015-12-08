@@ -22,9 +22,7 @@ var NodeList = internal.Class( {
         internal.throwError('InternalError', 'Contents of NodeList must be expressed in JS as an array' );
       }
 
-
       for (var i = 0; i < got.length; i++) {
-
         if ( got[i].isa('jtl/nodelist') ) {
           contents = contents.concat( got[i].contents() );
         } else if ( got[i].isa('jtl/node') ) {

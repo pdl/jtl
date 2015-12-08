@@ -1,5 +1,6 @@
-var internal;
+var util = require('util');
 
+var internal;
 exports = module.exports = internal = {
 
   keys: function(object) {
@@ -107,7 +108,13 @@ exports = module.exports = internal = {
   },
 
   valueType: function(val) {
-    return typeof(val);
+    return (
+      null === val
+      ? 'null'
+      : util.isArray(val)
+        ? 'array'
+        : typeof(val)
+    );
   },
 
   attribute: function (name, options){

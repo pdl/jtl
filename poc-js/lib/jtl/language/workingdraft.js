@@ -203,7 +203,38 @@ var Language = internal.Class( {
         //TODO:  ? nodelist results
         //TODO:  : internal.nodeList.new( [ reverse @results ] );
       },
+      'forEach' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || self.throwError('TransformationMissingRequiredAtrribute');
+
+        return selected.map( function (item) {
+          return ( self.numberedSubscope( { current : item } ).evaluateNodelistByAttribute (
+              'produce'
+            ) || self.throwError('TransformationMissingRequiredAtrribute')
+          );
+        } );
+      },
+      'children' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+
+        return selected.map( function (item) {
+          var children = item.children();
+          return internal.nodeList.new( children );
+        } );
+      },
+      'type' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+
+        if ( 1 !== selected.contents().length ) {
+          self.throwError('ResultNodesMultipleNodes')
+        }
+
+        return internal.doc.new( selected.contents()[0].type() );
+      }
     };
+
   },
 
 
@@ -251,15 +282,6 @@ internal.language = Language;
 //     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
 //     internal.nodeList.new( [ reverse @{ selected.contents() } ] );
 //   },
-//   'forEach' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || self.throwError('TransformationMissingRequiredAtrribute');
-//     return selected.map( function () {
-//       self.numberedSubscope( { current : shift } ).evaluateNodelistByAttribute (
-//         'produce',
-//       ) || self.throwError('TransformationMissingRequiredAtrribute');
-//     } );
-//   },
 //   'filter' : function () {
 //     var self = this;
 //     var selected = self.evaluateNodelistByAttribute('select') || self.throwError('TransformationMissingRequiredAtrribute');
@@ -300,12 +322,6 @@ internal.language = Language;
 //     var self = this;
 //     var selected = self.evaluateNodelistByAttribute('select') || nodelist();
 //     return internal.nodeList.new( [ nodeArray [ @{ selected.contents() } ] ) ];
-//   },
-//   'type' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     if ( 1 !== selected.contents().length ) { self.throwError('ResultNodesMultipleNodes')  }
-//     return document ( selected.contents()[0].type );
 //   },
 //   'if' : function () {
 //     var self = this;

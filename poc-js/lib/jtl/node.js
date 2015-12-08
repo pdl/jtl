@@ -33,22 +33,23 @@ var Node = internal.Class( {
   },
 
   children: function() {
-    var self = this;
-    var type = self.type();
-    var path = self.path();
-    var doc  = self.doc()
+    var self  = this;
+    var value = self.value();
+    var type  = internal.valueType(value);
+    var path  = self.path();
+    var doc   = self.doc()
 
     if (type == 'array') {
-      var value = self.value;
-
-      return value.map( function ( i , val ) {
-        return doc.findNode( path.slice(0).push(i) );
+      return value.map( function ( val, i ) {
+        var newPath = path.slice(0, -1);
+        newPath.push(i);
+        return doc.findNode( newPath );
       } );
     } else if (type == 'object') {
-      var value = self.value();
-
-      return internal.keys(value).map( function( i, key ) {
-        return doc.findNode( path.slice(0).push(key) );
+      return internal.keys(value).map( function( key, i ) {
+        var newPath = path.slice(0, -1);
+        newPath.push(key);
+        return doc.findNode( newPath );
       } );
     }
 
