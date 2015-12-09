@@ -290,7 +290,7 @@ var Scope = internal.Class( {
 
     var results = [];
 
-    for  ( var i = 0; i < production.length; i++ ) {
+    for ( var i = 0; i < production.length; i++ ) {
       var result = subScope.subscope ( { instruction : production[i] } ).evaluateInstruction(); // should return a nodelist or undefined
 
       if ( 'undefined' !== typeof (result) ) {
@@ -318,7 +318,16 @@ var Scope = internal.Class( {
     var implementation = self.language().getInstruction( instructionName );
 
     if ( 'undefined' !== typeof( implementation ) ) {
-      return implementation.call(self, instruction);
+      try {
+        var result = implementation.call(self, instruction);
+      } catch ( error ) {
+        if (error.isa){
+          throw error;
+        } else {
+          self.throwError('InternalError', 'In ' + instructionName + ' got error "' + error + '"' );
+        }
+      }
+      return result;
     }
 
     self.throwError('TransformationUnknownInstruction', "Cannot understand '" + instructionName + "'");

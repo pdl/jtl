@@ -6,11 +6,12 @@ var fs       = require('fs');
 
 // JTL packages
 
-var node     = require('../lib/jtl/node');
-var nodeList = require('../lib/jtl/nodelist');
-var doc      = require('../lib/jtl/doc');
-var scope    = require('../lib/jtl/scope');
-var language = require('../lib/jtl/language/workingdraft');
+var node      = require('../lib/jtl/node');
+var nodeList  = require('../lib/jtl/nodelist');
+var nodeArray = require('../lib/jtl/nodearray');
+var doc       = require('../lib/jtl/doc');
+var scope     = require('../lib/jtl/scope');
+var language  = require('../lib/jtl/language/workingdraft');
 
 var hasAllMethods = function(instance, methods) {
   methods.map( function( name, i ) {
@@ -119,7 +120,7 @@ describe ('JTL NodeList', function() {
     ).to.be.true;
   } );
 
-  it('flattens other nodelists', function() {
+  it('can contain multiple nodes', function() {
     chai.expect(
       nodeList.new( [
         doc.new( [ 123 ] ),
@@ -137,6 +138,52 @@ describe ('JTL NodeList', function() {
         ] )
       ] ).contents().length
     ).to.equal(2);
+  } );
+
+} );
+
+describe ('JTL NodeArray', function() {
+
+  var instance = nodeArray.new( [ doc.new( [ 123 ] ) ] );
+
+  it('isa( nodeArray.package )', function() {
+    chai.expect(
+      instance.isa( nodeArray.package )
+    ).to.be.true;
+    chai.expect(
+      instance.isa( 'jtl/nodearray' )
+    ).to.be.true;
+  } );
+
+  it('can contain multiple nodes', function() {
+    chai.expect(
+      nodeArray.new( [
+        doc.new( [ 123 ] ),
+        doc.new( [ 456 ] )
+      ] ).contents().length
+    ).to.equal(2);
+  } );
+
+  it('flattens nodelists', function() {
+    chai.expect(
+      nodeArray.new( [
+        nodeList.new( [
+          doc.new( [ 123 ] ),
+          doc.new( [ 456 ] )
+        ] )
+      ] ).contents().length
+    ).to.equal(2);
+  } );
+
+  it('is not flattened by nodelists', function() {
+    chai.expect(
+      nodeList.new( [
+        nodeArray.new( [
+          doc.new( [ 123 ] ),
+          doc.new( [ 456 ] )
+        ] )
+      ] ).contents().length
+    ).to.equal(1);
   } );
 
 } );
@@ -193,7 +240,7 @@ describe ('JTL Scope', function() {
   var testSuite = JSON.parse( fs.readFileSync('../poc/share/instructionTests.json') );
 
   describe('Conformance test:', function() {
-    for ( var i = 0 ; i < 5; i++ ) {
+    for ( var i = 0 ; i < 6; i++ ) {
       describe('"' + testSuite[i].why + '"', function () {
         var testCase = testSuite[i];
         var transformation = {

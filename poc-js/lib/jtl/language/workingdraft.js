@@ -232,6 +232,14 @@ var Language = internal.Class( {
         }
 
         return internal.doc.new( selected.contents()[0].type() );
+      },
+      'nodeArray' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ ] );
+
+        return internal.nodeList.new( [
+          internal.nodeArray.new ( selected.contents() )
+        ] );
       }
     };
 
@@ -317,11 +325,6 @@ internal.language = Language;
 //     var self = this;
 //     var nodelist = self.evaluateNodelistByAttribute('select') || nodelist();
 //     return internal.nodeList.new( [ document { map { _.value() } @{ nodelist.contents() } } ] );
-//   },
-//   'nodeArray' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || nodelist();
-//     return internal.nodeList.new( [ nodeArray [ @{ selected.contents() } ] ) ];
 //   },
 //   'if' : function () {
 //     var self = this;

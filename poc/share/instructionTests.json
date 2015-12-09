@@ -92,15 +92,10 @@
     ]
   },
   {
-    "why" : "type() of JSON literals",
+    "why" : "type() of nodeArray",
     "input" : [],
     "instruction" : {
-      "JTL" : "forEach",
-      "produce" : [
-        {
-          "JTL" : "type"
-        }
-      ],
+      "JTL" : "type",
       "select" : [
         {
           "JTL" : "nodeArray"

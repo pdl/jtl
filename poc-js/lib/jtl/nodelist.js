@@ -23,13 +23,15 @@ var NodeList = internal.Class( {
       }
 
       for (var i = 0; i < got.length; i++) {
-        if ( got[i].isa('jtl/nodelist') ) {
+        if ( 'undefined' == typeof( got[i] ) ) {
+          // do nothing
+        } else if ( got[i].isa('jtl/nodearray') ) {
+          contents.push( got[i] );
+        } else if ( got[i].isa('jtl/nodelist') ) {
           contents = contents.concat( got[i].contents() );
         } else if ( got[i].isa('jtl/node') ) {
           contents.push( got[i] );
         } else if ( got[i].isa('jtl/scope') ) {
-          contents.push( got[i] );
-        } else if ( got[i].isa('jtl/nodearray') ) {
           contents.push( got[i] );
         } else {
           internal.throwError('InternalError', 'Not a node, document, scope or node array')
