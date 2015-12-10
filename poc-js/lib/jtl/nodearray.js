@@ -12,8 +12,10 @@ var NodeArray = internal.Class( internal.nodeList.package, {
 
   $packageName: 'jtl/nodearray',
 
-  type: function() { return 'nodeArray' }
-  
+  type: function() { return 'nodeArray' },
+
+  children: function() { return this.contents() }
+
 } );
 
 exports = module.exports = { package: NodeArray, new: function(contents){ return new NodeArray(contents); } };

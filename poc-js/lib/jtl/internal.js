@@ -1,6 +1,7 @@
 var util = require('util');
 
 var internal;
+
 exports = module.exports = internal = {
 
   keys: function(object) {
@@ -37,8 +38,8 @@ exports = module.exports = internal = {
   },
 
   valuesEqual: function ( left, right ) {
-    var rightType = valueType(left);
-    var leftType  = valueType(right);
+    var rightType = internal.valueType(left);
+    var leftType  = internal.valueType(right);
 
     if (
       (
@@ -76,32 +77,40 @@ exports = module.exports = internal = {
       &&
       rightType == 'object'
     ) {
-      if ( keys(left).length !== keys(right).length ) {
+      if ( internal.keys(left).length !== internal.keys(right).length ) {
         return false;
       };
-      if ( keys(left).filter(
-          function ( i, key ) {
-            return ( ! right.hasOwnProperty(key) || ! internal.valuesEqual ( left[key], right[key] ) )
+
+      if ( internal.keys(left).filter( // construct an array of non-matching keys
+          function ( key, i ) {
+            return (
+              ! right.hasOwnProperty(key)
+              ||
+              ! internal.valuesEqual ( left[key], right[key] )
+            )
           }
         ).length > 0 ) {
         return false;
       }
+
       return true;
     } else if (
       leftType == 'array'
       &&
       rightType == 'array'
     ) {
-      if (left.length !== right.length){
+      if ( left.length !== right.length ) {
         return false;
       };
-      if ( left.filter(
-          function ( i, value ) {
+
+      if ( left.filter( // construct an array of non-matching indexes
+          function ( value, i ) {
              return ! internal.valuesEqual ( left[i], right[i] )
            }
         ).length > 0 ) {
           return false
       }
+
       return true;
     }
     return false;

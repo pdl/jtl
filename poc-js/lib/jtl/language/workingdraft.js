@@ -240,6 +240,26 @@ var Language = internal.Class( {
         return internal.nodeList.new( [
           internal.nodeArray.new ( selected.contents() )
         ] );
+      },
+      'eq' : function () {
+        var self = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var compare  = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
+
+        if ( selected.contents().length !== compare.contents().length ) {
+          return internal.nodeList.new( [ internal.doc.new(false) ] )
+        }
+
+        for ( var i = 0; i < selected.contents().length; i++ ) {
+          if ( ! internal.valuesEqual(
+            selected.contents()[i].value(),
+            compare.contents()[i].value()
+          ) ) {
+            return internal.nodeList.new( [ internal.doc.new(false) ] )
+          }
+        }
+
+        return internal.nodeList.new( [ internal.doc.new(true) ] );
       }
     };
 
