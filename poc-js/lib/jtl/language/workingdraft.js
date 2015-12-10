@@ -29,7 +29,7 @@ var Language = internal.Class( {
       'applyTemplates' : function () {
         var self     = this;
         var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-        var name     = self.evaluateNodelistByAttribute('name')   || undef;
+        var name     = self.evaluateNodelistByAttribute('name')   || undefined;
 
         if ( name ) {
           if ( 1 !== name.contents().length ) {
@@ -219,8 +219,8 @@ var Language = internal.Class( {
         var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
 
         return selected.map( function (item) {
-          var children = item.children();
-          return internal.nodeList.new( children );
+          var children = item.children(); // returns undefined if this is not an object/array/nodelist
+          return children ? internal.nodeList.new( children ) : undefined;
         } );
       },
       'type' : function () {
@@ -400,7 +400,24 @@ var Language = internal.Class( {
       },
       'null' : function () {
         return internal.nodeList.new( [ internal.doc.new( null ) ] );
+      },
+      'child' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var which    = self.evaluateNodelistByAttribute('name')
+          || self.evaluateNodelistByAttribute('index')
+          || self.evaluateNodelistByAttribute('which')
+          || self.throwError('TransformationMissingRequiredAttribute');
+
+        if ( 1 !== which.contents().length ) {
+          self.throwError('ResultNodesUnexpectedNumber')
+        }
+
+        return selected.map( function (item, i) {
+          return item.child( which.contents()[0].value() ) || undefined;
+        } ) || self.throwError('ImplementationError');
       }
+
     };
   },
 
@@ -423,26 +440,6 @@ internal.language = Language;
 //     return selected.map( function () {
 //       shift.parent() || ();
 //     } );
-//   },
-//   'children' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     return selected.map( function () {
-//       var children = shift.children();
-//       return defined children ? @children : ();
-//     } );
-//   },
-//   'child' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var which    = self.evaluateNodelistByAttribute('name')
-//       || self.evaluateNodelistByAttribute('index')
-//       || self.evaluateNodelistByAttribute('which')
-//       || self.throwError('TransformationMissingRequiredAttribute');
-//     if ( 1 !== which.contents().length ) { self.throwError('ResultNodesUnexpectedNumber')  }
-//     return selected.map( function () {
-//       shift.child( which.contents()[0].value() ) || ();
-//     } ) || self.throwError('ImplementationError');
 //   },
 //   'reverse' : function () {
 //     var self = this;

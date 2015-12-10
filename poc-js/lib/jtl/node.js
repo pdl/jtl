@@ -32,6 +32,45 @@ var Node = internal.Class( {
     return undefined;
   },
 
+  child: function (which) {
+    var self  = this;
+    var value = self.value();
+    var type  = internal.valueType(value);
+    var path  = self.path();
+    var doc   = self.doc()
+
+
+    if (type == 'array') {
+      which = ( which >= 0 ? which : which + value.length ); // JS doesn't understand negative indexes
+
+      if (
+        'number' !== internal.valueType( which )
+        || which !== parseInt ( which )
+        || which < 0
+        || which >= value.length
+      ) {
+        return undefined
+      }
+
+      var newPath = path.slice(0, -1);
+      newPath.push(which);
+
+      return doc.findNode( newPath );
+
+    } else if (type == 'object') {
+
+      if (!value.hasOwnProperty(which)) {
+        return undefined;
+      }
+
+      var newPath = path.slice(0, -1);
+      newPath.push(which);
+
+      return doc.findNode( newPath );
+    }
+    return undefined;
+  },
+
   children: function() {
     var self  = this;
     var value = self.value();
@@ -53,7 +92,7 @@ var Node = internal.Class( {
       } );
     }
 
-    return undef;
+    return undefined;
   },
 
   name: function() {
