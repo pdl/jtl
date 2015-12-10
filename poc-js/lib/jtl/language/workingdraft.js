@@ -260,7 +260,102 @@ var Language = internal.Class( {
         }
 
         return internal.nodeList.new( [ internal.doc.new(true) ] );
-      }
+      },
+      'not' : function () {
+        var self = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+
+        if ( 1 !== selected.contents().length ) {
+          self.throwError('ResultNodesMultipleNodes');
+        }
+
+        if ( 'boolean' !== selected.contents()[0].type() ) {
+          self.throwError('ResultNodeNotBoolean')
+        }
+
+        return internal.nodeList.new( [ internal.doc.new( selected.contents()[0].value() ? false : true ) ] );
+      },
+      'or' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var compare  = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
+
+        if ( 1 !== selected.contents().length ) {
+          self.throwError('ResultNodesMultipleNodes')
+        }
+
+        if ( 1 !== compare.contents().length ) {
+          self.throwError('ResultNodesMultipleNodes')
+        }
+
+        if ( 'boolean' !== selected.contents()[0].type() ) {
+          self.throwError('ResultNodeNotBoolean')
+        }
+
+        if ( 'boolean' !== compare.contents()[0].type() ) {
+          self.throwError('ResultNodeNotBoolean')
+        }
+
+        return internal.nodeList.new( [
+          internal.doc.new (
+            selected.contents()[0].value() || compare.contents()[0].value()
+          )
+        ] );
+      },
+      'xor' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var compare  = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
+
+        if ( 1 !== selected.contents().length ) {
+          self.throwError('ResultNodesMultipleNodes')
+        }
+
+        if ( 1 !== compare.contents().length ) {
+          self.throwError('ResultNodesMultipleNodes')
+        }
+
+        if ( 'boolean' !== selected.contents()[0].type() ) {
+          self.throwError('ResultNodeNotBoolean')
+        }
+
+        if ( 'boolean' !== compare.contents()[0].type() ) {
+          self.throwError('ResultNodeNotBoolean')
+        }
+
+        return internal.nodeList.new( [
+          internal.doc.new (
+            selected.contents()[0].value() !== compare.contents()[0].value() // JS has no logical XOR, but since we know these are booleans, !== works just as well
+          )
+        ] );
+      },
+      'and' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var compare  = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
+
+        if ( 1 !== selected.contents().length ) {
+          self.throwError('ResultNodesMultipleNodes')
+        }
+
+        if ( 1 !== compare.contents().length ) {
+          self.throwError('ResultNodesMultipleNodes')
+        }
+
+        if ( 'boolean' !== selected.contents()[0].type() ) {
+          self.throwError('ResultNodeNotBoolean')
+        }
+
+        if ( 'boolean' !== compare.contents()[0].type() ) {
+          self.throwError('ResultNodeNotBoolean')
+        }
+
+        return internal.nodeList.new( [
+          internal.doc.new (
+            selected.contents()[0].value() && compare.contents()[0].value()
+          )
+        ] );
+      },
     };
 
   },
@@ -424,60 +519,6 @@ internal.language = Language;
 //     }
 //
 //     return internal.nodeList.new( [ nodeArray results ] );
-//   },
-//   'not' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     if ( 1 !== selected.contents().length ) { self.throwError('ResultNodesMultipleNodes')  }
-//     if ( ! 'boolean' eq selected.contents()[0].type ) { self.throwError('ResultNodeNotBoolean'    )  }
-//     return internal.nodeList.new( [ ( selected.contents()[0] ).value() ) ? falsehood : truth ];
-//   },
-//   'or' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var compare  = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
-//     if ( 1 !== selected.contents().length ) { self.throwError('ResultNodesMultipleNodes')  }
-//     if ( 1 !== compare.contents().length ) { self.throwError('ResultNodesMultipleNodes')  }
-//     if ( ! 'boolean' eq selected.contents()[0].type ) { self.throwError('ResultNodeNotBoolean'    )  }
-//     if ( ! 'boolean' eq compare.contents() [0].type ) { self.throwError('ResultNodeNotBoolean'    )  }
-//     return internal.nodeList.new( [ ( selected.contents()[0] ).value() || compare.contents() [0].value() ) ? truth : falsehood ];
-//   },
-//   'xor' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var compare  = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
-//     if ( 1 !== selected.contents().length ) { self.throwError('ResultNodesMultipleNodes')  }
-//     if ( 1 !== compare.contents().length ) { self.throwError('ResultNodesMultipleNodes')  }
-//     if ( ! 'boolean' eq selected.contents()[0].type ) { self.throwError('ResultNodeNotBoolean'    )  }
-//     if ( ! 'boolean' eq compare.contents() [0].type ) { self.throwError('ResultNodeNotBoolean'    )  }
-//     return internal.nodeList.new( [ ( selected.contents()[0] ).value() xor compare.contents() [0].value() ) ? truth : falsehood ];
-//   },
-//   'and' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var compare  = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
-//     if ( 1 !== selected.contents().length ) { self.throwError('ResultNodesMultipleNodes')  }
-//     if ( 1 !== compare.contents().length ) { self.throwError('ResultNodesMultipleNodes')  }
-//     if ( ! 'boolean' eq selected.contents()[0].type ) { self.throwError('ResultNodeNotBoolean'    )  }
-//     if ( ! 'boolean' eq compare.contents() [0].type ) { self.throwError('ResultNodeNotBoolean'    )  }
-//     return internal.nodeList.new( [ ( selected.contents()[0] ).value() && compare.contents() [0].value() ) ? truth : falsehood ];
-//   },
-//   'eq' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var compare  = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
-//
-//     if ( ! @{ selected.contents() } == compare.contents().length ) { eturn internal.nodeList.new( [ falsehood ] )  }
-//
-//     for var i ( 0..#{ selected.contents() } ) {
-//       return internal.nodeList.new( [ falsehood ] )
-//         unless valuesEqual(
-//           selected.contents()[i].value(),
-//           compare.contents()[i].value()
-//         );
-//     }
-//
-//     return internal.nodeList.new( [ truth ] );
 //   },
 //   'sameNode' : function () {
 //     var self = this;
