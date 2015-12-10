@@ -356,8 +356,52 @@ var Language = internal.Class( {
           )
         ] );
       },
-    };
+      'any' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
 
+        for ( var i = 0; i < selected.contents().length; i++ ) {
+          var val = selected.contents()[i].value();
+
+          if ( 'boolean' !== internal.valueType(val) ) {
+            self.throwError('ResultNodeNotBoolean')
+          }
+
+          if ( val ) {
+            return internal.nodeList.new( [ internal.doc.new( true ) ] );
+          }
+        }
+
+        return internal.nodeList.new( [ internal.doc.new( false ) ] );
+      },
+      'all' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+
+        for ( var i = 0; i < selected.contents().length; i++ ) {
+          var val = selected.contents()[i].value();
+
+          if ( 'boolean' !== internal.valueType(val) ) {
+            self.throwError('ResultNodeNotBoolean')
+          }
+
+          if ( ! val ) {
+            return internal.nodeList.new( [ internal.doc.new( false ) ] );
+          }
+        }
+
+        return internal.nodeList.new( [ internal.doc.new( true ) ] );
+      },
+      'true' : function () {
+        return internal.nodeList.new( [ internal.doc.new( true ) ] );
+      },
+      'false' : function () {
+        return internal.nodeList.new( [ internal.doc.new( false ) ] );
+      },
+      'null' : function () {
+        return internal.nodeList.new( [ internal.doc.new( null ) ] );
+      }
+    };
   },
 
 
@@ -483,26 +527,6 @@ internal.language = Language;
 //
 //     return current;
 //   },
-//   'any' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     foreach var node (@{ selected.contents() }) {
-//       var val = node.value();
-//       if ( ! 'boolean' eq valueType val ) { self.throwError('ResultNodeNotBoolean')  }
-//       return internal.nodeList.new( [ truth ] ) if val;
-//     }
-//     return internal.nodeList.new( [ falsehood ] );
-//   },
-//   'all' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     foreach var node (@{ selected.contents() }) {
-//       var val = node.value();
-//       if ( ! 'boolean' eq valueType val ) { self.throwError('ResultNodeNotBoolean')  }
-//       if ( ! val ) { eturn internal.nodeList.new( [ falsehood ] )  }
-//     }
-//     return internal.nodeList.new( [ truth ] );
-//   },
 //   'zip' : function () {
 //     var self = this;
 //     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
@@ -599,18 +623,6 @@ internal.language = Language;
 //     }
 //
 //     return internal.nodeList.new( [ @uniques ] );
-//   },
-//   'true' : function () {
-//     var self = this;
-//     return internal.nodeList.new( [ truth ] );
-//   },
-//   'false' : function () {
-//     var self = this;
-//     return internal.nodeList.new( [ falsehood ] );
-//   },
-//   'null' : function () {
-//     var self = this;
-//     return internal.nodeList.new( [ document undef ] );
 //   },
 //   'range' : function () {
 //     var self = this;
