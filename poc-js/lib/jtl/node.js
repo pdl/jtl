@@ -25,8 +25,8 @@ var Node = internal.Class( {
 
   parent: function() {
     var self = this;
-    if ( self.path.length ) {
-      var parentPath = self.path.slice(0,-1);
+    if ( self.path().length ) {
+      var parentPath = self.path().slice(0,-1);
       return self.doc().findNode(parentPath);
     }
     return undefined;
@@ -99,7 +99,8 @@ var Node = internal.Class( {
     var self   = this;
     var parent = self.parent();
     if ( parent && parent.type() == 'object' ) {
-      return self.path[-1];
+      var path = self.path();
+      return path[path.length - 1]
     }
     return undefined;
   },
@@ -108,7 +109,8 @@ var Node = internal.Class( {
     var self   = this;
     var parent = self.parent();
     if ( parent && parent.type() == 'array' ) {
-      return self.path[-1];
+      var path = self.path();
+      return path[path.length - 1]
     }
     return undefined;
   }

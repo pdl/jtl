@@ -95,10 +95,10 @@ var Language = internal.Class( {
       'name' : function () {
         var self = this;
         var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-        selected.map( function (item) {
+        return selected.map( function (item) {
           var name = item.name();
           return ( 'undefined' !== typeof(name)
-            ? internal.document.new(name)
+            ? internal.doc.new(name)
             : undefined
           );
         } );
@@ -118,10 +118,10 @@ var Language = internal.Class( {
         var self = this;
         var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
 
-        selected.map( function (item) {
+        return selected.map( function (item) {
           var index = item.index();
           return (
-            'undefined' == index
+            'undefined' !== typeof ( index )
               ? internal.doc.new( index )
               : undefined
           );
