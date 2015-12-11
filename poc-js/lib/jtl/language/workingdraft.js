@@ -416,8 +416,18 @@ var Language = internal.Class( {
         return selected.map( function (item, i) {
           return item.child( which.contents()[0].value() ) || undefined;
         } ) || self.throwError('ImplementationError');
+      },
+      'iteration' : function () {
+        var self      = this;
+        var parent    = self.parent().parent();
+        var iteration = parent ? parent.iteration() : 0;
+        return internal.nodeList.new( [ internal.doc.new( iteration ) ] );
+      },
+      'count' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        return internal.nodeList.new( [ internal.doc.new( selected.contents().length ) ] );
       }
-
     };
   },
 
@@ -428,12 +438,6 @@ exports = module.exports = { package: Language, new: function(){ return new Lang
 
 internal.language = Language;
 
-//   'iteration' : function () {
-//     var ( self )  = @_;
-//     var parent    = self.parent.parent || internal.nodeList.new( [ document 0 ] );
-//     var iteration = parent.iteration;
-//     internal.nodeList.new( [ document iteration ] );
-//   },
 //   'parent' : function () {
 //     var self = this;
 //     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
@@ -491,11 +495,6 @@ internal.language = Language;
 //       return self.evaluateNodelistByAttribute('produce');
 //     }
 //     return nodelist;
-//   },
-//   'count' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     return internal.nodeList.new( [ document scalar @{ selected.contents() } ] );
 //   },
 //   'length' : function () {
 //     var self = this;
