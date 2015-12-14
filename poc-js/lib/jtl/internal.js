@@ -172,6 +172,14 @@ exports = module.exports = internal = {
       newer[key] = right[key]
     }
     return newer;
+  },
+
+  range: function(s, e) {
+    return (
+      ( s > e )
+      ? Array.apply(0, Array( 1 + s - e ) ).map( function(val,i) { return i + e } ).reverse()
+      : Array.apply(0, Array( 1 + e - s ) ).map( function(val,i) { return i + s } )
+    )
   }
 };
 

@@ -601,7 +601,44 @@ var Language = internal.Class( {
         } );
 
         return internal.nodeList.new( uniques );
-      }
+      },
+      'range' : function () {
+        var self = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var compare  = self.evaluateNodelistByAttribute('end') || self.throwError('TransformationMissingRequiredAtrribute');
+
+        if ( 1 !== selected.contents().length ) {
+          self.throwError('ResultNodesMultipleNodes')
+        }
+
+        if ( 1 !== compare.contents().length ) {
+          self.throwError('ResultNodesMultipleNodes')
+        }
+
+        var start = selected.contents()[0].value();
+        var end   = compare.contents()[0].value();
+
+        if ( 'number' !== internal.valueType(start) ) {
+          self.throwError('ResultNodeUnexpectedType')
+        }
+
+        if ( 'number' !== internal.valueType(end) ) {
+          self.throwError('ResultNodeUnexpectedType')
+        }
+
+        if ( start !== parseInt( start ) ) {
+          self.throwError('ResultNodeUnexpectedType')
+        }
+
+        if ( end !== parseInt( end ) ) {
+          self.throwError('ResultNodeUnexpectedType')
+        }
+
+        return internal.nodeList.new(
+          internal.range(start, end)
+            .map ( function(item) { return internal.doc.new( item ) } )
+        );
+      },
 
     };
   },
@@ -682,29 +719,6 @@ internal.language = Language;
 //     }
 //
 //     return internal.nodeList.new( [ nodeArray results ] );
-//   },
-//   'range' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var compare  = self.evaluateNodelistByAttribute('end') || self.throwError('TransformationMissingRequiredAtrribute');
-//
-//     if ( 1 !== selected.contents().length ) { self.throwError('ResultNodesMultipleNodes')  }
-//     if ( 1 !== compare.contents().length ) { self.throwError('ResultNodesMultipleNodes')  }
-//
-//     var start = selected.contents()[0].value();
-//     var end   = compare.contents()[0].value();
-//
-//     if ( ! 'number' eq valueType(start) ) { self.throwError('ResultNodeUnexpectedType')  }
-//     if ( ! 'number' eq valueType(end) ) { self.throwError('ResultNodeUnexpectedType')  }
-//
-//     if ( ! start == int start ) { self.throwError('ResultNodeUnexpectedType')  }
-//     if ( ! end   == int end ) { self.throwError('ResultNodeUnexpectedType')  }
-//
-//     return internal.nodeList.new( [ map { document _ }
-//       start > end
-//       ? reverse (end..start)
-//       : start..end
-//     ] );
 //   },
 //   'add'      : function () { _arithmetic ( this, function (x, y) { x + y } ) },
 //   'subtract' : function () { _arithmetic ( this, function (x, y) { x - y } ) },
