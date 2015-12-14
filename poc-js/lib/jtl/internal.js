@@ -14,7 +14,7 @@ exports = module.exports = internal = {
     return keys;
   },
 
-  sameNode: function () {
+  sameNode: function (left, right) {
     var leftPath  = left.path();
     var rightPath = right.path();
 
@@ -27,7 +27,7 @@ exports = module.exports = internal = {
       ==
       rightPath.length
       &&
-      ! leftPath.filter( function ( i, value ) {
+      ! leftPath.filter( function ( value, i ) {
         return value !== rightPath[i];
       } ).length
     ) {

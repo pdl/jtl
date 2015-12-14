@@ -50,6 +50,7 @@ var Scope = internal.Class( {
       instruction : self.instruction(),
       language    : self.language(),
     }, args );
+
     return internal.scope.new( args );
   },
 

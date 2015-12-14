@@ -427,6 +427,39 @@ var Language = internal.Class( {
         var self     = this;
         var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
         return internal.nodeList.new( [ internal.doc.new( selected.contents().length ) ] );
+      },
+      'sameNode' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var compare  = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
+
+        if ( 1 !== selected.contents().length ) {
+          self.throwError('ResultNodesMultipleNodes')
+        }
+
+        if ( 1 !== compare.contents().length ) {
+          self.throwError('ResultNodesMultipleNodes')
+        }
+
+        return internal.nodeList.new( [ internal.doc.new( internal.sameNode ( selected.contents()[0], compare.contents()[0] ) ) ] );
+      },
+      'if' : function () {
+        var self = this;
+        var test = self.evaluateNodelistByAttribute('test') || self.throwError('TransformationMissingRequiredAtrribute');
+
+        if ( 1 !== test.contents().length ) {
+          self.throwError('ResultNodesMultipleNodes')
+        }
+
+        if ( 'boolean' !== test.contents()[0].type() ) {
+          self.throwError('ResultNodeNotBoolean')
+        }
+
+        if ( test.contents()[0].value() ) {
+          return self.evaluateNodelistByAttribute('produce');
+        }
+
+        return internal.nodeList.new([]);
       }
     };
   },
@@ -486,16 +519,6 @@ internal.language = Language;
 //     var nodelist = self.evaluateNodelistByAttribute('select') || nodelist();
 //     return internal.nodeList.new( [ document { map { _.value() } @{ nodelist.contents() } } ] );
 //   },
-//   'if' : function () {
-//     var self = this;
-//     var test = self.evaluateNodelistByAttribute('test') || self.throwError('TransformationMissingRequiredAtrribute');
-//     if ( 1 !== test.contents().length ) { self.throwError('ResultNodesMultipleNodes')  }
-//     if ( ! 'boolean' eq test.contents()[0].type ) { self.throwError('ResultNodeNotBoolean'    )  }
-//     if ( test.contents()[0] ) {
-//       return self.evaluateNodelistByAttribute('produce');
-//     }
-//     return nodelist;
-//   },
 //   'length' : function () {
 //     var self = this;
 //     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
@@ -539,14 +562,6 @@ internal.language = Language;
 //     }
 //
 //     return internal.nodeList.new( [ nodeArray results ] );
-//   },
-//   'sameNode' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var compare  = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
-//     if ( 1 !== selected.contents().length ) { self.throwError('ResultNodesMultipleNodes')  }
-//     if ( 1 !== compare.contents().length ) { self.throwError('ResultNodesMultipleNodes')  }
-//     return internal.nodeList.new( [ sameNode ( selected.contents()[0] ), compare.contents()[0] ) ];
 //   },
 //   'union' : function () {
 //     var self = this;
