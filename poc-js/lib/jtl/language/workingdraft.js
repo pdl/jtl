@@ -460,6 +460,11 @@ var Language = internal.Class( {
         }
 
         return internal.nodeList.new([]);
+      },
+      'reverse' : function () {
+        var self = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        return internal.nodeList.new( selected.contents().slice(0).reverse() );
       }
     };
   },
@@ -477,11 +482,6 @@ internal.language = Language;
 //     return selected.map( function () {
 //       shift.parent() || ();
 //     } );
-//   },
-//   'reverse' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     internal.nodeList.new( [ reverse @{ selected.contents() } ] );
 //   },
 //   'filter' : function () {
 //     var self = this;
