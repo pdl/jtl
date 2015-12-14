@@ -14,7 +14,25 @@ var NodeArray = internal.Class( internal.nodeList.package, {
 
   type: function() { return 'nodeArray' },
 
-  children: function() { return this.contents() }
+  children: function() { return this.contents() },
+
+  child: function(which) {
+
+    var contents = this.contents();
+
+    which = ( which >= 0 ? which : which + contents.length ); // JS doesn't understand negative indexes
+
+    if (
+      'number' !== internal.valueType( which )
+      || which !== parseInt ( which )
+      || which < 0
+      || which >= contents.length
+    ) {
+      return undefined
+    }
+
+    return contents[which];
+  }
 
 } );
 

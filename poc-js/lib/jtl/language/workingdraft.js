@@ -2,6 +2,29 @@ var internal = require('../internal');
 var node     = require('../node');
 var fs       = require('fs');
 
+var _tester_from_test = function(test) {
+  return ( test
+    ? function(scope, alt){
+        var both   = internal.nodeArray.new ( [ scope.current(), alt ] );
+        var result = scope.subscope( { current: both, iteration: scope.iteration() } ).evaluateNodelistByAttribute('test');
+
+        if ( 1 !== result.contents().length ) {
+          scope.throwError('ResultNodesMultipleNodes');
+        }
+
+        if ( 'boolean' !== result.contents()[0].type() ) {
+          scope.throwError('ResultNodeNotBoolean');
+        }
+
+        return result.contents()[0].value();
+      }
+    : function(scope, alt) {
+      return internal.sameNode( scope.current(), alt );
+    }
+  );
+}
+
+
 var Language = internal.Class( {
 
   $packageName: 'jtl/language/workingdraft',
@@ -465,7 +488,121 @@ var Language = internal.Class( {
         var self = this;
         var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
         return internal.nodeList.new( selected.contents().slice(0).reverse() );
+      },
+      'union' : function () {
+        var self = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var test     = self.instruction().test || self.instruction()._implicit_argument;
+        var tester   = _tester_from_test ( test );
+        var uniques = [];
+
+        selected.map( function( node, i ) {
+          var subScope = self.numberedSubscope( { current : node } );
+          if ( uniques.filter ( function( item, i ) {
+              return tester( subScope, item )
+            } ).length == 0
+          ) {
+            uniques.push( node );
+          }
+        } );
+        return internal.nodeList.new( uniques );
+      },
+      'intersection' : function () {
+        var self = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var compared = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
+        var test     = self.instruction().test || self.instruction()._implicit_argument;
+        var tester   = _tester_from_test ( test );
+
+        var intersection = [];
+
+        selected.map( function( node, i ) {
+          var subScope = self.numberedSubscope( { current : node } );
+
+          if ( compared.contents().filter( function(item) { return tester( subScope, item ) } ).length > 0 ) {
+            if ( intersection.filter( function(item) { return tester( subScope, item ) } ).length == 0 ) {
+              intersection.push(node);
+            }
+          }
+
+        } );
+
+        return internal.nodeList.new( intersection );
+      },
+      'symmetricDifference' : function () {
+        var self = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var compared = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
+        var test     = self.instruction().test || self.instruction()._implicit_argument;
+        var tester   = _tester_from_test ( test );
+
+        var sd = [];
+
+        selected.map( function( node, i ) {
+          var subScope = self.numberedSubscope( { current : node } );
+
+          if ( compared.contents().filter( function(item) { return tester( subScope, item ) } ).length == 0 ) {
+            if ( sd.filter( function(item) { return tester( subScope, item ) } ).length == 0 ) {
+              sd.push(node);
+            }
+          }
+        } );
+
+        compared.map( function( node, i ) {
+          var subScope = self.numberedSubscope( { current : node } );
+
+          if ( selected.contents().filter( function(item) { return tester( subScope, item ) } ).length == 0 ) {
+            if ( sd.filter( function(item) { return tester( subScope, item ) } ).length == 0 ) {
+              sd.push(node);
+            }
+          }
+        } );
+
+        return internal.nodeList.new( sd );
+      },
+      'filter' : function () {
+        var self = this;
+        var selected = self.evaluateNodelistByAttribute('select') || self.throwError('TransformationMissingRequiredAtrribute');
+        return selected.map( function (item) {
+          var subScope = self.numberedSubscope( { current : item } );
+          var test     = subScope.evaluateNodelistByAttribute('test') || subScope.throwError('TransformationMissingRequiredAtrribute');
+
+          if ( 1 !== test.contents().length ) {
+            subScope.throwError('ResultNodesMultipleNodes')
+          }
+          if ( 'boolean' !== test.contents()[0].type() ) {
+            subScope.throwError('ResultNodeNotBoolean')
+          }
+
+          if ( test.contents()[0].value() ) {
+            return subScope.evaluateNodelistByAttribute('produce') || subScope.current();
+          }
+
+          return undefined;
+
+        } );
+      },
+      'unique' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var test     = self.instruction().test || self.instruction()._implicit_argument;
+        var tester   = _tester_from_test ( test );
+
+        var uniques = [];
+
+        selected.map( function( node, i ) {
+          var subScope = self.numberedSubscope( { current : node } );
+          if ( selected.contents().filter ( function( item, i ) {
+              return tester( subScope, item )
+            } ).length == 1
+          ) {
+            uniques.push( node );
+          }
+        } );
+
+        return internal.nodeList.new( uniques );
       }
+
     };
   },
 
@@ -481,23 +618,6 @@ internal.language = Language;
 //     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
 //     return selected.map( function () {
 //       shift.parent() || ();
-//     } );
-//   },
-//   'filter' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || self.throwError('TransformationMissingRequiredAtrribute');
-//     return selected.map( function () {
-//       var this     = shift;
-//       var subScope = self.numberedSubscope( { current : this } );
-//       var test     = subScope.evaluateNodelistByAttribute('test') || subScope.throwError('TransformationMissingRequiredAtrribute');
-//
-//       if ( 1 !== test.contents().length ) { subScope.throwError('ResultNodesMultipleNodes')  }
-//       if ( ! 'boolean' eq test.contents()[0].type ) { subScope.throwError('ResultNodeNotBoolean'    )  }
-//
-//       if ( test.contents()[0].value() ) {
-//         return subScope.evaluateNodelistByAttribute('produce') || subScope.current();
-//       }
-//       return ();
 //     } );
 //   },
 //   'literal' : function () {
@@ -562,78 +682,6 @@ internal.language = Language;
 //     }
 //
 //     return internal.nodeList.new( [ nodeArray results ] );
-//   },
-//   'union' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var test     = self.instruction().test || self.instruction()._implicit_argument; #self.instruction()_attribute('test');
-//     var tester   = _tester_from_test ( test );
-//
-//     var @uniques = ();
-//
-//     foreach var node ( @{ selected.contents() } ) {
-//       var subScope = self.numberedSubscope( { current : node } );
-//       if ( ! any { !! _ } map { tester.( subScope, _ ) } @{[ @uniques ]} ) { ush @uniques, node  } # if this seems odd... it is. It works, but I'm not sure why it refuses to be simplified
-//     }
-//     return internal.nodeList.new( [ @uniques ] );
-//   },
-//   'intersection' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var compared = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
-//     var test     = self.instruction().test || self.instruction()._implicit_argument; #self.instruction()_attribute('test');
-//     var tester   = _tester_from_test ( test );
-//
-//     var intersection = [];
-//
-//     foreach var node ( @{ selected.contents() } ) {
-//       var subScope = self.numberedSubscope( { current : node } );
-//       if ( any { tester.( subScope, _ ) } @{ compared.contents() } ) {
-//         push @intersection, node unless any { tester.( subScope, _ ) } @intersection
-//       }
-//     }
-//
-//     return nodelist intersection;
-//   },
-//   'symmetricDifference' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var compared = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
-//     var test     = self.instruction().test || self.instruction()._implicit_argument; #self.instruction()_attribute('test');
-//     var tester   = _tester_from_test ( test );
-//
-//     var sd = [];
-//
-//     foreach var node (  @{ selected.contents() } ) {
-//       var subScope = self.numberedSubscope( { current : node } );
-//       if ( ! any { tester.( subScope, _ ) } @{ compared.contents() } ) {
-//         if ( ! any { tester.( subScope, _ ) } @sd ) { ush @sd, node  }
-//       }
-//     }
-//
-//     foreach var node ( @{ compared.contents() } ) {
-//       var subScope = self.numberedSubscope( { current : node } );
-//       if ( ! any { tester.( subScope, _ ) } @{ selected.contents() } ) {
-//         if ( ! any { tester.( subScope, _ ) } @sd ) { ush @sd, node  }
-//       }
-//     }
-//
-//     return nodelist sd;
-//   },
-//   'unique' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var test     = self.instruction().test || self.instruction()._implicit_argument; #self.instruction()_attribute('test');
-//     var tester   = _tester_from_test ( test );
-//
-//     var @uniques = ();
-//
-//     foreach var node ( @{ selected.contents() } ) {
-//       var subScope = self.numberedSubscope( { current : node } );
-//       if ( ! 1 < grep { !! _ } map { tester.( subScope, _ ) } @{ selected.contents() } ) { ush @uniques, node  }
-//     }
-//
-//     return internal.nodeList.new( [ @uniques ] );
 //   },
 //   'range' : function () {
 //     var self = this;
