@@ -144,7 +144,7 @@ var Language = internal.Class( {
 
         return (
           selected
-            ? internal.nodeList.new( [ selected.contents()[-1] ] )
+            ? internal.nodeList.new( [ selected.contents()[ selected.contents().length - 1 ] ] )
             : internal.nodeList.new( [ self.current() ] )
         );
       },
@@ -159,7 +159,7 @@ var Language = internal.Class( {
         indexes.map( function (item) {
           var index = item.value();
 
-          if ( 'number' !== valueType(index) ) {
+          if ( 'number' !== internal.valueType(index) ) {
             self.throwError('ResultNodeUnexpectedType')
           }
 
