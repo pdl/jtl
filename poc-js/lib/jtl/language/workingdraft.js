@@ -192,7 +192,7 @@ var Language = internal.Class( {
       },
       'slice' : function () {
         var selected  = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-        var subscope  = self.subscope( { current : nodeArray [ selected ] } );
+        var subscope  = self.subscope( { current : internal.nodeArray.new( [ selected ] ) } );
         var from_list = self.evaluateNodelistByAttribute('from') || internal.nodeList.new( [ internal.doc.new (0) ] );
         var to_list   = self.evaluateNodelistByAttribute('to') || internal.nodeList.new( [ internal.doc.new (-1) ] );
         var results   = [];
@@ -642,7 +642,60 @@ var Language = internal.Class( {
         return selected.map( function (item) {
           return item.parent();
         } );
-      }
+      },
+      'reduce' : function () {
+        var self = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var length   = selected.contents().length;
+
+        if ( length < 2 ) {
+          self.throwError('ResultNodesUnexpectedNumber')
+        }
+
+        var current = selected.contents()[0];
+
+        for ( var i = 1; i < length; i++ ) {
+          var subscope = self.numberedSubscope( { current : internal.nodeArray.new( [ current, selected.contents()[i] ] ) } );
+          var l        = subscope.evaluateNodelistByAttribute('produce');
+
+          if ( 1 !== l.contents().length ) {
+            self.throwError('ResultNodesMultipleNodes')
+          }
+
+          current = l.contents()[0];
+        }
+
+        return current;
+      },
+      'array' : function () {
+        var self     = this;
+        var nodelist = self.evaluateNodelistByAttribute('select') || nodelist();
+        return internal.nodeList.new( [
+          internal.doc.new( nodelist.contents().map(function(item){return item.value() } ) )
+        ] );
+      },
+      'object' : function () {
+        var self     = this;
+        var nodelist = self.evaluateNodelistByAttribute('select') || nodelist();
+        var contents = nodelist.contents();
+        var o        = {};
+
+        if ( contents.length % 2 ) {
+          self.throwError('ResultNodesUnexpectedNumber')
+        }
+
+        for ( i = 0; i * 2 < contents.length; i += 2 ) {
+          var k = contents[i];
+
+          if ( 'string' !== internal.valueType(k) ) {
+            self.throwError('ResultNodesUnexpectedType')
+          }
+
+          o[k] = contents[ i + 1 ];
+        }
+
+        return internal.nodeList.new( [ internal.doc.new( o ) ] );
+      },
 
     };
   },
@@ -663,16 +716,6 @@ internal.language = Language;
 //       self.throwError('TransformationMissingRequiredAtrribute');
 //     }
 //   },
-//   'array' : function () {
-//     var self = this;
-//     var nodelist = self.evaluateNodelistByAttribute('select') || nodelist();
-//     return internal.nodeList.new( [ document [ map { _.value() } @{ nodelist.contents() } ] ) ];
-//   },
-//   'object' : function () {
-//     var self = this;
-//     var nodelist = self.evaluateNodelistByAttribute('select') || nodelist();
-//     return internal.nodeList.new( [ document { map { _.value() } @{ nodelist.contents() } } ] );
-//   },
 //   'length' : function () {
 //     var self = this;
 //     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
@@ -682,23 +725,6 @@ internal.language = Language;
 //       if ( ! 'string' eq valueType value ) { self.throwError('ResultNodesUnexpectedType')  }
 //       return document length value;
 //     } );
-//   },
-//   'reduce' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var length   = selected.contents().length;
-//     if ( ! length >= 2 ) { self.throwError('ResultNodesUnexpectedNumber')  }
-//     var current  = selected.contents()[0];
-//     var last     = length - 1;
-//
-//     for var i ( 1..last ) {
-//       var subscope = self.numberedSubscope( { current : nodeArray [ current, selected.contents()[i] ] } );
-//       var l        = subscope.evaluateNodelistByAttribute('produce');
-//       if ( 1 !== l.contents().length ) { self.throwError('ResultNodesMultipleNodes')  }
-//       current = l.contents()[0];
-//     }
-//
-//     return current;
 //   },
 //   'zip' : function () {
 //     var self = this;
