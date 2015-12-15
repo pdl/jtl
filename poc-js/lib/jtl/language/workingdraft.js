@@ -1,5 +1,6 @@
 var internal = require('../internal');
 var node     = require('../node');
+var util     = require('util');
 var fs       = require('fs');
 
 var _tester_from_test = function(test) {
@@ -61,8 +62,7 @@ var Language = internal.Class( {
           name = name.contents()[0].value();
         }
 
-        return
-          selected.map( function (item) {
+        return selected.map( function (item) {
             var subScope = self.numberedSubscope( { current : item } );
             return subScope.applyTemplates( { name : name } ) || subScope.throwError('TransformationNoMatchingTemplate');
           } );
@@ -77,17 +77,14 @@ var Language = internal.Class( {
         var self     = this;
         var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
 
+        var parent = [ self ];
+
+        while ( ! util.isArray( parent[0].instruction() ) ) {
+          parent = [ parent[0].parent() ];
+        }
+
         selected.map( function (item) {
-          var parent = [ item ];
-
-          while ( ! isArray( parent[0].instruction() ) ) {
-            parent = [ parent[0].parent() ];
-          }
-
           parent[0].declareTemplate( item );
-
-          return undefined;
-
         } );
 
         return undefined;
