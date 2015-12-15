@@ -240,7 +240,7 @@ describe ('JTL Scope', function() {
   var testSuite = JSON.parse( fs.readFileSync('../poc/share/instructionTests.json') );
 
   describe('Conformance test:', function() {
-    for ( var i = 0 ; i < 99; i++ ) {
+    for ( var i = 0 ; i < 102; i++ ) {
       describe('"' + testSuite[i].why + '"', function () {
         var testCase = testSuite[i];
         var transformation = {
@@ -271,7 +271,7 @@ describe ('JTL Scope', function() {
             chai.expect(resultError).to.not.be.undefined;
           } );
           it ('Should return a ' + testCase.error, function() {
-            chai.expect(resultError.type()).to.equal(testCase.error);
+            chai.expect(resultError.errorType()).to.equal(testCase.error.error_type);
           } );
         } else {
           it ('Should not return an error', function() {
