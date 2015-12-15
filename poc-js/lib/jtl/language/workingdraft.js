@@ -696,6 +696,27 @@ var Language = internal.Class( {
 
         return internal.nodeList.new( [ internal.doc.new( o ) ] );
       },
+      'zip' : function () {
+        var self = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var arrays   = selected.contents().map(function(item) { return item.value() } ).filter( function(item) { return item.length > 0 } );
+        var extent   = arrays.map(function(item) { return item.length }).reduce( function(a,b) { return a > b ? a : b }, 0 );
+        var results  = [];
+
+        if ( ! extent ) {
+          return internal.nodeList.new( [ internal.nodeArray.new( [] ) ] );
+        }
+
+        for ( var i = 0; i < extent; i++ ) {
+          results.push(
+            internal.doc.new( arrays.map( function(item) {
+              return item[ i % item.length ]
+            } ) )
+          );
+        }
+
+        return internal.nodeList.new( [ internal.nodeArray.new(results) ] );
+      },
 
     };
   },
@@ -725,23 +746,6 @@ internal.language = Language;
 //       if ( ! 'string' eq valueType value ) { self.throwError('ResultNodesUnexpectedType')  }
 //       return document length value;
 //     } );
-//   },
-//   'zip' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var arrays   = [ grep { !!@_ } map { _.value() } @{ selected.contents() } ];
-//     var extent   = max ( map { #_ } @arrays );
-//     var results  = [];
-//
-//     if ( ! extent ) { eturn nodelist nodeArray []  }
-//
-//     for var i (0..extent) {
-//       push @results, document [ map {
-//         _[i%@_]
-//       } @arrays ];
-//     }
-//
-//     return internal.nodeList.new( [ nodeArray results ] );
 //   },
 //   'add'      : function () { _arithmetic ( this, function (x, y) { x + y } ) },
 //   'subtract' : function () { _arithmetic ( this, function (x, y) { x - y } ) },
