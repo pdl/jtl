@@ -70,7 +70,7 @@ var Scope = internal.Class( {
     return (
       'string' == typeof( symbol )
       &&
-      /^[a-z_][a-z0-9_\-]*/i.matches(symbol) // duff function call
+      symbol.match(/^[a-z_][a-z0-9_\-]*/i)
     );
   },
 

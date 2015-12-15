@@ -106,7 +106,7 @@ var Language = internal.Class( {
         var self   = this;
         var nameNL = self.evaluateNodelistByAttribute('name') || self.throwError('TransformationMissingRequiredAtrribute');
         var name   = nameNL.contents()[0].value();
-        var node   = self.get_symbol( name ) || self.throwError('TransformationUnknownVariable');
+        var node   = self.getSymbol( name ) || self.throwError('TransformationUnknownVariable');
         return internal.nodeList.new( [ node ] );
       },
 
@@ -639,6 +639,13 @@ var Language = internal.Class( {
             .map ( function(item) { return internal.doc.new( item ) } )
         );
       },
+      'parent' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        return selected.map( function (item) {
+          return item.parent();
+        } );
+      }
 
     };
   },
@@ -650,13 +657,6 @@ exports = module.exports = { package: Language, new: function(){ return new Lang
 
 internal.language = Language;
 
-//   'parent' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     return selected.map( function () {
-//       shift.parent() || ();
-//     } );
-//   },
 //   'literal' : function () {
 //     var self = this;
 //     var instruction = self.instruction();
