@@ -216,8 +216,8 @@ var Language = internal.Class( {
         return internal.nodeList.new(results);
       },
       'slice' : function () {
+        var self      = this;
         var selected  = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-        var subscope  = self.subscope( { current : internal.nodeArray.new( [ selected ] ) } );
         var from_list = self.evaluateNodelistByAttribute('from') || internal.nodeList.new( [ internal.doc.new (0) ] );
         var to_list   = self.evaluateNodelistByAttribute('to') || internal.nodeList.new( [ internal.doc.new (-1) ] );
         var results   = [];
@@ -232,18 +232,18 @@ var Language = internal.Class( {
 
           var index = contents[0].value();
 
-          if ( 'number' !== valueType(index) ) {
+          if ( 'number' !== internal.valueType(index) ) {
             self.throwError('ResultNodeUnexpectedType')
           }
 
-          index < 0
+          return index < 0
             ? len + index
             : index;
         } ).sort();
 
-        results = [ selected.contents().splice( from_to[0], from_to[1] ) ];
+        results = selected.contents().splice( from_to[0], 1 + from_to[1] - from_to[0] );
 
-        return internal.nodelist.new (results);
+        return internal.nodeList.new (results);
         //TODO:f == from
         //TODO:  ? nodelist results
         //TODO:  : internal.nodeList.new( [ reverse @results ] );
@@ -787,6 +787,20 @@ var Language = internal.Class( {
 
         return internal.nodeList.new( [ internal.doc.new( result ) ] );
       },
+      'length' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+
+        return selected.map( function (item) {
+          var value   = item.value();
+
+          if ( 'string' !== internal.valueType( value ) ) {
+            self.throwError('ResultNodesUnexpectedType');
+          }
+
+          return internal.doc.new(value.length);
+        } );
+      },
 
     };
   },
@@ -797,23 +811,3 @@ var Language = internal.Class( {
 exports = module.exports = { package: Language, new: function(){ return new Language(); } };
 
 internal.language = Language;
-
-//   'literal' : function () {
-//     var self = this;
-//     var instruction = self.instruction();
-//     if ( exists instruction.value() ) {
-//       return document(instruction.value())
-//     } else {
-//       self.throwError('TransformationMissingRequiredAtrribute');
-//     }
-//   },
-//   'length' : function () {
-//     var self = this;
-//     var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     selected.map( function () {
-//       var current = shift;
-//       var value   = current.value();
-//       if ( ! 'string' eq valueType value ) { self.throwError('ResultNodesUnexpectedType')  }
-//       return document length value;
-//     } );
-//   },
