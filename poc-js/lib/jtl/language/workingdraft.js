@@ -749,6 +749,45 @@ var Language = internal.Class( {
       'modulo'   : function () { return _arithmetic ( this, function (x, y) { return x % y } ) },
       'power'    : function () { return _arithmetic ( this, Math.pow ) },
 
+      'join'     : function () {
+        var self = this;
+        var selected  = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+        var delimiter = self.evaluateNodelistByAttribute('delimiter') || internal.nodeList.new( [ internal.doc.new('') ] );
+        var delims    = delimiter.contents().map( function(item) { return item.value(); } );
+        var contents  = selected.contents().map( function(item) { return item.value(); } );
+
+        if ( 0 == delims.length ) {
+          self.throwError('ResultNodesUnexpectedNumber');
+        }
+
+        if ( delims.filter( function(item) {
+           var type = internal.valueType(item);
+           return ( 'numeric' !== type && 'string' !== type )
+        } ).length > 0 ) {
+          self.throwError('ResultNodesUnexpectedType')
+        }
+
+        if ( contents.filter( function(item) {
+          var type = internal.valueType(item);
+          return ( 'numeric'!== type && 'string' !== type )
+        } ).length > 0 ) {
+          self.throwError('ResultNodesUnexpectedType')
+        }
+
+        var last = selected.contents().length - 1;
+
+        var result = '';
+
+        for ( var i = 0; i < contents.length; i++ ) {
+          result = result + contents[i];
+          if ( i !== last ) {
+            result = result + delims[ i % delims.length ];
+          }
+        }
+
+        return internal.nodeList.new( [ internal.doc.new( result ) ] );
+      },
+
     };
   },
 
@@ -777,25 +816,4 @@ internal.language = Language;
 //       if ( ! 'string' eq valueType value ) { self.throwError('ResultNodesUnexpectedType')  }
 //       return document length value;
 //     } );
-//   },
-//   'join'     : function () {
-//     var self = this;
-//     var selected  = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
-//     var delimiter = self.evaluateNodelistByAttribute('delimiter') || internal.nodeList.new( [ document '' ] );
-//     var delims    = [ map { _.value() } @{ delimiter.contents() } ];
-//
-//     if ( ! @delims ) { self.throwError('ResultNodesUnexpectedNumber')  }
-//     self.throwError('ResultNodesUnexpectedType') if grep { valueType(_) !~ /^(?:string|numeric)/ } @delims;
-//     self.throwError('ResultNodesUnexpectedType') if grep { valueType(_.value()) !~ /^(?:string|numeric)/ } @{ selected.contents() };
-//
-//     var last = #{ selected.contents() };
-//
-//     var result = '';
-//
-//     for var i ( 0..last ) {
-//       result .= selected.contents()[i].value();
-//       if ( ! i == last ) { result .= delims[ i % ( 1 + #delims ) ]  }
-//     }
-//
-//     return internal.nodeList.new( [ document result ] );
 //   },

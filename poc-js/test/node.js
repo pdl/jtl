@@ -240,7 +240,7 @@ describe ('JTL Scope', function() {
   var testSuite = JSON.parse( fs.readFileSync('../poc/share/instructionTests.json') );
 
   describe('Conformance test:', function() {
-    for ( var i = 0 ; i < 120; i++ ) {
+    for ( var i = 0 ; i < 125; i++ ) {
       describe('"' + testSuite[i].why + '"', function () {
         var testCase = testSuite[i];
         var transformation = {
