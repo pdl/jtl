@@ -23,7 +23,32 @@ var _tester_from_test = function(test) {
       return internal.sameNode( scope.current(), alt );
     }
   );
-}
+};
+
+var _arithmetic = function (self, code) {
+  var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
+  var compare  = self.evaluateNodelistByAttribute('compare') || self.throwError('TransformationMissingRequiredAtrribute');
+
+  if ( 1 !== compare.contents().length) {
+    self.throwError('ResultNodesMultipleNodes');
+  }
+
+  var compareValue = compare.contents()[0].value();
+
+  if ( 'number' !== internal.valueType( compareValue ) ) {
+    self.throwError('ResultNodeUnexpectedType')
+  }
+
+  return selected.map( function (item) {
+    var val = item.value();
+
+    if ( 'number' !== internal.valueType(val) ) {
+      self.throwError('ResultNodeUnexpectedType');
+    }
+
+    return internal.doc.new ( code( val, compareValue ) );
+  } );
+};
 
 
 var Language = internal.Class( {
@@ -717,6 +742,12 @@ var Language = internal.Class( {
 
         return internal.nodeList.new( [ internal.nodeArray.new(results) ] );
       },
+      'add'      : function () { return _arithmetic ( this, function (x, y) { return x + y } ) },
+      'subtract' : function () { return _arithmetic ( this, function (x, y) { return x - y } ) },
+      'multiply' : function () { return _arithmetic ( this, function (x, y) { return x * y } ) },
+      'divide'   : function () { return _arithmetic ( this, function (x, y) { return x / y } ) },
+      'modulo'   : function () { return _arithmetic ( this, function (x, y) { return x % y } ) },
+      'power'    : function () { return _arithmetic ( this, Math.pow ) },
 
     };
   },
@@ -747,12 +778,6 @@ internal.language = Language;
 //       return document length value;
 //     } );
 //   },
-//   'add'      : function () { _arithmetic ( this, function (x, y) { x + y } ) },
-//   'subtract' : function () { _arithmetic ( this, function (x, y) { x - y } ) },
-//   'multiply' : function () { _arithmetic ( this, function (x, y) { x * y } ) },
-//   'divide'   : function () { _arithmetic ( this, function (x, y) { x / y } ) },
-//   'modulo'   : function () { _arithmetic ( this, function (x, y) { x % y } ) },
-//   'power'    : function () { _arithmetic ( this, function (x, y) { x **y } ) },
 //   'join'     : function () {
 //     var self = this;
 //     var selected  = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
