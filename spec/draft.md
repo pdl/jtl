@@ -310,14 +310,10 @@ The `test` attribute is evaluated. It must return boolean true or false. If true
 
 ### choose
 
-### when
+ - select
+ - templates
 
- - test
- - produce
-
-### otherwise
-
- - produce
+Evaluates `select`; for each node in `select`, tries each of the templates returned by `templates` in turn; the first which matches is evaluated and the result appended to the result list of this instruction. If none of the templates match a given node, that node is not returned. Each node is matched separately.
 
 ### copyOf
 
