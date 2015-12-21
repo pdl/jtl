@@ -272,27 +272,11 @@ Searches through the templates in reverse order of declaration and from the curr
 
 Note that unlike in XSLT, there is no priority ordering.
 
-### applyTemplate / callTemplate
-
- - select
- - name
-
-Iterates through each node in the node list produced by `select`; on each iteration that node becomes the current node.
-
-Searches through the templates in reverse order of declaration and from the current scope back up through its parents to the topmost scope, searching for templates whose name is equal to the value of the name attribute. The first matching template is applied.
-
 ### callVariable
 
  - name
 
 Returns the contents of the variable with the name given in `name`, which must produce a single string.
-
-### callFunction
-
- - name
- - params
-
-Evaluates the function with the name given in `name` (which must produce a single string). Within the function, only templates, functions and variables accessible when the function is created will be available, except that the current node will be available.
 
 ### forEach
 
