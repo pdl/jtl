@@ -39,6 +39,14 @@ Using XSLT as an inspiration provides several benefits:
 
 A JTL document is a JSON document whose root node is a JSON Object and whose structure is defined in this specification. It is read by a JTL Processor, and when applied to a JSON document called a Source Document, the Processor produces one or more JSON documents called the Result Documents. Source and Result Documents may have any sort of JSON node as their root and may contain any legal JSON content.
 
+### JTL Documents and Instructions
+
+JTL Documents consist of Instructions and Instruction Arrays.
+
+An Instruction is a JSON Object which as a key 'JTL', whose value is a string. Instructions may have other keys, and their values shall always be Instruction Arrays, except in the case of the `literal` Instruction, which has a `value` key whose value can be any JSON object.
+
+An Instruction Array is a JSON Array containing zero or more Instructions.
+
 ## Components of JTL
 
 This document describes the Core JTL. Once this document is complete, a processor which fulfils the requirements of a processor as described in this document implements JTL.
@@ -140,19 +148,21 @@ Whereas for templates:
 - **Templates** declared inside any given instruction **cannot** be accessed by **parent** instructions.
 - **Templates** declared inside any given instruction **can** be accessed by **templates called** within that instruction.
 
-### Evaluation
+(Note that this refers to templates which have been declared and are being accessed through `applyTemplate`s, not templates which are contained in a variable and are accessed through `callVariable`, which follow the rules for variables above.
 
-An evaluation is represented as a JSON Array, and consists of a series of instructions, which are executed in order and together return a node list.
+### Instruction Arrays
 
-An instruction may trigger multiple evaluations, for example: a `select` to determine the nodes to perform the instruction on, followed by a `produce` on each of the nodes.
+An instruction array is represented as a JSON Array, and consists of a series of instructions, which are executed in order and together return a node list.
 
-Evaluations will return a node list containing a single value, or a list of values.
+An instruction may trigger multiple instruction arrays, for example: a `select` to determine the nodes to perform the instruction on, followed by a `produce` on each of the nodes.
 
-The results of an evaluation may not always be acceptable to the context in which they are placed, for example:
+Evaluation of the instruction array will return a node list containing a single value, or a list of values.
+
+The evaluation of an instruction array may not always be acceptable to the context in which they are placed, for example:
 
 - When the results are used to populate a JSON Array, any results are permitted, including an empty list
 - When the results are used to populate a JSON Object, only an even-sized list is acceptable (the list may be empty). These will be taken as keys and values, alternately, and keys must be strings.
-- The `templates` attribute takes an evaluation in which no values may be returned.
+- The `templates` attribute expects only remplates to be returned.
 - In the `test` attribute of an instruction, only a single true or false value is permitted.
 
 Instructions may specify further restrictions on allowable values resulting from evaluation.
@@ -165,7 +175,7 @@ The following instructions create a node list of at least one item:
 
  - value
 
-Returns a JSON literal, taken as the contents of `value`. Note that `value` is taken verbatim not evaluated as attributes normally are, so the following produces a nodelist containing an array of two hashes, not a nodelist of two hashes:
+Returns a JSON literal, taken as the contents of `value`. Note that `value` is taken verbatim not evaluated as attributes normally are, so the following produces a node list containing an array of two hashes, not a node list of two hashes:
 
     {
       "JTL"   : "literal",
@@ -382,7 +392,7 @@ Throws an error if `select` contains fewer than two items.
 
 Evaluates `select`, which shoud be a list of arrays or node arrays. Returns a list of arrays such that the first array contains the first element of each of the input arrays, the second array contains the second element, etc. If one array is exhausted, its values are recycled from the beginning until the end of the longest array. If any arrays are empty, they will not be used at all.
 
-If select contains no non-empty arrays/node arrays, an empty nodelist is returned.
+If select contains no non-empty arrays/node arrays, an empty node list is returned.
 
 ### unique
 
