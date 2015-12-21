@@ -315,6 +315,30 @@ The `test` attribute is evaluated. It must return boolean true or false. If true
 
 Evaluates `select`; for each node in `select`, tries each of the templates returned by `templates` in turn; the first which matches is evaluated and the result appended to the result list of this instruction. If none of the templates match a given node, that node is not returned. Each node is matched separately.
 
+The following JTL `choose` instruction returns all the children of the current node, replacing all strings with the string `"xxx"` - but leaving all other children untouched.
+
+    {
+      "JTL": "choose",
+      "select": [ { "JTL": "children" } ],
+      "templates": [
+        {
+          "JTL": "template",
+          "match": [
+            {
+              "JTL": "eq",
+              "select": [ { "JTL": "type" } ],
+              "compare": [ { "JTL": "literal", "value": "string" } ]
+            }
+          ],
+          "produce": [ { "JTL": "literal", "value": "xxx" } ]
+        },
+        {
+          "JTL": "template",
+          "produce": [ { "JTL": "current" } ]
+        }
+      ]
+    }
+
 ### copyOf
 
 ### type
@@ -440,7 +464,7 @@ Evaluates `select`, and returns only the last node.
  - select
  - which
 
-Evaluetes `select`, and returns only the nodes with the indexes given in `nth`, which should be a list of 0-based integers. The current node when evaluating `nth` is a node array of nodes returned by `select`.
+Evaluates `select`, and returns only the nodes with the indexes given in `nth`, which should be a list of 0-based integers. The current node when evaluating `nth` is a node array of nodes returned by `select`.
 
 ## Instructions which always return booleans
 
