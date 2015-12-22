@@ -269,7 +269,7 @@ Evaluates `select` and `end`, expecting both to be single integers. Returns a li
 
 Iterates through each node in the node list produced by `select`; on each iteration that node becomes the current node.
 
-Searches through the templates in reverse order of declaration and from the current scope back up through its parents to the topmost scope. The first matching template is applied.
+Searches through the in-scope templates in reverse order of declaration and from the current scope back up through its parents to the topmost scope. The first matching template is applied.
 
 Note that unlike in XSLT, there is no priority ordering.
 
@@ -288,10 +288,63 @@ Iterates through each node in the node list produced by `select`; on each iterat
 
 ### if
 
+ - select
  - test
  - produce
 
 The `test` attribute is evaluated. It must return boolean true or false. If true, `produce` is evaluated. If false, an empty node list is returned.
+
+### while
+
+ - select
+ - test
+ - produce
+
+Iterates through each node in the node list produced by `select`; on each iteration that node becomes the current node;
+the `test` attribute is evaluated. It must return boolean true or false. If true, `produce` is evaluated, and the results are prepended to the queue of nodes waiting to be processed. If false, the node is appended to the list of nodes to be returned.
+
+The following `while` instruction causes all integers to be rounded down to the next multiple of 10.
+
+  {
+    "JTL": "while",
+    "test": [
+      {
+        "JTL": "not",
+        "select": [
+          {
+            "JTL": "eq",
+            "select": [
+              {
+                "JTL": "modulo",
+                "compare": { "JTL": "literal", "value": 10 }
+              }
+            ],
+            "compare": [ { "JTL": "literal", "value": 0 } ]
+          }
+        ]
+      }
+    ],
+    "produce": [
+      {
+        "JTL": "subtract",
+        "compare": { "JTL": "literal", "value": 1 }
+      }
+    ]
+  }
+
+The following `while` instruction flattens nested arrays (no matter how deep!).
+
+  {
+    "JTL": "while",
+    "test": [
+      {
+        "JTL": "eq",
+        "select": [ { "JTL": "type" } ],
+        "compare": [ { "JTL": "literal", "value": 'array' } ]
+      }
+    ],
+    "produce": [ { "JTL": "children" } ]
+  }
 
 ### choose
 
