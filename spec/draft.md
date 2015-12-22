@@ -35,7 +35,23 @@ Using XSLT as an inspiration provides several benefits:
 - XSLT itself provides a reference for what features a transformation language is likely to need, and subsequent versions and community extensions point to directions for new innovation
 - By adapting an existing paradigm, innovation rests on a solid base
 
-## Processor and Documents
+## Components of JTL
+
+This document describes the Core JTL. Once this document is complete, a processor which fulfils the requirements of a processor as described in this document implements JTL.
+
+Further documents will describe extensions to JTL which processors should implement.
+
+- Math
+- String
+- Regex
+- ArbitraryIntegers
+- ArbitraryFloats
+- Alien
+- HTTP
+
+## Core Concepts
+
+### Processor and Documents
 
 A JTL document is a JSON document whose root node is a JSON Object and whose structure is defined in this specification. It is read by a JTL Processor, and when applied to a JSON document called a Source Document, the Processor produces one or more JSON documents called the Result Documents. Source and Result Documents may have any sort of JSON node as their root and may contain any legal JSON content.
 
@@ -46,24 +62,6 @@ JTL Documents consist of Instructions and Instruction Arrays.
 An Instruction is a JSON Object which as a key 'JTL', whose value is a string. Instructions may have other keys, and their values shall always be Instruction Arrays, except in the case of the `literal` Instruction, which has a `value` key whose value can be any JSON object.
 
 An Instruction Array is a JSON Array containing zero or more Instructions.
-
-## Components of JTL
-
-This document describes the Core JTL. Once this document is complete, a processor which fulfils the requirements of a processor as described in this document implements JTL.
-
-Further documents will describe extensions to JTL which processors should implement.
-
-- StrictNumbers
-- StrictBooleans
-- Math
-- String
-- Regex
-- ArbitraryIntegers
-- ArbitraryFloats
-- Alien
-- HTTP
-
-## Core Concepts
 
 ### Nodes
 
@@ -115,12 +113,15 @@ An instruction, when executed, MUST produce one of the following results:
 
 A template is created by the `template` instruction. A template is typically:
 
-- created in the `templates` attribute in the `transformation` element
+- created in the `templates` attribute in the `transformation` instruction
 - passed into the `select` attribute of the `declareTemplates` instruction
+- created in the `templates` attribute of the `choose` instruction
 
 When `applyTemplates` is called, templates are compared against the current node using the template's `match` attribute (if it exists), which must return a single boolean value.
 
 When a matching template is found, the `produce` attribute of the template is evaluated and returned.
+
+Templates do not, however, need to be declared immediately. A template can be created, stored in a variable, passed into another template as a parameter, etc. before being declared, or perhaps flow control will determine that it is never declared at all.
 
 ### Scope
 
@@ -165,7 +166,7 @@ The evaluation of an instruction array may not always be acceptable to the conte
 - The `templates` attribute expects only remplates to be returned.
 - In the `test` attribute of an instruction, only a single true or false value is permitted.
 
-Instructions may specify further restrictions on allowable values resulting from evaluation.
+Instructions may specify further restrictions on allowable values resulting from evaluation. In such cases an error will be thrown.
 
 ## Productive Instructions
 
@@ -250,7 +251,7 @@ The following two instructions are therefore equivalent:
  - produce
  - name
 
-Returns a template (which can be used in declareTemplates).
+Returns a template (which can be used in `declareTemplates`). See the section **Templates**, above.
 
 ### range
 
@@ -324,6 +325,10 @@ The following JTL `choose` instruction returns all the children of the current n
     }
 
 ### copyOf
+
+ - select
+
+For each node in `select`, returns a copy of that node, i.e. a node which has the same value, but is in a document of its own.
 
 ### type
 
@@ -551,13 +556,14 @@ The following error types are defined:
 
 ## Security Considerations
 
-- Transformations are in effect programs and should be treated with an appropriate degree caution.
-- There is no theoretical limit on the size or depth of source document or the transformation, but implementations may need to provide a practical limit.
+- Transformations are in effect programs and should be treated with an appropriate degree of caution.
+- There is no theoretical limit on the size or depth of the source document or the transformation, but implementations may need to provide a practical limit.
 - There is no theoretical limit on the depth of recursion in the transformation, but implementations may need to provide a practical limit.
 - In most cases it will be convenient for JTL implementations to be built by operating not only on raw JSON documents but on language-specific data types which are created by a JSON parser. Differences between these and JSON may give rise to security considerations. For example:
   - Many languages allow circular references. JSON does not provide for this and so no consideration for this possibility has been made in the specification.
   - There is no theoretical limit on the size of individual values in the source document or in the transformation, but this may be inconsistent with restrictions on native data types.
-- Although at no point is an implementation required by this specification to retrieve or modify external resources, implementations may support extensions which do so, and security considerations apply to these.
+  - Modifying these data structures during a execution may produce unexpected results which may give rise to security considerations.
+- Although at no point is an implementation required by **this** specification to retrieve or modify external resources, implementations may support extensions which do so, and security considerations apply to these.
 
 Where an implementation detects a situation in which security considerations indicate processing would be unwise, it should stop, and throw an error.
 
@@ -565,7 +571,8 @@ Where an implementation's applicability is narrowed in one of the ways described
 
 ## See Also
 
-- XSLT: Although it is theoretically possible to convert almost any JSON to an XML representation, use XSLT to transform it to an XML representation of the target document, then convert back to JSON, this is likely to be unintuitive to write and requires an XSLT implementation.
+- XSLT: Although it is theoretically possible to convert almost any JSON to an XML representation, by using XSLT to transform it to an XML representation of the target document, then convert back to JSON, this is likely to be unintuitive to write and requires an XSLT implementation.
 - JSONT: This requires a javascript implementation, and so is not truly language-agnostic. Specification is minimal. (cf JSON::T)
 - JOLT: Seems to be mostly Java.
 - json2json: written in coffeescript, not sure of its completeness
+- jq - A compelling terse syntax, but only implemented in C.
