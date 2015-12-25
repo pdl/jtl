@@ -138,26 +138,26 @@ Steps may be filtered; filters are expressed with square brackets: `[ ]`. For ex
 
 The examples above are equivalent to, and will produce, the JTL expressions:
 
-  {
-    "JTL"    : "filter",
-    "select" : [ { "JTL": "children" } ]
-    "test"   : [
-      {
-        "JTL": "eq",
-        "select: [
-          { "JTL": "child", "name": [ { "JTL": "literal", "value": "label" } ] }
-        ],
-        "compare": [
-          { "JTL": "literal", "value": "foo" }
-        ]
-    ]
-  }
+    {
+      "JTL"    : "filter",
+      "select" : [ { "JTL": "children" } ]
+      "test"   : [
+        {
+          "JTL": "eq",
+          "select: [
+            { "JTL": "child", "name": [ { "JTL": "literal", "value": "label" } ] }
+          ],
+          "compare": [
+            { "JTL": "literal", "value": "foo" }
+          ]
+      ]
+    }
 
-  {
-    "JTL"    : "filter",
-    "select" : [ { "JTL": "child", "index": [ { "JTL": "literal", "value": 1 } ] } ]
-    "test"   : [ { "JTL": "child", "index": [ { "JTL": "literal", "value": 0 } ] } ]
-  }
+    {
+      "JTL"    : "filter",
+      "select" : [ { "JTL": "child", "index": [ { "JTL": "literal", "value": 1 } ] } ]
+      "test"   : [ { "JTL": "child", "index": [ { "JTL": "literal", "value": 0 } ] } ]
+    }
 
 Note: In XSLT, a set of child elements may be selected by name with no anchor, e.g. `li` selects all `li` elements that are the child of the current node. In JTLS, selecting a child of the current node must be anchored: `./li`. Unquoted string tokens are not permitted as values.
 

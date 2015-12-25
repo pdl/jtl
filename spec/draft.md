@@ -305,46 +305,46 @@ the `test` attribute is evaluated. It must return boolean true or false. If true
 
 The following `while` instruction causes all integers to be rounded down to the next multiple of 10.
 
-  {
-    "JTL": "while",
-    "test": [
-      {
-        "JTL": "not",
-        "select": [
-          {
-            "JTL": "eq",
-            "select": [
-              {
-                "JTL": "modulo",
-                "compare": [ { "JTL": "literal", "value": 10 } ]
-              }
-            ],
-            "compare": [ { "JTL": "literal", "value": 0 } ]
-          }
-        ]
-      }
-    ],
-    "produce": [
-      {
-        "JTL": "subtract",
-        "compare": [ { "JTL": "literal", "value": 1 } ]
-      }
-    ]
-  }
+    {
+      "JTL": "while",
+      "test": [
+        {
+          "JTL": "not",
+          "select": [
+            {
+              "JTL": "eq",
+              "select": [
+                {
+                  "JTL": "modulo",
+                  "compare": [ { "JTL": "literal", "value": 10 } ]
+                }
+              ],
+              "compare": [ { "JTL": "literal", "value": 0 } ]
+            }
+          ]
+        }
+      ],
+      "produce": [
+        {
+          "JTL": "subtract",
+          "compare": [ { "JTL": "literal", "value": 1 } ]
+        }
+      ]
+    }
 
 The following `while` instruction flattens nested arrays (no matter how deep!).
 
-  {
-    "JTL": "while",
-    "test": [
-      {
-        "JTL": "eq",
-        "select": [ { "JTL": "type" } ],
-        "compare": [ { "JTL": "literal", "value": "array" } ]
-      }
-    ],
-    "produce": [ { "JTL": "children" } ]
-  }
+    {
+      "JTL": "while",
+      "test": [
+        {
+          "JTL": "eq",
+          "select": [ { "JTL": "type" } ],
+          "compare": [ { "JTL": "literal", "value": "array" } ]
+        }
+      ],
+      "produce": [ { "JTL": "children" } ]
+    }
 
 ### choose
 
