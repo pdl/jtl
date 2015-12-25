@@ -8,7 +8,7 @@ use JSON::JTL::Scope;
 
 use File::ShareDir;
 
-use Scalar::Util qw( blessed refaddr );
+use Scalar::Util qw( weaken blessed refaddr );
 use List::Util   qw( any max );
 use Sub::Name    qw( subname );
 
@@ -323,6 +323,37 @@ $instructions = {
       }
       return ();
     } );
+  },
+  'while' => sub {
+    my ( $self ) = @_;
+    my $selected = $self->evaluate_nodelist_by_attribute('select') // nodelist [ $self->current ];
+
+    my $strong_loop;
+    my $weak_loop = \$strong_loop;
+    weaken $weak_loop;
+
+    $strong_loop = sub {
+      my ($self, $loop_ref, $contents) = @_;
+      my $this     = shift @$contents;
+      my $subScope = $self->numbered_subscope( { current => $this } );
+      my $test     = $subScope->evaluate_nodelist_by_attribute('test') // $subScope->throw_error('TransformationMissingRequiredAtrribute');
+      my $results  = [];
+
+      $subScope->throw_error('ResultNodesMultipleNodes') unless 1 == @{ $test->contents };
+      $subScope->throw_error('ResultNodeNotBoolean'    ) unless 'boolean' eq $test->contents->[0]->type;
+
+      if ( $test->contents->[0]->value ) {
+        unshift @$contents, @{ (
+          $subScope->evaluate_nodelist_by_attribute('produce') // $subScope->throw_error('TransformationMissingRequiredAtrribute')
+        )->contents() };
+      } else {
+        push @$results, $this;
+      }
+      push @$results, @{ $$loop_ref->( $self, $loop_ref, $contents ) } if @$contents;
+      return $results;
+    };
+
+    return nodelist $$weak_loop->( $self, $weak_loop, $selected->contents );
   },
   'literal' => sub {
     my ( $self ) = @_;

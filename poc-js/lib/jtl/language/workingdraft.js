@@ -303,7 +303,6 @@ var Language = internal.Class( {
             return internal.nodeList.new( [ internal.doc.new(false) ] )
           }
         }
-
         return internal.nodeList.new( [ internal.doc.new(true) ] );
       },
       'not' : function () {
@@ -801,7 +800,40 @@ var Language = internal.Class( {
           return internal.doc.new(value.length);
         } );
       },
+      'while' : function () {
+        var self     = this;
+        var selected = self.evaluateNodelistByAttribute('select') || internal.nodeList.new( [ self.current() ] );
 
+        var loop = function (self, loop, contents) {
+          var item     = contents.shift();
+          var subScope = self.numberedSubscope( { current : item } );
+          var test     = subScope.evaluateNodelistByAttribute('test') || subScope.throwError('TransformationMissingRequiredAtrribute');
+          var results  = [];
+
+          if ( 1 !== test.contents().length ) {
+            subScope.throwError('ResultNodesMultipleNodes');
+          }
+
+          if ( 'boolean' !== test.contents()[0].type() ) {
+            subScope.throwError('ResultNodeNotBoolean');
+          }
+
+          if ( test.contents()[0].value() ) {
+            var production = subScope.evaluateNodelistByAttribute('produce') || subScope.throwError('TransformationMissingRequiredAtrribute');
+            contents = production.contents().concat( contents );
+          } else {
+            results.push(item);
+          }
+
+          if ( contents.length ) {
+            results = results.concat( loop( self, loop, contents ) );
+          }
+
+          return results;
+        };
+
+        return internal.nodeList.new( loop( self, loop, selected.contents() ) );
+      }
     };
   },
 

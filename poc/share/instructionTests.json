@@ -3353,5 +3353,64 @@
       "b",
       "c"
     ]
+  },
+  {
+    "why" : "'while' works",
+    "input" : [
+      1,
+      10
+    ],
+    "instruction" :   {
+      "JTL": "while",
+      "select" : [ { "JTL" : "children" } ],
+      "test": [
+        {
+          "JTL": "not",
+          "select": [
+            {
+              "JTL": "eq",
+              "select": [
+                {
+                  "JTL": "modulo",
+                  "compare": [ { "JTL": "literal", "value": 10 } ]
+                }
+              ],
+              "compare": [ { "JTL": "literal", "value": 0 } ]
+            }
+          ]
+        }
+      ],
+      "produce": [
+        {
+          "JTL": "subtract",
+          "compare": [ { "JTL": "literal", "value": 1 } ]
+        }
+      ]
+    },
+    "output" : [
+      0,
+      10
+    ]
+  },
+  {
+    "why" : "'while' branches",
+    "input" : [
+      [1],[[[2]],3,[4],[],5]
+    ],
+    "instruction" :   {
+      "JTL": "while",
+      "select" : [ { "JTL" : "children" } ],
+      "test": [
+        {
+          "JTL": "eq",
+          "select": [ { "JTL": "type" } ],
+          "compare": [ { "JTL": "literal", "value": "array" } ]
+        }
+      ],
+      "produce": [ { "JTL": "children" } ]
+    },
+    "output" : [
+      1, 2, 3, 4, 5
+    ]
   }
 ]

@@ -80,13 +80,13 @@ var Node = internal.Class( {
 
     if (type == 'array') {
       return value.map( function ( val, i ) {
-        var newPath = path.slice(0, -1);
+        var newPath = path.slice( 0, path.length );
         newPath.push(i);
         return doc.findNode( newPath );
       } );
     } else if (type == 'object') {
       return internal.keys(value).map( function( key, i ) {
-        var newPath = path.slice(0, -1);
+        var newPath = path.slice( 0, path.length );
         newPath.push(key);
         return doc.findNode( newPath );
       } );

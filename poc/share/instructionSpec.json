@@ -143,6 +143,18 @@
       }
     }
   },
+  "while" : {
+    "params" : {
+      "test" : {
+        "required" : true,
+        "primary"  : true
+      },
+      "produce" : {
+        "required" : true,
+        "primary"  : true
+      }
+    }
+  },
   "name"     : { },
   "index"    : { },
   "type"     : { },

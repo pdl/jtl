@@ -316,7 +316,7 @@ The following `while` instruction causes all integers to be rounded down to the 
             "select": [
               {
                 "JTL": "modulo",
-                "compare": { "JTL": "literal", "value": 10 }
+                "compare": [ { "JTL": "literal", "value": 10 } ]
               }
             ],
             "compare": [ { "JTL": "literal", "value": 0 } ]
@@ -327,7 +327,7 @@ The following `while` instruction causes all integers to be rounded down to the 
     "produce": [
       {
         "JTL": "subtract",
-        "compare": { "JTL": "literal", "value": 1 }
+        "compare": [ { "JTL": "literal", "value": 1 } ]
       }
     ]
   }
@@ -340,7 +340,7 @@ The following `while` instruction flattens nested arrays (no matter how deep!).
       {
         "JTL": "eq",
         "select": [ { "JTL": "type" } ],
-        "compare": [ { "JTL": "literal", "value": 'array' } ]
+        "compare": [ { "JTL": "literal", "value": "array" } ]
       }
     ],
     "produce": [ { "JTL": "children" } ]
