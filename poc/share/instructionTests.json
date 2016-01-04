@@ -3412,5 +3412,77 @@
     "output" : [
       1, 2, 3, 4, 5
     ]
+  },
+  {
+    "why" : "'choose' picks a template, or none",
+    "input" : [
+      1, [ 2, 3 ], "four"
+    ],
+    "instruction" :   {
+      "JTL": "choose",
+      "select" : [ { "JTL" : "children" } ],
+      "templates": [
+        {
+          "JTL": "template",
+          "match": [
+            {
+              "JTL": "eq",
+              "select": [ { "JTL": "type" } ],
+              "compare": [ { "JTL": "literal", "value": "number" } ]
+            }
+          ],
+          "produce": [ { "JTL": "current" } ]
+        },
+        {
+          "JTL": "template",
+          "match": [
+            {
+              "JTL": "eq",
+              "select": [ { "JTL": "type" } ],
+              "compare": [ { "JTL": "literal", "value": "array" } ]
+            }
+          ],
+          "produce": [ { "JTL": "children" } ]
+        }
+      ]
+    },
+    "output" : [
+      1, 2, 3
+    ]
+  },
+  {
+    "why" : "'choose' picks the first matching template",
+    "input" : [
+      1, null, true, {}
+    ],
+    "instruction" :   {
+      "JTL": "choose",
+      "select" : [ { "JTL" : "children" } ],
+      "templates": [
+        {
+          "JTL": "template",
+          "produce": [ { "JTL": "current" } ]
+        },
+        {
+          "JTL": "template",
+          "produce": [ { "JTL": "literal", "value": "BAD" } ]
+        }
+      ]
+    },
+    "output" : [
+      1, null, true, {}
+    ]
+  },
+  {
+    "why" : "'choose' with no templates returns empty list",
+    "input" : [
+      1, [ 2, 3 ], "four"
+    ],
+    "instruction" :   {
+      "JTL": "choose",
+      "select" : [ { "JTL" : "children" } ],
+      "templates": []
+    },
+    "output" : []
   }
 ]

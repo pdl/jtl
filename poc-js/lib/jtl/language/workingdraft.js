@@ -833,6 +833,30 @@ var Language = internal.Class( {
         };
 
         return internal.nodeList.new( loop( self, loop, selected.contents() ) );
+      },
+
+      'choose' : function () {
+        var self      = this;
+        var selected  = self.evaluateNodelistByAttribute('select')    || internal.nodeList.new( [ self.current() ] );
+        var templates = self.evaluateNodelistByAttribute('templates') || internal.nodeList.new( [] );
+        var results   = [];
+
+        for ( var i = 0; i < selected.contents().length; i++ ) {
+
+          var subscope = self.subscope( { current: selected.contents()[i] } );
+
+          for ( var j = 0; j < templates.contents().length; j++ ) {
+
+            var result = subscope.applyTemplate( templates.contents()[j], { originalScope: subscope } );
+
+            if ( 'undefined' !== typeof result ) {
+              results.push(result);
+              break;
+            }
+          }
+        }
+
+        return internal.nodeList.new( results );
       }
     };
   },

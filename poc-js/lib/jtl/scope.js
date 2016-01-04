@@ -273,7 +273,7 @@ var Scope = internal.Class( {
       self.throwError('ResultNodeNotBoolean')
     }
 
-    return !!result.contents()[0];
+    return ( !!( result.contents()[0].value() ) );
   },
 
   productionResult: function (production) {

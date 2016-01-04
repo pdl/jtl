@@ -661,6 +661,29 @@ $instructions = {
     return nodelist [ document $result ];
   },
 
+  'choose' => sub {
+    my ( $self ) = @_;
+    my $selected  = $self->evaluate_nodelist_by_attribute('select')    // nodelist [ $self->current ];
+    my $templates = $self->evaluate_nodelist_by_attribute('templates') // nodelist [ ];
+    my $results   = [];
+
+    foreach my $item ( @{ $selected->contents() } ) {
+
+      my $subscope = $self->subscope( { current => $item } );
+
+      foreach my $template ( @{ $templates->contents() } ) {
+
+        my $result = $subscope->apply_template( $template, { originalScope => $subscope } );
+
+        if ( defined $result ) {
+          push @$results, $result;
+          last;
+        }
+      }
+    }
+
+    return nodelist $results;
+  },
 };
 
 # As a developer, I would like more meaningful stack traces than anonymous subroutines
