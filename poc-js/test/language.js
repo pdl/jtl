@@ -122,16 +122,22 @@ describe ('JTL Scope', function() {
             }
 
             for (var j = 0; j < testCase.output.length; j++) {
+
               var jj = j; // because chai defers execution until after j has changed
-              //var r  = result; // because chai defers execution until after result has changed
-              it ('(node ' + jj + '/' + testCase.output.length + ')', function() {
-                chai.expect(
-                  result.contents()[jj].value()
-                ).to.deep.equal(
-                  testCase.output[jj]
-                );
-              } );
+
+              var makeTestFunction = function(j) {
+                  return function () {
+                    chai.expect(
+                    result.contents()[j].value()
+                  ).to.deep.equal(
+                    testCase.output[j]
+                  );
+                }
+              };
+
+              it ('(node ' + ( jj + 1 ) + '/' + testCase.output.length + ')', makeTestFunction(jj) );
             }
+
           } );
         }
       } );
