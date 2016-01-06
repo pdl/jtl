@@ -10,6 +10,8 @@ The JSON Transformation Language Syntax (Hereafter JTLS) is an extension to JTL.
 
 There is more than one way to represent a JTL document as JTLS. There is one way to represent a JTLS document as JTL (ignoring insignificant whitespace).
 
+A JTLS parser will transform any valid JTLS document into an equivalent JTL document.
+
 ## Core Concepts
 
 JTLS permits three different types of data to be represented:
@@ -28,19 +30,21 @@ JSON Literals may not contain JTL Instructions or Contextual Expressions.
 
 A JTL Instruction Expression consists of the name of the instruction, followed by either an explicit argument list or an implicit argument list; optionally, it may be preceded by a selection.
 
-An explicit arguments list consists of comma-separated key-value pairs: argument names and argument values, for example:
+An explicit argument list consists of comma-separated key-value pairs: argument names and argument values, for example:
 
     {
       select: children(),
       produce: name()
     }
 
+An argument name is a single- or double-quoted string, or a bare string containing only uppercase and lowercase letters, and is followed by a colon.
+
 Argument values may be either:
 
 a) a single argument expression: an Instruction Expression, Contextual Expression, or Literal, or
 b) an argument list, containing zero or more argument expressions, comma separated and enclosed in parentheses
 
-The following are argument values:
+The following are examples of argument values:
 
     (1, 2, 3, 4)
     [1, 2, 3, 4]
@@ -65,10 +69,12 @@ A JTL instruction with no attributes:
 
     { "JTL": "current" }
 
-A JTL instruction with one explicit argument (the following two examples are equivalent):
+A JTL instruction with one explicit argument:
 
     eq { compare: 2 }
     eq { compare: ( 2 ) }
+
+The above two examples are equivalent and represent the following JTL:
 
     { "JTL": "eq", "compare" : [ { "JTL": "literal", "value": 2 } ] }
 
