@@ -245,6 +245,22 @@
     ]
   },
   {
+    "why" : "123 eq \"123\" is false",
+    "input" : 123,
+    "instruction" : {
+      "JTL" : "eq",
+      "compare" : [
+        {
+          "JTL" : "literal",
+          "value" : 123
+        }
+      ]
+    },
+    "output" : [
+      true
+    ]
+  },
+  {
     "why" : "[\"foo\", \"bar\"] eq [\"bar\", \"foo\"] is false",
     "input" : [
       "foo",
