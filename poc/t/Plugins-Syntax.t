@@ -32,6 +32,10 @@ my $tests = [
     means  => { 'JTL' => 'template', 'foo' => [ { JTL => 'literal', value => {} } ] },
   },
   {
+    syntax => 'template{foo:{},}',
+    means  => { 'JTL' => 'template', 'foo' => [ { JTL => 'literal', value => {} } ] },
+  },
+  {
     syntax => './foo',
     means  => { JTL => 'child', name => [ { JTL => 'literal', value => 'foo' } ] },
     what   => 'pathExpression',
@@ -123,6 +127,11 @@ my $tests = [
     means  => { JTL => 'filter', select => [ { JTL => 'foo' } ] },
   },
   {
+    syntax => "filter { select: ( foo(), ) }",
+    what   => 'instruction',
+    means  => { JTL => 'filter', select => [ { JTL => 'foo' } ] },
+  },
+  {
     syntax => "filter { select: foo() }",
     what   => 'instruction',
     means  => { JTL => 'filter', select => [ { JTL => 'foo' } ] },
@@ -139,6 +148,11 @@ my $tests = [
   },
   {
     syntax => "[1,2,3]->filter()",
+    what   => 'instruction',
+    means  => { JTL => 'filter', select => [ { JTL => 'literal', value => [1,2,3] } ] }
+  },
+  {
+    syntax => "[1,2,3,]->filter()",
     what   => 'instruction',
     means  => { JTL => 'filter', select => [ { JTL => 'literal', value => [1,2,3] } ] }
   },
@@ -187,15 +201,41 @@ my $tests = [
     means  => { JTL => 'filter', select => [ { JTL => 'root' } ], test => [ { JTL => 'eq', select => [ { JTL => 'type' } ], _implicit_argument => [ { JTL => 'literal', value => 'array' } ] } ] },
     what   => 'pathExpression',
   },
+  # trailing commas need to trail something
+  {
+    syntax => '[,]->filter()',
+    error  => 1,
+    what   => 'instruction',
+  },
+  {
+    syntax => '(,)->filter()',
+    error  => 1,
+    what   => 'instruction',
+  },
+  {
+    syntax => 'filter(,)',
+    error  => 1,
+    what   => 'instruction',
+  },
+  {
+    syntax => '{,}->filter()',
+    error  => 1,
+    what   => 'instruction',
+  },
+
 ];
 
 foreach my $case ( @$tests ) {
   $case->{what} //= 'jtls';
   $case->{why}  //= "Parse '$case->{syntax}' as $case->{what}";
-  subtest $case->{why} => sub { eval {
-      my $result = $parser->parse( $case->{syntax}, $case->{what} );
+  subtest $case->{why} => sub {
+    my $result = eval { $parser->parse( $case->{syntax}, $case->{what} ) };
+    if ( $case->{error} ) {
+      ok $@, "This ought to fail";
+    } else {
+      fail "Parsing failed with error '$@'" if $@;
       is_deeply ( $result, $case->{means}, $case->{why} ) or diag YAML::Dump $result;
-    }; fail "parsing failed - $@"  if $@;
+    }
   }
 }
 
@@ -224,4 +264,3 @@ subtest 'Can parse a complete transformation' => sub { eval {
 };
 
 done_testing;
-

@@ -38,7 +38,7 @@ functionalInstruction:
 
 explicitArguments:
   /- '{' -/
-  ( explicitArgument )* % /- ',' -/
+    ( explicitArgument )* %% /- ',' -/
   /- '}' -/
 
 # explicitArgument:
@@ -57,8 +57,7 @@ implicitArguments:
 
 argumentList:
   /- '(' -/
-    ( argument )* % /- ',' -/
-    #  ',' ?
+    ( argument )* %% /- ',' -/
   /- ')' -/
 
 argument:
@@ -130,14 +129,14 @@ json: - value -
 
 object:
   /- '{' -/
-  pair* % /- ',' -/
+    pair* %% /- ',' -/
   /- '}' -/
 
 pair: string /- ':' -/ value
 
 array:
   /- '[' -/
-  value* % /- ',' -/
+    value* %% /- ',' -/
   /- ']' -/
 
 value:
