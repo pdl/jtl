@@ -57,7 +57,7 @@ has error_type => (
   default => 'ImplementationUnknownErrorType',
   isa     => sub {
     my $got = shift;
-    __PACKAGE__->new->throw( { error_type => 'ImplementationUnknownErrorType' } ) unless grep { $_ eq $got } @$error_types
+    __PACKAGE__->new( { error_type => 'ImplementationUnknownErrorType' } )->throw unless grep { $_ eq $got } @$error_types
   },
 );
 
