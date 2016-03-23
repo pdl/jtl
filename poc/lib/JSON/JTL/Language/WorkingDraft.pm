@@ -406,7 +406,7 @@ $instructions = {
     $selected->map( sub {
       my $current = shift;
       my $value   = $current->value;
-      $self->throw_error('ResultNodesUnexpectedType') unless 'string' eq valueType $value;
+      $self->throw_error('ResultNodeUnexpectedType') unless 'string' eq valueType $value;
       return document length $value;
     } );
   },
@@ -646,8 +646,8 @@ $instructions = {
     my $delims    = [ map { $_->value } @{ $delimiter->contents } ];
 
     $self->throw_error('ResultNodesUnexpectedNumber') unless @$delims;
-    $self->throw_error('ResultNodesUnexpectedType') if grep { valueType($_) !~ /^(?:string|numeric)$/ } @$delims;
-    $self->throw_error('ResultNodesUnexpectedType') if grep { valueType($_->value) !~ /^(?:string|numeric)$/ } @{ $selected->contents };
+    $self->throw_error('ResultNodeUnexpectedType') if grep { valueType($_) !~ /^(?:string|numeric)$/ } @$delims;
+    $self->throw_error('ResultNodeUnexpectedType') if grep { valueType($_->value) !~ /^(?:string|numeric)$/ } @{ $selected->contents };
 
     my $last = $#{ $selected->contents };
 

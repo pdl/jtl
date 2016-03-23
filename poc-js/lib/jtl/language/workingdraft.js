@@ -712,7 +712,7 @@ var Language = internal.Class( {
           var k = contents[i];
 
           if ( 'string' !== internal.valueType(k) ) {
-            self.throwError('ResultNodesUnexpectedType')
+            self.throwError('ResultNodeUnexpectedType')
           }
 
           o[k] = contents[ i + 1 ];
@@ -763,14 +763,14 @@ var Language = internal.Class( {
            var type = internal.valueType(item);
            return ( 'numeric' !== type && 'string' !== type )
         } ).length > 0 ) {
-          self.throwError('ResultNodesUnexpectedType')
+          self.throwError('ResultNodeUnexpectedType')
         }
 
         if ( contents.filter( function(item) {
           var type = internal.valueType(item);
           return ( 'numeric'!== type && 'string' !== type )
         } ).length > 0 ) {
-          self.throwError('ResultNodesUnexpectedType')
+          self.throwError('ResultNodeUnexpectedType')
         }
 
         var last = selected.contents().length - 1;
@@ -794,7 +794,7 @@ var Language = internal.Class( {
           var value   = item.value();
 
           if ( 'string' !== internal.valueType( value ) ) {
-            self.throwError('ResultNodesUnexpectedType');
+            self.throwError('ResultNodeUnexpectedType');
           }
 
           return internal.doc.new(value.length);
