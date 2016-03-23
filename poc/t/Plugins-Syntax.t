@@ -46,6 +46,11 @@ my $tests = [
     what   => 'pathExpression',
   },
   {
+    syntax => './-1',
+    means  => { JTL => 'child', index => [ { JTL => 'literal', value => -1 }] },
+    what   => 'pathExpression',
+  },
+  {
     syntax => './foo/bar',
     means  => { JTL => 'child', select => [ { JTL => 'child', name => [ { JTL => 'literal', value => 'foo' } ] } ], name => [ { JTL => 'literal', value => 'bar' } ] },
     what   => 'pathExpression',
@@ -125,6 +130,11 @@ my $tests = [
     syntax => "filter { select: ( foo() ) }",
     what   => 'instruction',
     means  => { JTL => 'filter', select => [ { JTL => 'foo' } ] },
+  },
+  {
+    syntax => "filter { select: ( ./0, ./0 ) }",
+    what   => 'instruction',
+    means  => { JTL => 'filter', select => [ { JTL => 'child', index => [ { JTL => 'literal', value => 0 } ] }, { JTL => 'child', index => [ { JTL => 'literal', value => 0 } ] } ] },
   },
   {
     syntax => "filter { select: ( foo(), ) }",
