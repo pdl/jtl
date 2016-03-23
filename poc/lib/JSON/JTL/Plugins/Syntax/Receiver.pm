@@ -177,7 +177,7 @@ sub got_stepString {
 
 sub got_stepNumber {
   shift;
-  return { JTL => '_parser_step', step => 'index', value => _lit $_[0] };
+  return { JTL => '_parser_step', step => 'index', value => _lit 0+$_[0] }; # 0+ coerces to number which is very important!
 }
 
 
