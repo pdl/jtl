@@ -1,0 +1,49 @@
+transformation {
+  templates: (
+    template {
+      name    : 'palindromeTest',
+      match   : type()->eq('array'),
+      produce : (
+        choose {
+          select    : current(),
+          templates : (
+            template {
+              match   : ./*->count()->eq(2),
+              produce : ./0->eq( ./1 )
+            },
+            template {
+              match   : ./*->count()->eq(0),
+              produce : true
+            },
+            template {
+              match   : ./*->count()->eq(1),
+              produce : true
+            },
+            template {
+              match   : ./0->eq( ./-1 ),
+              produce :
+                slice { select : ./*, from: 1, to: -2 }->array()->applyTemplates { name : 'palindromeTest' }
+            },
+            template {
+              produce: false
+            }
+          )
+        }
+      )
+    },
+    template {
+      name: 'palindromesList',
+      match: type()->eq('array'),
+      produce: children()
+        ->applyTemplates { name : 'palindromeTest' }
+        ->array()
+    },
+    template {
+      match: type()->eq('object'),
+      produce: children()->forEach(
+          name(),
+          applyTemplates { name : 'palindromesList' }
+        )->object()
+    }
+  )
+}
